@@ -2,6 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { UserDto } from '@pokelids/shared';
 import { fetchMe, login as apiLogin, register as apiRegister, setTokens } from './api';
+import { confirmAsync } from './confirm';
+import { getGuestCollections, syncGuestCollectionsToAccount } from './guestStorage';
 
 const STORAGE_KEY = 'pokelids_auth_tokens';
 
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       JSON.stringify({ accessToken: result.accessToken, refreshToken: result.refreshToken }),
     );
     setUser(result.user);
+    await maybeSyncGuestCollections();
   }
 
   async function register(email: string, password: string, displayName: string) {
@@ -55,6 +58,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       JSON.stringify({ accessToken: result.accessToken, refreshToken: result.refreshToken }),
     );
     setUser(result.user);
+    await maybeSyncGuestCollections();
+  }
+
+  async function maybeSyncGuestCollections() {
+    const guestItems = await getGuestCollections();
+    if (guestItems.length === 0) return;
+
+    const confirmed = await confirmAsync(
+      'ローカルの収集記録を保存',
+      `ログイン前に記録した${guestItems.length}件の収集記録があります。アカウントに保存しますか？`,
+    );
+    if (!confirmed) return;
+
+    try {
+      await syncGuestCollectionsToAccount();
+    } catch {
+      // Login/register already succeeded at this point; a sync failure here
+      // must not surface as a login error. The records stay in local
+      // storage and will be offered again on the next login.
+    }
   }
 
   async function logout() {

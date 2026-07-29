@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { PokeLidDto } from '@pokelids/shared';
 import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
+import { getGuestCollectedIds } from '../../src/lib/guestStorage';
 
 export default function PrefecturePokeLidsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -13,12 +14,14 @@ export default function PrefecturePokeLidsScreen() {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([fetchPokeLids(Number(id)), fetchMyCollections()]).then(([lidsRes, collectionsRes]) => {
-      if (cancelled) return;
-      setLids(lidsRes);
-      setCollectedIds(new Set(collectionsRes.map((c) => c.pokeLidId)));
-      setLoading(false);
-    });
+    Promise.all([fetchPokeLids(Number(id)), fetchMyCollections(), getGuestCollectedIds()]).then(
+      ([lidsRes, collectionsRes, guestIds]) => {
+        if (cancelled) return;
+        setLids(lidsRes);
+        setCollectedIds(new Set([...collectionsRes.map((c) => c.pokeLidId), ...guestIds]));
+        setLoading(false);
+      },
+    );
     return () => {
       cancelled = true;
     };

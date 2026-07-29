@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Alert,
@@ -15,25 +15,60 @@ import {
 import type { PokeLidDto } from '@pokelids/shared';
 import { fetchMyCollections, fetchPokeLid, photoUrl, uploadCollection } from '../../src/lib/api';
 import type { CollectionSummary } from '../../src/lib/api';
+import { useAuth } from '../../src/lib/auth';
+import {
+  getGuestCollection,
+  removeGuestCollected,
+  setGuestCollected,
+  type GuestCollection,
+} from '../../src/lib/guestStorage';
 
 export default function PokeLidDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const { user } = useAuth();
   const [lid, setLid] = useState<PokeLidDto | null>(null);
   const [collection, setCollection] = useState<CollectionSummary | null>(null);
+  const [guestCollection, setGuestCollectionState] = useState<GuestCollection | null>(null);
   const [notes, setNotes] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [savingGuest, setSavingGuest] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([fetchPokeLid(id), fetchMyCollections()]).then(([lidRes, collectionsRes]) => {
-      if (cancelled) return;
-      setLid(lidRes);
-      setCollection(collectionsRes.find((c) => c.pokeLidId === id) ?? null);
-    });
+    Promise.all([fetchPokeLid(id), fetchMyCollections(), getGuestCollection(id)]).then(
+      ([lidRes, collectionsRes, guestRes]) => {
+        if (cancelled) return;
+        setLid(lidRes);
+        setCollection(collectionsRes.find((c) => c.pokeLidId === id) ?? null);
+        setGuestCollectionState(guestRes);
+        if (guestRes?.notes) setNotes(guestRes.notes);
+      },
+    );
     return () => {
       cancelled = true;
     };
   }, [id]);
+
+  async function onMarkGuestVisited() {
+    setSavingGuest(true);
+    try {
+      await setGuestCollected(id, notes || null);
+      setGuestCollectionState(await getGuestCollection(id));
+    } finally {
+      setSavingGuest(false);
+    }
+  }
+
+  async function onRemoveGuestVisited() {
+    setSavingGuest(true);
+    try {
+      await removeGuestCollected(id);
+      setGuestCollectionState(null);
+    } finally {
+      setSavingGuest(false);
+    }
+  }
 
   async function onPickAndUpload() {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -84,7 +119,7 @@ export default function PokeLidDetailScreen() {
 
       <View style={styles.divider} />
 
-      {collection ? (
+      {user && collection ? (
         <View>
           <Text style={styles.collectedLabel}>✓ 収集済み（{new Date(collection.visitedAt).toLocaleDateString('ja-JP')}）</Text>
           <ScrollView horizontal style={styles.photoRow}>
@@ -98,22 +133,58 @@ export default function PokeLidDetailScreen() {
             ))}
           </ScrollView>
         </View>
+      ) : !user && guestCollection ? (
+        <Text style={styles.collectedLabel}>
+          ✓ 収集済み（{new Date(guestCollection.visitedAt).toLocaleDateString('ja-JP')}・端末に保存中）
+        </Text>
       ) : (
         <Text style={styles.notCollectedLabel}>まだ収集していません</Text>
       )}
 
-      <TextInput
-        style={styles.notesInput}
-        placeholder="メモ（任意）"
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-      />
-      <Button
-        title={uploading ? 'アップロード中…' : '写真を撮って記録する'}
-        onPress={onPickAndUpload}
-        disabled={uploading}
-      />
+      {user ? (
+        <>
+          <TextInput
+            style={styles.notesInput}
+            placeholder="メモ（任意）"
+            value={notes}
+            onChangeText={setNotes}
+            multiline
+          />
+          <Button
+            title={uploading ? 'アップロード中…' : '写真を撮って記録する'}
+            onPress={onPickAndUpload}
+            disabled={uploading}
+          />
+        </>
+      ) : (
+        <>
+          <TextInput
+            style={styles.notesInput}
+            placeholder="メモ（任意）"
+            value={notes}
+            onChangeText={setNotes}
+            multiline
+          />
+          {guestCollection ? (
+            <Button
+              title={savingGuest ? '処理中…' : '端末保存の記録を取り消す'}
+              onPress={onRemoveGuestVisited}
+              disabled={savingGuest}
+              color="#999"
+            />
+          ) : (
+            <Button
+              title={savingGuest ? '保存中…' : '訪問済みにする（端末に保存）'}
+              onPress={onMarkGuestVisited}
+              disabled={savingGuest}
+            />
+          )}
+          <Text style={styles.guestHint}>
+            写真の追加やアカウントへの保存にはログインが必要です
+          </Text>
+          <Button title="ログインする" onPress={() => router.push('/login')} />
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -127,6 +198,7 @@ const styles = StyleSheet.create({
   divider: { height: 1, backgroundColor: '#eee', marginVertical: 8 },
   collectedLabel: { color: '#2e8b57', fontWeight: '600', marginBottom: 8 },
   notCollectedLabel: { color: '#aaa', marginBottom: 8 },
+  guestHint: { fontSize: 12, color: '#e3350d', textAlign: 'center' },
   photoRow: { flexDirection: 'row' },
   photoThumbWrapper: { marginRight: 8 },
   photoThumb: { width: 100, height: 100, borderRadius: 8 },

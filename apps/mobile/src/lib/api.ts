@@ -62,7 +62,7 @@ export async function fetchMe() {
 }
 
 export async function fetchPrefectureProgress() {
-  return request<ProgressDto>('/api/progress/me');
+  return request<ProgressDto>(accessToken ? '/api/progress/me' : '/api/progress');
 }
 
 export async function fetchPokeLids(prefectureId?: number) {
@@ -83,26 +83,31 @@ export interface CollectionSummary {
 }
 
 export async function fetchMyCollections() {
+  if (!accessToken) return [];
   return request<CollectionSummary[]>('/api/collections/me');
 }
 
 export async function uploadCollection(params: {
   pokeLidId: string;
   notes?: string;
-  photoUri: string;
-  photoName: string;
-  photoType: string;
+  visitedAt?: string;
+  photoUri?: string;
+  photoName?: string;
+  photoType?: string;
 }) {
   const form = new FormData();
   form.append('pokeLidId', params.pokeLidId);
   if (params.notes) form.append('notes', params.notes);
-  form.append('photo', {
-    uri: params.photoUri,
-    name: params.photoName,
-    type: params.photoType,
-  } as unknown as Blob);
+  if (params.visitedAt) form.append('visitedAt', params.visitedAt);
+  if (params.photoUri) {
+    form.append('photo', {
+      uri: params.photoUri,
+      name: params.photoName,
+      type: params.photoType,
+    } as unknown as Blob);
+  }
 
-  return request<{ collectionId: string; photoId: string; visitedAt: string; geoVerified: boolean }>(
+  return request<{ collectionId: string; photoId: string | null; visitedAt: string; geoVerified: boolean | null }>(
     '/api/collections',
     {
       method: 'POST',

@@ -64,9 +64,6 @@ collectionsRouter.post('/', requireAuth, upload.single('photo'), async (req: Aut
   if (!parsed.success) {
     return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
   }
-  if (!req.file) {
-    return res.status(400).json({ error: 'Photo file is required (field name "photo")' });
-  }
 
   const userId = req.userId!;
   const { pokeLidId, notes } = parsed.data;
@@ -80,6 +77,15 @@ collectionsRouter.post('/', requireAuth, upload.single('photo'), async (req: Aut
     update: { visitedAt, notes },
     create: { userId, pokeLidId, visitedAt, notes },
   });
+
+  if (!req.file) {
+    return res.status(201).json({
+      collectionId: collection.id,
+      photoId: null,
+      visitedAt: collection.visitedAt.toISOString(),
+      geoVerified: null,
+    });
+  }
 
   const existingPhotoCount = await prisma.photo.count({ where: { collectionId: collection.id } });
 

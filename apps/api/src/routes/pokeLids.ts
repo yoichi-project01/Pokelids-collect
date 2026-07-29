@@ -1,10 +1,9 @@
 import { Router } from 'express';
 import { prisma } from '../lib/prisma';
-import { requireAuth } from '../middleware/auth';
 
 export const pokeLidsRouter = Router();
 
-pokeLidsRouter.get('/', requireAuth, async (req, res) => {
+pokeLidsRouter.get('/', async (req, res) => {
   const prefectureId = req.query.prefectureId ? Number(req.query.prefectureId) : undefined;
 
   const lids = await prisma.pokeLid.findMany({
@@ -15,7 +14,7 @@ pokeLidsRouter.get('/', requireAuth, async (req, res) => {
   res.json(lids.map(serializePokeLid));
 });
 
-pokeLidsRouter.get('/:id', requireAuth, async (req, res) => {
+pokeLidsRouter.get('/:id', async (req, res) => {
   const lid = await prisma.pokeLid.findUnique({ where: { id: req.params.id } });
   if (!lid) return res.status(404).json({ error: 'Poke lid not found' });
   res.json(serializePokeLid(lid));

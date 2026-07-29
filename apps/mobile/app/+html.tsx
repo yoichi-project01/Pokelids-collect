@@ -32,19 +32,12 @@ export default function Root({ children }: PropsWithChildren) {
 
         <ScrollViewStyleReset />
 
-        <script
-          // Registers the offline-cache service worker (see public/sw.js).
-          // Runs client-side only; this file itself never executes in a browser.
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function () {
-                  navigator.serviceWorker.register('/sw.js').catch(function () {});
-                });
-              }
-            `,
-          }}
-        />
+        {/*
+          An inline script here would be blocked by helmet's default CSP
+          (script-src 'self', no 'unsafe-inline'), so the service worker
+          registration lives in its own file instead.
+        */}
+        <script src="/sw-register.js" defer />
       </head>
       <body>{children}</body>
     </html>

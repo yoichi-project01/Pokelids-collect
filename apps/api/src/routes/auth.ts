@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
+import rateLimit from 'express-rate-limit';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
@@ -11,13 +12,24 @@ export const authRouter = Router();
 
 const PHOTO_STORAGE_PATH = process.env.PHOTO_STORAGE_PATH ?? '/data/photos';
 
+// Only /register and /login are brute-forceable (a guessable password); /me
+// and /refresh are called on every app launch / token expiry and shouldn't
+// share this budget, and /refresh's secret (a random 384-bit token) isn't
+// meaningfully brute-forceable via a request-rate limit anyway.
+const credentialRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   displayName: z.string().min(1).max(100),
 });
 
-authRouter.post('/register', async (req, res) => {
+authRouter.post('/register', credentialRateLimit, async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
@@ -58,7 +70,7 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-authRouter.post('/login', async (req, res) => {
+authRouter.post('/login', credentialRateLimit, async (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'Invalid request body' });

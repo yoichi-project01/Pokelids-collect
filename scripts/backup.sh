@@ -29,7 +29,11 @@ echo "[$TIMESTAMP] Dumping database..."
 docker exec pokelids_postgres pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" | gzip > "$DB_BACKUP_DIR/pokelids-$TIMESTAMP.sql.gz"
 
 echo "[$TIMESTAMP] Copying photos..."
-rsync -a "$PHOTOS_SOURCE_DIR/" "$PHOTOS_BACKUP_DIR/$TIMESTAMP/"
+# --link-dest hardlinks unchanged files against the previous snapshot instead
+# of copying them, so disk usage stays close to one full copy regardless of
+# how many days of snapshots are retained.
+LATEST_SNAPSHOT="$(find "$PHOTOS_BACKUP_DIR" -mindepth 1 -maxdepth 1 -type d | sort | tail -1)"
+rsync -a ${LATEST_SNAPSHOT:+--link-dest="$LATEST_SNAPSHOT"} "$PHOTOS_SOURCE_DIR/" "$PHOTOS_BACKUP_DIR/$TIMESTAMP/"
 
 echo "[$TIMESTAMP] Pruning backups older than $RETENTION_DAYS days..."
 find "$DB_BACKUP_DIR" -maxdepth 1 -name '*.sql.gz' -mtime "+$RETENTION_DAYS" -delete

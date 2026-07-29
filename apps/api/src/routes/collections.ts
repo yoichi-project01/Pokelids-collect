@@ -7,7 +7,7 @@ import exifr from 'exifr';
 import sharp from 'sharp';
 import { z } from 'zod';
 import { PhotoMedal } from '@prisma/client';
-import { haversineDistanceMeters } from '@pokelids/shared';
+import { determinePhotoMedal, haversineDistanceMeters } from '@pokelids/shared';
 import { prisma } from '../lib/prisma';
 import { signPhotoAccessToken } from '../lib/auth';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
@@ -158,18 +158,15 @@ collectionsRouter.post('/', requireAuth, handleUpload, async (req: AuthedRequest
 
   const exif = await extractPhotoExif(req.file.buffer);
   const hasLocation = exif.latitude !== null && exif.longitude !== null;
-  const matchesPokeLid =
-    hasLocation &&
-    haversineDistanceMeters(
-      exif.latitude!,
-      exif.longitude!,
-      Number(pokeLid.latitude),
-      Number(pokeLid.longitude),
-    ) <= GEO_VERIFY_RADIUS_METERS;
-  // Gold: photo's location matches the poke lid. Silver: no location data at
-  // all (can't be checked, so we don't penalize it). Otherwise no medal —
-  // the photo's location contradicts the poke lid's.
-  const medal = matchesPokeLid ? PhotoMedal.GOLD : hasLocation ? PhotoMedal.NONE : PhotoMedal.SILVER;
+  const distanceMeters = hasLocation
+    ? haversineDistanceMeters(
+        exif.latitude!,
+        exif.longitude!,
+        Number(pokeLid.latitude),
+        Number(pokeLid.longitude),
+      )
+    : null;
+  const medal = determinePhotoMedal(distanceMeters, GEO_VERIFY_RADIUS_METERS) as PhotoMedal;
 
   const ext = ALLOWED_IMAGE_TYPES[req.file.mimetype];
   const photoId = crypto.randomUUID();

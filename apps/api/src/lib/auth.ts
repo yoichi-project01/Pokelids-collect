@@ -6,7 +6,11 @@ const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 const PHOTO_TOKEN_SECRET = process.env.PHOTO_TOKEN_SECRET ?? REFRESH_SECRET;
 const ACCESS_TTL = process.env.JWT_ACCESS_TTL ?? '1h';
 const REFRESH_TTL_DAYS = Number(process.env.JWT_REFRESH_TTL_DAYS ?? '30');
-const PHOTO_TOKEN_TTL_MS = 5 * 60 * 1000;
+// The token is embedded once into a page's collections response and reused
+// by <Image> for as long as that page stays open, so it needs to outlast a
+// normal viewing session, not just the initial page load. It's still scoped
+// to a single photo ID, so a longer TTL doesn't meaningfully widen exposure.
+const PHOTO_TOKEN_TTL_MS = 45 * 60 * 1000;
 
 export interface AccessTokenPayload {
   sub: string;

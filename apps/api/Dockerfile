@@ -8,6 +8,7 @@ COPY packages/shared/package.json packages/shared/package.json
 RUN npm install
 
 COPY packages/shared packages/shared
+RUN npm run build --workspace=@pokelids/shared
 
 FROM deps AS mobile-build
 COPY apps/mobile apps/mobile

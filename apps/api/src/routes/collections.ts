@@ -6,6 +6,7 @@ import crypto from 'node:crypto';
 import exifr from 'exifr';
 import { z } from 'zod';
 import { PhotoMedal } from '@prisma/client';
+import { haversineDistanceMeters } from '@pokelids/shared';
 import { prisma } from '../lib/prisma';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
 
@@ -21,22 +22,6 @@ const PHOTO_STORAGE_PATH = process.env.PHOTO_STORAGE_PATH ?? '/data/photos';
 // Phone GPS is typically accurate to tens of meters; 200m tolerates that
 // noise while still rejecting photos clearly taken elsewhere.
 const GEO_VERIFY_RADIUS_METERS = 200;
-
-function haversineDistanceMeters(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number {
-  const earthRadiusMeters = 6371000;
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-  return earthRadiusMeters * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
 
 async function extractPhotoExif(buffer: Buffer) {
   try {

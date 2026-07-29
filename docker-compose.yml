@@ -1,0 +1,36 @@
+services:
+  pokelids_api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: pokelids_api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PHOTO_STORAGE_PATH: /data/photos
+    volumes:
+      - /mnt/photos/pokelids:/data/photos
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      pokelids_postgres:
+        condition: service_healthy
+
+  pokelids_postgres:
+    image: postgres:16-alpine
+    container_name: pokelids_postgres
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - /home/setoyama/pokelids/postgres:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

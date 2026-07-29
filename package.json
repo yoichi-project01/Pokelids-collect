@@ -1,0 +1,8 @@
+{
+  "name": "pokelids-collect",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

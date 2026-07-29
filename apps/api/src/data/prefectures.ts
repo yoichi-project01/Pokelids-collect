@@ -1,0 +1,57 @@
+export interface PrefectureSeed {
+  id: number;
+  slug: string;
+  nameJa: string;
+  nameEn: string;
+  region: string;
+}
+
+export const PREFECTURES: PrefectureSeed[] = [
+  { id: 1, slug: 'hokkaido', nameJa: '北海道', nameEn: 'Hokkaido', region: 'Hokkaido' },
+  { id: 2, slug: 'aomori', nameJa: '青森県', nameEn: 'Aomori', region: 'Tohoku' },
+  { id: 3, slug: 'iwate', nameJa: '岩手県', nameEn: 'Iwate', region: 'Tohoku' },
+  { id: 4, slug: 'miyagi', nameJa: '宮城県', nameEn: 'Miyagi', region: 'Tohoku' },
+  { id: 5, slug: 'akita', nameJa: '秋田県', nameEn: 'Akita', region: 'Tohoku' },
+  { id: 6, slug: 'yamagata', nameJa: '山形県', nameEn: 'Yamagata', region: 'Tohoku' },
+  { id: 7, slug: 'fukushima', nameJa: '福島県', nameEn: 'Fukushima', region: 'Tohoku' },
+  { id: 8, slug: 'ibaraki', nameJa: '茨城県', nameEn: 'Ibaraki', region: 'Kanto' },
+  { id: 9, slug: 'tochigi', nameJa: '栃木県', nameEn: 'Tochigi', region: 'Kanto' },
+  { id: 10, slug: 'gunma', nameJa: '群馬県', nameEn: 'Gunma', region: 'Kanto' },
+  { id: 11, slug: 'saitama', nameJa: '埼玉県', nameEn: 'Saitama', region: 'Kanto' },
+  { id: 12, slug: 'chiba', nameJa: '千葉県', nameEn: 'Chiba', region: 'Kanto' },
+  { id: 13, slug: 'tokyo', nameJa: '東京都', nameEn: 'Tokyo', region: 'Kanto' },
+  { id: 14, slug: 'kanagawa', nameJa: '神奈川県', nameEn: 'Kanagawa', region: 'Kanto' },
+  { id: 15, slug: 'niigata', nameJa: '新潟県', nameEn: 'Niigata', region: 'Chubu' },
+  { id: 16, slug: 'toyama', nameJa: '富山県', nameEn: 'Toyama', region: 'Chubu' },
+  { id: 17, slug: 'ishikawa', nameJa: '石川県', nameEn: 'Ishikawa', region: 'Chubu' },
+  { id: 18, slug: 'fukui', nameJa: '福井県', nameEn: 'Fukui', region: 'Chubu' },
+  { id: 19, slug: 'yamanashi', nameJa: '山梨県', nameEn: 'Yamanashi', region: 'Chubu' },
+  { id: 20, slug: 'nagano', nameJa: '長野県', nameEn: 'Nagano', region: 'Chubu' },
+  { id: 21, slug: 'gifu', nameJa: '岐阜県', nameEn: 'Gifu', region: 'Chubu' },
+  { id: 22, slug: 'shizuoka', nameJa: '静岡県', nameEn: 'Shizuoka', region: 'Chubu' },
+  { id: 23, slug: 'aichi', nameJa: '愛知県', nameEn: 'Aichi', region: 'Chubu' },
+  { id: 24, slug: 'mie', nameJa: '三重県', nameEn: 'Mie', region: 'Kansai' },
+  { id: 25, slug: 'shiga', nameJa: '滋賀県', nameEn: 'Shiga', region: 'Kansai' },
+  { id: 26, slug: 'kyoto', nameJa: '京都府', nameEn: 'Kyoto', region: 'Kansai' },
+  { id: 27, slug: 'osaka', nameJa: '大阪府', nameEn: 'Osaka', region: 'Kansai' },
+  { id: 28, slug: 'hyogo', nameJa: '兵庫県', nameEn: 'Hyogo', region: 'Kansai' },
+  { id: 29, slug: 'nara', nameJa: '奈良県', nameEn: 'Nara', region: 'Kansai' },
+  { id: 30, slug: 'wakayama', nameJa: '和歌山県', nameEn: 'Wakayama', region: 'Kansai' },
+  { id: 31, slug: 'tottori', nameJa: '鳥取県', nameEn: 'Tottori', region: 'Chugoku' },
+  { id: 32, slug: 'shimane', nameJa: '島根県', nameEn: 'Shimane', region: 'Chugoku' },
+  { id: 33, slug: 'okayama', nameJa: '岡山県', nameEn: 'Okayama', region: 'Chugoku' },
+  { id: 34, slug: 'hiroshima', nameJa: '広島県', nameEn: 'Hiroshima', region: 'Chugoku' },
+  { id: 35, slug: 'yamaguchi', nameJa: '山口県', nameEn: 'Yamaguchi', region: 'Chugoku' },
+  { id: 36, slug: 'tokushima', nameJa: '徳島県', nameEn: 'Tokushima', region: 'Shikoku' },
+  { id: 37, slug: 'kagawa', nameJa: '香川県', nameEn: 'Kagawa', region: 'Shikoku' },
+  { id: 38, slug: 'ehime', nameJa: '愛媛県', nameEn: 'Ehime', region: 'Shikoku' },
+  { id: 39, slug: 'kochi', nameJa: '高知県', nameEn: 'Kochi', region: 'Shikoku' },
+  { id: 40, slug: 'fukuoka', nameJa: '福岡県', nameEn: 'Fukuoka', region: 'Kyushu' },
+  { id: 41, slug: 'saga', nameJa: '佐賀県', nameEn: 'Saga', region: 'Kyushu' },
+  { id: 42, slug: 'nagasaki', nameJa: '長崎県', nameEn: 'Nagasaki', region: 'Kyushu' },
+  { id: 43, slug: 'kumamoto', nameJa: '熊本県', nameEn: 'Kumamoto', region: 'Kyushu' },
+  { id: 44, slug: 'oita', nameJa: '大分県', nameEn: 'Oita', region: 'Kyushu' },
+  { id: 45, slug: 'miyazaki', nameJa: '宮崎県', nameEn: 'Miyazaki', region: 'Kyushu' },
+  { id: 46, slug: 'kagoshima', nameJa: '鹿児島県', nameEn: 'Kagoshima', region: 'Kyushu' },
+  { id: 47, slug: 'okinawa', nameJa: '沖縄県', nameEn: 'Okinawa', region: 'Kyushu' },
+];

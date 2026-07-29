@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "scheme": "pokelidscollect",
+    "plugins": [
+      "expo-router"
+    ],
+    "name": "ポケふた収集",
+    "slug": "pokelids-collect",
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

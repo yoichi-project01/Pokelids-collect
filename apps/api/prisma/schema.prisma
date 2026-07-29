@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Prefecture {
+  id           Int    @id
+  nameJa       String @map("name_ja")
+  nameEn       String @map("name_en")
+  region       String
+  displayOrder Int    @map("display_order")
+
+  pokeLids PokeLid[]
+
+  @@map("prefectures")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  displayName  String   @map("display_name")
+  isAdmin      Boolean  @default(false) @map("is_admin")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  refreshTokens RefreshToken[]
+  collections   Collection[]
+  photos        Photo[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  tokenHash  String    @map("token_hash")
+  deviceInfo String?   @map("device_info")
+  expiresAt  DateTime  @map("expires_at")
+  revokedAt  DateTime? @map("revoked_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model PokeLid {
+  id                 String    @id @default(uuid())
+  officialRef        String?   @unique @map("official_ref")
+  name               String
+  pokemonFeatured    String[]  @map("pokemon_featured")
+  prefectureId       Int       @map("prefecture_id")
+  municipality       String
+  address            String
+  latitude           Decimal   @db.Decimal(9, 6)
+  longitude          Decimal   @db.Decimal(9, 6)
+  installDate        DateTime? @map("install_date") @db.Date
+  officialImageUrl   String?   @map("official_image_url")
+  officialSourceUrl  String    @map("official_source_url")
+  notes              String?
+  lastSyncedAt       DateTime? @map("last_synced_at")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  prefecture  Prefecture   @relation(fields: [prefectureId], references: [id])
+  collections Collection[]
+
+  @@index([prefectureId])
+  @@map("poke_lids")
+}
+
+model Collection {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  pokeLidId  String   @map("poke_lid_id")
+  visitedAt  DateTime @map("visited_at")
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pokeLid PokeLid @relation(fields: [pokeLidId], references: [id], onDelete: Cascade)
+  photos  Photo[]
+
+  @@unique([userId, pokeLidId])
+  @@index([userId])
+  @@index([pokeLidId])
+  @@map("collections")
+}
+
+model Photo {
+  id               String    @id @default(uuid())
+  collectionId     String    @map("collection_id")
+  userId           String    @map("user_id")
+  filePath         String    @map("file_path")
+  originalFilename String    @map("original_filename")
+  mimeType         String    @map("mime_type")
+  fileSizeBytes    Int       @map("file_size_bytes")
+  width            Int?
+  height           Int?
+  exifCapturedAt   DateTime? @map("exif_captured_at")
+  exifLatitude     Decimal?  @map("exif_latitude") @db.Decimal(9, 6)
+  exifLongitude    Decimal?  @map("exif_longitude") @db.Decimal(9, 6)
+  geoVerified      Boolean   @default(false) @map("geo_verified")
+  isPrimary        Boolean   @default(false) @map("is_primary")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([collectionId])
+  @@map("photos")
+}

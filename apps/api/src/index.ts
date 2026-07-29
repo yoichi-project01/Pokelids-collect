@@ -77,12 +77,21 @@ app.get('/robots.txt', (_req, res) => {
   res.type('text/plain').send(`User-agent: *\nAllow: /\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 });
 
-const STATIC_SITEMAP_PATHS = ['/', '/map', '/login', '/register', '/privacy', '/terms'];
+// /login and /register are excluded on purpose — nothing to index, and every
+// crawled URL spends crawl budget that's better spent on content pages.
+const STATIC_SITEMAP_PATHS = ['/', '/map', '/privacy', '/terms'];
 
 app.get('/sitemap.xml', async (_req, res) => {
-  const lids = await prisma.pokeLid.findMany({ select: { id: true, updatedAt: true } });
+  const [lids, prefectures] = await Promise.all([
+    prisma.pokeLid.findMany({ select: { id: true, updatedAt: true } }),
+    prisma.prefecture.findMany({ select: { id: true } }),
+  ]);
   const urlEntries = [
     ...STATIC_SITEMAP_PATHS.map((p) => `<url><loc>${SITE_URL}${p}</loc></url>`),
+    // The prefecture pages ("ポケふた 兵庫県") are the mid-tier pages that
+    // match search intent best — more generic than an individual poke lid,
+    // more specific than the home page.
+    ...prefectures.map((p) => `<url><loc>${SITE_URL}/prefectures/${p.id}</loc></url>`),
     ...lids.map(
       (l) =>
         `<url><loc>${SITE_URL}/poke-lids/${l.id}</loc><lastmod>${l.updatedAt.toISOString().slice(0, 10)}</lastmod></url>`,

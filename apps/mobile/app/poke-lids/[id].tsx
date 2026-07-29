@@ -30,6 +30,12 @@ import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
+// Round-number milestones for the "N箇所達成" celebration. Starting with a
+// handful of well-spaced values (not every 10) so it stays a genuine treat
+// rather than firing constantly — tune this list based on how it actually
+// feels in use.
+const MILESTONE_COUNTS = [10, 50, 100, 150, 200, 250, 300, 350, 400, 450];
+
 export default function PokeLidDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -151,7 +157,7 @@ export default function PokeLidDetailScreen() {
           const pref = progress.byPrefecture.find((p) => p.prefectureId === lid.prefectureId);
           if (pref && pref.total > 0 && pref.collected === pref.total) {
             milestone = `${pref.nameJa}コンプリート！`;
-          } else if (progress.collectedCount > 0 && progress.collectedCount % 10 === 0) {
+          } else if (MILESTONE_COUNTS.includes(progress.collectedCount)) {
             milestone = `${progress.collectedCount}箇所達成！`;
           }
         }

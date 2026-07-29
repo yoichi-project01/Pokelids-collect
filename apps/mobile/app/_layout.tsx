@@ -1,10 +1,20 @@
 import { Stack } from 'expo-router';
 import { AuthProvider } from '../src/lib/auth';
+import { colors } from '../src/theme';
+
+const screenOptions = {
+  headerStyle: { backgroundColor: colors.surface },
+  headerShadowVisible: false,
+  headerTintColor: colors.textPrimary,
+  headerTitleStyle: { fontWeight: '600' as const, fontSize: 17 },
+  headerBackTitle: '',
+  contentStyle: { backgroundColor: colors.background },
+};
 
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <Stack>
+      <Stack screenOptions={screenOptions}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ title: 'ログイン' }} />
         <Stack.Screen name="register" options={{ title: '新規登録' }} />

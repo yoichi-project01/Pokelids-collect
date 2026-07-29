@@ -1,18 +1,11 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import {
-  Alert,
-  Button,
-  Image,
-  Linking,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Alert, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { PhotoMedal, PokeLidDto } from '@pokelids/shared';
+import { Button } from '../../src/components/Button';
+import { ScreenContainer } from '../../src/components/ScreenContainer';
+import { TextField } from '../../src/components/TextField';
 import { fetchMyCollections, fetchPokeLid, photoUrl, uploadCollection } from '../../src/lib/api';
 import type { CollectionSummary } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
@@ -23,6 +16,7 @@ import {
   type GuestCollection,
 } from '../../src/lib/guestStorage';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
+import { colors, radius, spacing, typography } from '../../src/theme';
 
 export default function PokeLidDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -106,120 +100,107 @@ export default function PokeLidDetailScreen() {
     }
   }
 
-  if (!lid) return null;
+  if (!lid) return <ScreenContainer />;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {lid.officialImageUrl && <Image source={{ uri: lid.officialImageUrl }} style={styles.image} />}
-      <Text style={styles.title}>{lid.municipality}</Text>
-      <Text style={styles.pokemon}>{lid.pokemonFeatured.join('・')}</Text>
-      <Text style={styles.address}>{lid.address}</Text>
-      <Button
-        title="Googleマップで開く"
-        onPress={() => Linking.openURL(`https://maps.google.com/maps?q=${lid.latitude},${lid.longitude}`)}
-      />
-
-      <View style={styles.divider} />
-
-      {user && collection ? (
-        <View>
-          <Text style={styles.collectedLabel}>✓ 収集済み（{new Date(collection.visitedAt).toLocaleDateString('ja-JP')}）</Text>
-          <ScrollView horizontal style={styles.photoRow}>
-            {collection.photos.map((p) => (
-              <View key={p.id} style={styles.photoThumbWrapper}>
-                <Image source={{ uri: photoUrl(p.id) }} style={styles.photoThumb} />
-                <View style={[styles.geoBadge, { backgroundColor: MEDAL_BADGE_COLOR[p.medal] }]}>
-                  <Text style={styles.geoBadgeText}>{MEDAL_LABEL[p.medal]}</Text>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      ) : !user && guestCollection ? (
-        <Text style={styles.collectedLabel}>
-          ✓ 収集済み（{new Date(guestCollection.visitedAt).toLocaleDateString('ja-JP')}・端末に保存中）
-        </Text>
-      ) : (
-        <Text style={styles.notCollectedLabel}>まだ収集していません</Text>
-      )}
-
-      {user ? (
-        <>
-          <TextInput
-            style={styles.notesInput}
-            placeholder="メモ（任意）"
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-          />
+    <ScreenContainer>
+      <ScrollView contentContainerStyle={styles.container}>
+        {lid.officialImageUrl && <Image source={{ uri: lid.officialImageUrl }} style={styles.image} />}
+        <View style={styles.card}>
+          <Text style={styles.title}>{lid.municipality}</Text>
+          <Text style={styles.pokemon}>{lid.pokemonFeatured.join('・')}</Text>
+          <Text style={styles.address}>{lid.address}</Text>
           <Button
-            title={uploading ? 'アップロード中…' : '写真を撮って記録する'}
-            onPress={onPickAndUpload}
-            disabled={uploading}
+            title="Googleマップで開く"
+            onPress={() => Linking.openURL(`https://maps.google.com/maps?q=${lid.latitude},${lid.longitude}`)}
+            variant="secondary"
           />
-        </>
-      ) : (
-        <>
-          <TextInput
-            style={styles.notesInput}
-            placeholder="メモ（任意）"
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-          />
-          {guestCollection ? (
+        </View>
+
+        <View style={styles.card}>
+          {user && collection ? (
+            <View>
+              <Text style={styles.collectedLabel}>
+                ✓ 収集済み（{new Date(collection.visitedAt).toLocaleDateString('ja-JP')}）
+              </Text>
+              <ScrollView horizontal style={styles.photoRow}>
+                {collection.photos.map((p) => (
+                  <View key={p.id} style={styles.photoThumbWrapper}>
+                    <Image source={{ uri: photoUrl(p.id) }} style={styles.photoThumb} />
+                    <View style={[styles.geoBadge, { backgroundColor: MEDAL_BADGE_COLOR[p.medal] }]}>
+                      <Text style={styles.geoBadgeText}>{MEDAL_LABEL[p.medal]}</Text>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          ) : !user && guestCollection ? (
+            <Text style={styles.collectedLabel}>
+              ✓ 収集済み（{new Date(guestCollection.visitedAt).toLocaleDateString('ja-JP')}・端末に保存中）
+            </Text>
+          ) : (
+            <Text style={styles.notCollectedLabel}>まだ収集していません</Text>
+          )}
+
+          <TextField placeholder="メモ（任意）" value={notes} onChangeText={setNotes} multiline style={styles.notesInput} />
+
+          {user ? (
             <Button
-              title={savingGuest ? '処理中…' : '端末保存の記録を取り消す'}
-              onPress={onRemoveGuestVisited}
-              disabled={savingGuest}
-              color="#999"
+              title={uploading ? 'アップロード中…' : '写真を撮って記録する'}
+              onPress={onPickAndUpload}
+              loading={uploading}
             />
           ) : (
-            <Button
-              title={savingGuest ? '保存中…' : '訪問済みにする（端末に保存）'}
-              onPress={onMarkGuestVisited}
-              disabled={savingGuest}
-            />
+            <>
+              {guestCollection ? (
+                <Button
+                  title="端末保存の記録を取り消す"
+                  onPress={onRemoveGuestVisited}
+                  loading={savingGuest}
+                  variant="secondary"
+                />
+              ) : (
+                <Button title="訪問済みにする（端末に保存）" onPress={onMarkGuestVisited} loading={savingGuest} />
+              )}
+              <Text style={styles.guestHint}>写真の追加やアカウントへの保存にはログインが必要です</Text>
+              <Button title="ログインする" onPress={() => router.push('/login')} variant="secondary" />
+            </>
           )}
-          <Text style={styles.guestHint}>
-            写真の追加やアカウントへの保存にはログインが必要です
-          </Text>
-          <Button title="ログインする" onPress={() => router.push('/login')} />
-        </>
-      )}
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 10 },
-  image: { width: '100%', height: 220, borderRadius: 12, backgroundColor: '#f2f2f2' },
-  title: { fontSize: 22, fontWeight: 'bold' },
-  pokemon: { fontSize: 16, color: '#e3350d' },
-  address: { fontSize: 14, color: '#555' },
-  divider: { height: 1, backgroundColor: '#eee', marginVertical: 8 },
-  collectedLabel: { color: '#2e8b57', fontWeight: '600', marginBottom: 8 },
-  notCollectedLabel: { color: '#aaa', marginBottom: 8 },
-  guestHint: { fontSize: 12, color: '#e3350d', textAlign: 'center' },
+  container: { padding: spacing.lg, gap: spacing.md },
+  image: { width: '100%', height: 220, borderRadius: radius.lg, backgroundColor: colors.border },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  title: { ...typography.title },
+  pokemon: { ...typography.caption },
+  address: { ...typography.caption, marginBottom: spacing.xs },
+  collectedLabel: { ...typography.bodyMedium, marginBottom: spacing.sm },
+  notCollectedLabel: { ...typography.caption, marginBottom: spacing.sm },
+  guestHint: { ...typography.footnote, color: colors.danger, textAlign: 'center' },
   photoRow: { flexDirection: 'row' },
-  photoThumbWrapper: { marginRight: 8 },
-  photoThumb: { width: 100, height: 100, borderRadius: 8 },
+  photoThumbWrapper: { marginRight: spacing.sm },
+  photoThumb: { width: 100, height: 100, borderRadius: radius.sm },
   geoBadge: {
     position: 'absolute',
     bottom: 4,
     left: 4,
     right: 4,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: radius.sm,
     alignItems: 'center',
   },
-  geoBadgeText: { color: '#fff', fontSize: 10, fontWeight: '600' },
-  notesInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10,
-    minHeight: 60,
-    textAlignVertical: 'top',
-  },
+  geoBadgeText: { color: colors.white, fontSize: 10, fontWeight: '600' },
+  notesInput: { minHeight: 60, textAlignVertical: 'top' },
 });

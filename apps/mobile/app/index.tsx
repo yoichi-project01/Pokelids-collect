@@ -1,15 +1,17 @@
 import { Redirect } from 'expo-router';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator } from 'react-native';
+import { ScreenContainer } from '../src/components/ScreenContainer';
 import { useAuth } from '../src/lib/auth';
+import { colors } from '../src/theme';
 
 export default function Index() {
   const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
+      <ScreenContainer style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={colors.black} />
+      </ScreenContainer>
     );
   }
 

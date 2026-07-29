@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { colors, typography } from '../theme';
 
 export function ProgressBar({ total, collected }: { total: number; collected: number }) {
   const ratio = total > 0 ? collected / total : 0;
@@ -16,7 +17,7 @@ export function ProgressBar({ total, collected }: { total: number; collected: nu
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  track: { flex: 1, height: 10, borderRadius: 5, backgroundColor: '#e0e0e0', overflow: 'hidden' },
-  fill: { height: '100%', backgroundColor: '#e3350d' },
-  label: { fontSize: 13, color: '#555', minWidth: 56, textAlign: 'right' },
+  track: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
+  fill: { height: '100%', backgroundColor: colors.black },
+  label: { ...typography.footnote, minWidth: 56, textAlign: 'right' },
 });

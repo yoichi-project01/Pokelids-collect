@@ -1,11 +1,15 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import type { ProgressDto } from '@pokelids/shared';
+import { Button } from '../../src/components/Button';
+import { ListRow } from '../../src/components/ListRow';
+import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchPokeLids, fetchPrefectureProgress } from '../../src/lib/api';
 import { ProgressBar } from '../../src/components/ProgressBar';
 import { useAuth } from '../../src/lib/auth';
 import { getGuestCollectedIds, mergeGuestProgress } from '../../src/lib/guestStorage';
+import { colors, spacing, typography } from '../../src/theme';
 
 async function loadProgress(): Promise<ProgressDto> {
   const [progress, guestIds] = await Promise.all([fetchPrefectureProgress(), getGuestCollectedIds()]);
@@ -39,7 +43,7 @@ export default function PrefecturesScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <ScreenContainer>
       <View style={styles.header}>
         <Text style={styles.overallLabel}>全国合計</Text>
         {progress && <ProgressBar total={progress.totalPokeLids} collected={progress.collectedCount} />}
@@ -47,14 +51,19 @@ export default function PrefecturesScreen() {
           <Text style={styles.guestNotice}>ログインすると収集記録を保存できます</Text>
         )}
         <View style={styles.headerButtons}>
-          <Button title="地図で見る" onPress={() => router.push('/map')} />
+          <Button title="地図で見る" onPress={() => router.push('/map')} variant="secondary" style={styles.headerButton} />
           {user ? (
             <>
-              <Button title="自分の収集記録" onPress={() => router.push('/collection')} />
-              <Button title="ログアウト" onPress={() => logout()} color="#999" />
+              <Button
+                title="収集記録"
+                onPress={() => router.push('/collection')}
+                variant="secondary"
+                style={styles.headerButton}
+              />
+              <Button title="ログアウト" onPress={() => logout()} variant="ghost" style={styles.headerButton} />
             </>
           ) : (
-            <Button title="ログイン" onPress={() => router.push('/login')} />
+            <Button title="ログイン" onPress={() => router.push('/login')} variant="primary" style={styles.headerButton} />
           )}
         </View>
       </View>
@@ -63,26 +72,35 @@ export default function PrefecturesScreen() {
         keyExtractor={(item) => String(item.prefectureId)}
         refreshing={loading}
         onRefresh={() => loadProgress().then(setProgress)}
+        style={styles.list}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.row}
+          <ListRow
+            title={item.nameJa}
             onPress={() => router.push(`/prefectures/${item.prefectureId}`)}
-          >
-            <Text style={styles.prefName}>{item.nameJa}</Text>
-            <ProgressBar total={item.total} collected={item.collected} />
-          </TouchableOpacity>
+            right={
+              <View style={styles.rowProgress}>
+                <ProgressBar total={item.total} collected={item.collected} />
+              </View>
+            }
+          />
         )}
       />
-    </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#eee', gap: 8 },
-  overallLabel: { fontSize: 14, color: '#777' },
-  guestNotice: { fontSize: 12, color: '#e3350d' },
-  headerButtons: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  row: { paddingVertical: 10, paddingHorizontal: 16, gap: 4, borderBottomWidth: 1, borderBottomColor: '#f2f2f2' },
-  prefName: { fontSize: 16, fontWeight: '600' },
+  header: {
+    padding: spacing.lg,
+    gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  overallLabel: { ...typography.caption },
+  guestNotice: { ...typography.footnote, color: colors.danger },
+  headerButtons: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
+  headerButton: { flex: 1, minHeight: 40 },
+  list: { flex: 1 },
+  rowProgress: { width: 110 },
 });

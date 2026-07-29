@@ -1,7 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Button } from '../src/components/Button';
+import { ScreenContainer } from '../src/components/ScreenContainer';
+import { TextField } from '../src/components/TextField';
 import { useAuth } from '../src/lib/auth';
+import { colors, spacing, typography } from '../src/theme';
 
 export default function RegisterScreen() {
   const { register } = useAuth();
@@ -30,38 +34,33 @@ export default function RegisterScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScreenContainer padded style={styles.center}>
       <Text style={styles.title}>新規登録</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="表示名"
-        value={displayName}
-        onChangeText={setDisplayName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="メールアドレス"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="パスワード（8文字以上）"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      {error && <Text style={styles.error}>{error}</Text>}
-      <Button title={submitting ? '登録中…' : '登録する'} onPress={onSubmit} disabled={submitting} />
-    </View>
+      <View style={styles.form}>
+        <TextField placeholder="表示名" value={displayName} onChangeText={setDisplayName} />
+        <TextField
+          placeholder="メールアドレス"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <TextField
+          placeholder="パスワード（8文字以上）"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+        {error && <Text style={styles.error}>{error}</Text>}
+        <Button title="登録する" onPress={onSubmit} loading={submitting} />
+      </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, gap: 12 },
-  title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 24 },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12, fontSize: 16 },
-  error: { color: 'red' },
+  center: { justifyContent: 'center' },
+  title: { ...typography.largeTitle, textAlign: 'center', marginBottom: spacing.xxl },
+  form: { gap: spacing.md },
+  error: { color: colors.danger, fontSize: 13 },
 });

@@ -1,7 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Button } from '../src/components/Button';
+import { ScreenContainer } from '../src/components/ScreenContainer';
+import { TextField } from '../src/components/TextField';
 import { useAuth } from '../src/lib/auth';
+import { colors, spacing, typography } from '../src/theme';
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -25,33 +29,28 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScreenContainer padded style={styles.center}>
       <Text style={styles.title}>ポケふた収集</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="メールアドレス"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="パスワード"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      {error && <Text style={styles.error}>{error}</Text>}
-      <Button title={submitting ? 'ログイン中…' : 'ログイン'} onPress={onSubmit} disabled={submitting} />
-      <Button title="新規登録はこちら" onPress={() => router.push('/register')} />
-    </View>
+      <View style={styles.form}>
+        <TextField
+          placeholder="メールアドレス"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <TextField placeholder="パスワード" secureTextEntry value={password} onChangeText={setPassword} />
+        {error && <Text style={styles.error}>{error}</Text>}
+        <Button title="ログイン" onPress={onSubmit} loading={submitting} />
+        <Button title="新規登録はこちら" onPress={() => router.push('/register')} variant="ghost" />
+      </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, gap: 12 },
-  title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 24 },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12, fontSize: 16 },
-  error: { color: 'red' },
+  center: { justifyContent: 'center' },
+  title: { ...typography.largeTitle, textAlign: 'center', marginBottom: spacing.xxl },
+  form: { gap: spacing.md },
+  error: { color: colors.danger, fontSize: 13 },
 });

@@ -1,8 +1,10 @@
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { ScreenContainer } from '../src/components/ScreenContainer';
 import { buildMapHtml } from '../src/lib/mapHtml';
 import { useMapMarkers } from '../src/lib/useMapMarkers';
+import { colors } from '../src/theme';
 
 export default function MapScreen() {
   const router = useRouter();
@@ -26,9 +28,9 @@ export default function MapScreen() {
 
   if (!markers) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
+      <ScreenContainer style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={colors.black} />
+      </ScreenContainer>
     );
   }
 

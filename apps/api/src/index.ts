@@ -26,7 +26,25 @@ app.set('trust proxy', 1);
 // send an Origin header at all). Restricting this closes off arbitrary
 // third-party sites making credentialed requests against the API.
 app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'https://pokelids-collect.jp' }));
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        // The map screen embeds an iframe (srcDoc) that, having no CSP of
+        // its own, inherits this one — it needs to load OpenStreetMap tiles,
+        // which aren't same-origin.
+        'img-src': ["'self'", 'data:', 'https://*.tile.openstreetmap.org'],
+        // Expo Router's static export injects a tiny fixed inline bootstrap
+        // script (`globalThis.__EXPO_ROUTER_HYDRATE__=true;`) on every page
+        // to signal client-side hydration; this is its exact hash, not
+        // something this app's code writes. If it ever fails after an Expo
+        // upgrade, check the browser console for the new sha256- value.
+        'script-src': ["'self'", "'sha256-67fhrP0+BkBqmgGGXTtgiVO/9EQs3QruYNU/7fnRkI8='"],
+      },
+    },
+  }),
+);
 app.use(express.json());
 
 app.get('/health', async (_req, res) => {
@@ -59,7 +77,7 @@ app.get('/robots.txt', (_req, res) => {
   res.type('text/plain').send(`User-agent: *\nAllow: /\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 });
 
-const STATIC_SITEMAP_PATHS = ['/', '/prefectures', '/map', '/login', '/register', '/privacy', '/terms'];
+const STATIC_SITEMAP_PATHS = ['/', '/map', '/login', '/register', '/privacy', '/terms'];
 
 app.get('/sitemap.xml', async (_req, res) => {
   const lids = await prisma.pokeLid.findMany({ select: { id: true, updatedAt: true } });

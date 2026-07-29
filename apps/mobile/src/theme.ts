@@ -4,11 +4,20 @@ export const colors = {
   border: '#E5E5EA',
   textPrimary: '#1C1C1E',
   textSecondary: '#8E8E93',
-  textTertiary: '#C7C7CC',
+  // #C7C7CC (the previous value) is ~1.6:1 against white — well under the
+  // 4.5:1 WCAG AA minimum for text. This is readable outdoors in direct sun,
+  // where this app is mostly used.
+  textTertiary: '#6B7280',
   black: '#000000',
   white: '#FFFFFF',
   danger: '#FF3B30',
   overlay: 'rgba(0, 0, 0, 0.55)',
+  // Deep teal — reads as "manhole iron / travel" without competing with the
+  // poke lid artwork's own colors. Used for progress fills, primary actions,
+  // and the collected badge.
+  accent: '#0F766E',
+  accentLight: '#CCFBF1',
+  gold: '#D4A017',
 };
 
 export const spacing = {

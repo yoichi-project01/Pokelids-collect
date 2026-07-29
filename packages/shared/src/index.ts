@@ -46,6 +46,7 @@ export interface ProgressDto {
   byPrefecture: Array<{
     prefectureId: number;
     nameJa: string;
+    region: string;
     total: number;
     collected: number;
     imageUrl: string | null;

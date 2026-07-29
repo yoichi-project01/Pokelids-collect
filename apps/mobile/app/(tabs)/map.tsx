@@ -1,14 +1,15 @@
 import { useRouter } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
-import { ScreenContainer } from '../src/components/ScreenContainer';
-import { buildMapHtml } from '../src/lib/mapHtml';
-import { useMapMarkers } from '../src/lib/useMapMarkers';
-import { colors } from '../src/theme';
+import { ScreenContainer } from '../../src/components/ScreenContainer';
+import { getApiBaseUrl } from '../../src/lib/api';
+import { buildMapHtml } from '../../src/lib/mapHtml';
+import { useMapMarkers } from '../../src/lib/useMapMarkers';
+import { colors } from '../../src/theme';
 
 export default function MapScreen() {
   const router = useRouter();
-  const markers = useMapMarkers();
+  const { markers, location } = useMapMarkers();
 
   function onMessage(event: WebViewMessageEvent) {
     let data: { type?: string; id?: string };
@@ -30,5 +31,17 @@ export default function MapScreen() {
     );
   }
 
-  return <WebView originWhitelist={['*']} source={{ html: buildMapHtml(markers) }} onMessage={onMessage} />;
+  return (
+    <WebView
+      originWhitelist={['*']}
+      source={{
+        html: buildMapHtml(
+          markers,
+          getApiBaseUrl(),
+          location ? { lat: location.latitude, lng: location.longitude } : null,
+        ),
+      }}
+      onMessage={onMessage}
+    />
+  );
 }

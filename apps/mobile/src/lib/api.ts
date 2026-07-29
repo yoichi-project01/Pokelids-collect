@@ -162,6 +162,13 @@ export async function deleteCollection(collectionId: string): Promise<void> {
   await request<void>(`/api/collections/${collectionId}`, { method: 'DELETE' });
 }
 
+export async function updateCollectionNotes(collectionId: string, notes: string | null): Promise<void> {
+  await request<void>(`/api/collections/${collectionId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ notes }),
+  });
+}
+
 // `path` is a server-provided relative URL that already embeds a short-lived,
 // photo-scoped access token (see PhotoDto.url / .thumbUrl) — this just makes
 // it absolute.

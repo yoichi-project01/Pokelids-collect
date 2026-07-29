@@ -227,6 +227,29 @@ collectionsRouter.get('/me', requireAuth, async (req: AuthedRequest, res) => {
   );
 });
 
+const updateNotesSchema = z.object({
+  notes: z.string().nullable(),
+});
+
+collectionsRouter.patch('/:id', requireAuth, async (req: AuthedRequest, res) => {
+  const parsed = updateNotesSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+  }
+
+  const collection = await prisma.collection.findUnique({ where: { id: req.params.id } });
+  if (!collection || collection.userId !== req.userId) {
+    return res.status(404).json({ error: 'Collection not found' });
+  }
+
+  const updated = await prisma.collection.update({
+    where: { id: collection.id },
+    data: { notes: parsed.data.notes },
+  });
+
+  res.json({ id: updated.id, notes: updated.notes });
+});
+
 collectionsRouter.delete('/:id', requireAuth, async (req: AuthedRequest, res) => {
   const collection = await prisma.collection.findUnique({
     where: { id: req.params.id },

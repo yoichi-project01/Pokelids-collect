@@ -3,15 +3,18 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useEffect, useState } from 'react';
 import { Alert, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
-import type { PhotoMedal, PokeLidDto } from '@pokelids/shared';
+import { haversineDistanceMeters, type PhotoMedal, type PokeLidDto } from '@pokelids/shared';
 import { Button } from '../../src/components/Button';
+import { CelebrationModal } from '../../src/components/CelebrationModal';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { TextField } from '../../src/components/TextField';
 import {
   deleteCollection,
   fetchMyCollections,
   fetchPokeLid,
+  fetchPrefectureProgress,
   photoUrl,
+  updateCollectionNotes,
   uploadCollection,
 } from '../../src/lib/api';
 import type { CollectionSummary } from '../../src/lib/api';
@@ -23,6 +26,7 @@ import {
   setGuestCollected,
   type GuestCollection,
 } from '../../src/lib/guestStorage';
+import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
@@ -36,7 +40,16 @@ export default function PokeLidDetailScreen() {
   const [notes, setNotes] = useState('');
   const [uploading, setUploading] = useState(false);
   const [savingGuest, setSavingGuest] = useState(false);
+  const [savingNotes, setSavingNotes] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [celebration, setCelebration] = useState<{ medal: PhotoMedal; milestone: string | null } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    getCurrentLocation().then(setLocation);
+  }, []);
 
   useEffect(() => {
     if (authLoading) return;
@@ -45,9 +58,13 @@ export default function PokeLidDetailScreen() {
       ([lidRes, collectionsRes, guestRes]) => {
         if (cancelled) return;
         setLid(lidRes);
-        setCollection(collectionsRes.find((c) => c.pokeLidId === id) ?? null);
+        const existingCollection = collectionsRes.find((c) => c.pokeLidId === id) ?? null;
+        setCollection(existingCollection);
         setGuestCollectionState(guestRes);
-        if (guestRes?.notes) setNotes(guestRes.notes);
+        // Prefer the account's own saved notes; the guest-storage note (if
+        // any) is only relevant before the record has synced to an account.
+        const existingNotes = existingCollection?.notes ?? guestRes?.notes;
+        if (existingNotes) setNotes(existingNotes);
       },
     );
     return () => {
@@ -76,6 +93,19 @@ export default function PokeLidDetailScreen() {
     }
   }
 
+  async function onSaveNotes() {
+    if (!collection) return;
+    setSavingNotes(true);
+    try {
+      await updateCollectionNotes(collection.id, notes || null);
+      setCollection({ ...collection, notes: notes || null });
+    } catch {
+      Alert.alert('エラー', 'メモの保存に失敗しました');
+    } finally {
+      setSavingNotes(false);
+    }
+  }
+
   async function onPickAndUpload(source: 'camera' | 'library') {
     if (source === 'camera') {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
@@ -99,7 +129,7 @@ export default function PokeLidDetailScreen() {
             quality: 0.8,
             allowsEditing: false,
           });
-    if (result.canceled) return;
+    if (result.canceled || !lid) return;
 
     const asset = result.assets[0];
     setUploading(true);
@@ -113,12 +143,20 @@ export default function PokeLidDetailScreen() {
       });
       const updated = await fetchMyCollections();
       setCollection(updated.find((c) => c.pokeLidId === id) ?? null);
-      const medalMessage: Record<PhotoMedal, string> = {
-        GOLD: 'ポケふたを収集済みとして記録しました🥇（写真の位置情報が一致しました）',
-        SILVER: 'ポケふたを収集済みとして記録しました🥈（写真に位置情報がありませんでした）',
-        NONE: 'ポケふたを収集済みとして記録しました\n※写真の位置情報が現地と一致しませんでした',
-      };
-      Alert.alert('保存しました', uploaded.medal ? medalMessage[uploaded.medal] : '保存しました');
+
+      if (uploaded.medal) {
+        const progress = await fetchPrefectureProgress().catch(() => null);
+        let milestone: string | null = null;
+        if (progress) {
+          const pref = progress.byPrefecture.find((p) => p.prefectureId === lid.prefectureId);
+          if (pref && pref.total > 0 && pref.collected === pref.total) {
+            milestone = `${pref.nameJa}コンプリート！`;
+          } else if (progress.collectedCount > 0 && progress.collectedCount % 10 === 0) {
+            milestone = `${progress.collectedCount}箇所達成！`;
+          }
+        }
+        setCelebration({ medal: uploaded.medal, milestone });
+      }
     } catch {
       Alert.alert('エラー', 'アップロードに失敗しました');
     } finally {
@@ -155,6 +193,10 @@ export default function PokeLidDetailScreen() {
     );
   }
 
+  const distanceKm = location
+    ? haversineDistanceMeters(location.latitude, location.longitude, lid.latitude, lid.longitude) / 1000
+    : null;
+
   return (
     <ScreenContainer>
       <Head>
@@ -165,14 +207,21 @@ export default function PokeLidDetailScreen() {
         />
       </Head>
       <ScrollView contentContainerStyle={styles.container}>
-        {lid.officialImageUrl && <Image source={{ uri: lid.officialImageUrl }} style={styles.image} />}
+        {lid.officialImageUrl && (
+          <Image source={{ uri: lid.officialImageUrl }} style={styles.image} accessibilityLabel={lid.name} />
+        )}
         <View style={styles.card}>
           <Text style={styles.title}>{lid.municipality}</Text>
           <Text style={styles.pokemon}>{lid.pokemonFeatured.join('・')}</Text>
           <Text style={styles.address}>{lid.address}</Text>
+          {distanceKm !== null && <Text style={styles.distance}>現在地から {distanceKm.toFixed(1)}km</Text>}
           <Button
-            title="Googleマップで開く"
-            onPress={() => Linking.openURL(`https://maps.google.com/maps?q=${lid.latitude},${lid.longitude}`)}
+            title="経路案内を開く"
+            onPress={() =>
+              Linking.openURL(
+                `https://www.google.com/maps/dir/?api=1&destination=${lid.latitude},${lid.longitude}`,
+              )
+            }
             variant="secondary"
           />
         </View>
@@ -186,7 +235,11 @@ export default function PokeLidDetailScreen() {
               <ScrollView horizontal style={styles.photoRow}>
                 {collection.photos.map((p) => (
                   <View key={p.id} style={styles.photoThumbWrapper}>
-                    <Image source={{ uri: photoUrl(p.thumbUrl) }} style={styles.photoThumb} />
+                    <Image
+                      source={{ uri: photoUrl(p.thumbUrl) }}
+                      style={styles.photoThumb}
+                      accessibilityLabel={`${lid.municipality}で撮影した写真`}
+                    />
                     <View style={[styles.geoBadge, { backgroundColor: MEDAL_BADGE_COLOR[p.medal] }]}>
                       <Text style={styles.geoBadgeText}>{MEDAL_LABEL[p.medal]}</Text>
                     </View>
@@ -215,6 +268,14 @@ export default function PokeLidDetailScreen() {
             multiline
             style={styles.notesInput}
           />
+          {user && collection && (
+            <Button
+              title={savingNotes ? '保存中…' : 'メモを保存'}
+              onPress={onSaveNotes}
+              loading={savingNotes}
+              variant="secondary"
+            />
+          )}
 
           {user ? (
             <>
@@ -252,6 +313,12 @@ export default function PokeLidDetailScreen() {
           )}
         </View>
       </ScrollView>
+      <CelebrationModal
+        visible={celebration !== null}
+        medal={celebration?.medal ?? null}
+        milestone={celebration?.milestone ?? null}
+        onClose={() => setCelebration(null)}
+      />
     </ScreenContainer>
   );
 }
@@ -270,6 +337,7 @@ const styles = StyleSheet.create({
   title: { ...typography.title },
   pokemon: { ...typography.caption },
   address: { ...typography.caption, marginBottom: spacing.xs },
+  distance: { ...typography.footnote, color: colors.accent, fontWeight: '600' },
   collectedLabel: { ...typography.bodyMedium, marginBottom: spacing.sm },
   notCollectedLabel: { ...typography.caption, marginBottom: spacing.sm },
   guestHint: { ...typography.footnote, color: colors.danger, textAlign: 'center' },

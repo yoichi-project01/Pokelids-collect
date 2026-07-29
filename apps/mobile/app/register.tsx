@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
 import Head from 'expo-router/head';
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Button } from '../src/components/Button';
+import { PasswordField } from '../src/components/PasswordField';
 import { ScreenContainer } from '../src/components/ScreenContainer';
 import { TextField } from '../src/components/TextField';
 import { useAuth } from '../src/lib/auth';
@@ -16,6 +17,8 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
 
   async function onSubmit() {
     setError(null);
@@ -26,7 +29,7 @@ export default function RegisterScreen() {
     setSubmitting(true);
     try {
       await register(email.trim(), password, displayName.trim());
-      router.replace('/prefectures');
+      router.replace('/');
     } catch (e) {
       setError(e instanceof Error ? e.message : '登録に失敗しました');
     } finally {
@@ -35,35 +38,57 @@ export default function RegisterScreen() {
   }
 
   return (
-    <ScreenContainer padded style={styles.center}>
+    <ScreenContainer>
       <Head>
         <title>新規登録 - ポケふた収集</title>
       </Head>
-      <Text style={styles.title}>新規登録</Text>
-      <View style={styles.form}>
-        <TextField placeholder="表示名" value={displayName} onChangeText={setDisplayName} />
-        <TextField
-          placeholder="メールアドレス"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextField
-          placeholder="パスワード（8文字以上）"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        {error && <Text style={styles.error}>{error}</Text>}
-        <Button title="登録する" onPress={onSubmit} loading={submitting} />
-      </View>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          <Text style={styles.title}>新規登録</Text>
+          <View style={styles.form}>
+            <TextField
+              placeholder="表示名"
+              autoComplete="name"
+              textContentType="name"
+              returnKeyType="next"
+              onSubmitEditing={() => emailRef.current?.focus()}
+              value={displayName}
+              onChangeText={setDisplayName}
+            />
+            <TextField
+              ref={emailRef}
+              placeholder="メールアドレス"
+              autoCapitalize="none"
+              autoComplete="email"
+              textContentType="username"
+              keyboardType="email-address"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+              value={email}
+              onChangeText={setEmail}
+            />
+            <PasswordField
+              ref={passwordRef}
+              placeholder="パスワード（8文字以上）"
+              autoComplete="new-password"
+              textContentType="newPassword"
+              returnKeyType="go"
+              onSubmitEditing={onSubmit}
+              value={password}
+              onChangeText={setPassword}
+            />
+            {error && <Text style={styles.error}>{error}</Text>}
+            <Button title="登録する" onPress={onSubmit} loading={submitting} />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  center: { justifyContent: 'center' },
+  flex: { flex: 1 },
+  scrollContent: { flexGrow: 1, justifyContent: 'center', padding: spacing.lg },
   title: { ...typography.largeTitle, textAlign: 'center', marginBottom: spacing.xxl },
   form: { gap: spacing.md },
   error: { color: colors.danger, fontSize: 13 },

@@ -18,8 +18,13 @@ export function ListRow({
   showChevron?: boolean;
 }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-      {imageUri && <Image source={{ uri: imageUri }} style={styles.thumb} />}
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={subtitle ? `${title}、${subtitle}` : title}
+      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+    >
+      {imageUri && <Image source={{ uri: imageUri }} style={styles.thumb} accessibilityLabel={title} />}
       <View style={styles.textBlock}>
         <Text style={styles.title} numberOfLines={1}>
           {title}
@@ -31,7 +36,11 @@ export function ListRow({
         )}
       </View>
       {right}
-      {showChevron && <Text style={styles.chevron}>›</Text>}
+      {showChevron && (
+        <Text style={styles.chevron} importantForAccessibility="no" accessibilityElementsHidden>
+          ›
+        </Text>
+      )}
     </Pressable>
   );
 }

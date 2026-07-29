@@ -1,11 +1,17 @@
+import { forwardRef } from 'react';
 import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
 import { colors, radius, spacing } from '../theme';
 
-export function TextField(props: TextInputProps) {
+export const TextField = forwardRef<TextInput, TextInputProps>(function TextField(props, ref) {
   return (
-    <TextInput placeholderTextColor={colors.textTertiary} {...props} style={[styles.field, props.style]} />
+    <TextInput
+      ref={ref}
+      placeholderTextColor={colors.textTertiary}
+      {...props}
+      style={[styles.field, props.style]}
+    />
   );
-}
+});
 
 const styles = StyleSheet.create({
   field: {

@@ -35,6 +35,7 @@ async function buildProgress(userId: string | null) {
   const byPrefecture = prefectures.map((pref) => ({
     prefectureId: pref.id,
     nameJa: pref.nameJa,
+    region: pref.region,
     total: totalByPrefecture.get(pref.id) ?? 0,
     collected: collectedMap.get(pref.id) ?? 0,
     imageUrl: imageByPrefecture.get(pref.id) ?? null,

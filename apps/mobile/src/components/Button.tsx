@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
 });
 
 const variantStyles = StyleSheet.create({
-  primary: { backgroundColor: colors.black },
+  primary: { backgroundColor: colors.accent },
   secondary: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   ghost: { backgroundColor: 'transparent', minHeight: 40 },
   danger: { backgroundColor: 'transparent', minHeight: 40 },

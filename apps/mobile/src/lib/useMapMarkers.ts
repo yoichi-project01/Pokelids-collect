@@ -2,11 +2,17 @@ import { useEffect, useState } from 'react';
 import { fetchMyCollections, fetchPokeLids } from './api';
 import { useAuth } from './auth';
 import { getGuestCollectedIds } from './guestStorage';
+import { getCurrentLocation, type Coordinates } from './location';
 import type { MapMarkerData } from './mapHtml';
 
-export function useMapMarkers(): MapMarkerData[] | null {
+export function useMapMarkers(): { markers: MapMarkerData[] | null; location: Coordinates | null } {
   const { user, isLoading: authLoading } = useAuth();
   const [markers, setMarkers] = useState<MapMarkerData[] | null>(null);
+  const [location, setLocation] = useState<Coordinates | null>(null);
+
+  useEffect(() => {
+    getCurrentLocation().then(setLocation);
+  }, []);
 
   useEffect(() => {
     if (authLoading) return;
@@ -32,5 +38,5 @@ export function useMapMarkers(): MapMarkerData[] | null {
     };
   }, [authLoading, user]);
 
-  return markers;
+  return { markers, location };
 }

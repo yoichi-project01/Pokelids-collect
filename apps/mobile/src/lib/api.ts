@@ -1,4 +1,4 @@
-import type { AuthTokensDto, PokeLidDto, ProgressDto, UserDto } from '@pokelids/shared';
+import type { AuthTokensDto, PhotoMedal, PokeLidDto, ProgressDto, UserDto } from '@pokelids/shared';
 
 export function getApiBaseUrl(): string {
   const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
@@ -79,7 +79,7 @@ export interface CollectionSummary {
   pokeLidId: string;
   visitedAt: string;
   notes: string | null;
-  photos: { id: string; url: string; isPrimary: boolean; geoVerified: boolean; createdAt: string }[];
+  photos: { id: string; url: string; isPrimary: boolean; medal: PhotoMedal; createdAt: string }[];
 }
 
 export async function fetchMyCollections() {
@@ -107,7 +107,7 @@ export async function uploadCollection(params: {
     } as unknown as Blob);
   }
 
-  return request<{ collectionId: string; photoId: string | null; visitedAt: string; geoVerified: boolean | null }>(
+  return request<{ collectionId: string; photoId: string | null; visitedAt: string; medal: PhotoMedal | null }>(
     '/api/collections',
     {
       method: 'POST',
@@ -117,5 +117,7 @@ export async function uploadCollection(params: {
 }
 
 export function photoUrl(photoId: string): string {
-  return `${getApiBaseUrl()}/api/photos/${photoId}`;
+  const url = `${getApiBaseUrl()}/api/photos/${photoId}`;
+  // <Image> can't set an Authorization header, so pass the token via query string.
+  return accessToken ? `${url}?token=${encodeURIComponent(accessToken)}` : url;
 }

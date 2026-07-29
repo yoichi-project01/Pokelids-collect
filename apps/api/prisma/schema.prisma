@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PhotoMedal {
+  GOLD
+  SILVER
+  NONE
+}
+
 model Prefecture {
   id           Int    @id
   nameJa       String @map("name_ja")
@@ -107,7 +113,7 @@ model Photo {
   exifCapturedAt   DateTime? @map("exif_captured_at")
   exifLatitude     Decimal?  @map("exif_latitude") @db.Decimal(9, 6)
   exifLongitude    Decimal?  @map("exif_longitude") @db.Decimal(9, 6)
-  geoVerified      Boolean   @default(false) @map("geo_verified")
+  medal            PhotoMedal @default(NONE)
   isPrimary        Boolean   @default(false) @map("is_primary")
   createdAt        DateTime  @default(now()) @map("created_at")
 

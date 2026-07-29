@@ -5,6 +5,8 @@ import type { PokeLidDto } from '@pokelids/shared';
 import { fetchMyCollections, fetchPokeLids, photoUrl } from '../src/lib/api';
 import type { CollectionSummary } from '../src/lib/api';
 
+const MEDAL_EMOJI: Record<'GOLD' | 'SILVER', string> = { GOLD: '🥇', SILVER: '🥈' };
+
 export default function CollectionScreen() {
   const router = useRouter();
   const [collections, setCollections] = useState<CollectionSummary[]>([]);
@@ -34,8 +36,8 @@ export default function CollectionScreen() {
             {primaryPhoto && (
               <View style={styles.thumbWrapper}>
                 <Image source={{ uri: photoUrl(primaryPhoto.id) }} style={styles.thumb} />
-                {!primaryPhoto.geoVerified && (
-                  <View style={styles.unverifiedDot} />
+                {primaryPhoto.medal !== 'NONE' && (
+                  <Text style={styles.medalBadge}>{MEDAL_EMOJI[primaryPhoto.medal]}</Text>
                 )}
               </View>
             )}
@@ -65,16 +67,11 @@ const styles = StyleSheet.create({
   },
   thumbWrapper: { width: 64, height: 64 },
   thumb: { width: 64, height: 64, borderRadius: 8, backgroundColor: '#f2f2f2' },
-  unverifiedDot: {
+  medalBadge: {
     position: 'absolute',
-    top: -2,
-    right: -2,
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#999',
-    borderWidth: 2,
-    borderColor: '#fff',
+    top: -6,
+    right: -6,
+    fontSize: 18,
   },
   info: { flex: 1 },
   municipality: { fontSize: 16, fontWeight: '600' },

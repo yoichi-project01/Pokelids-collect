@@ -29,11 +29,13 @@ export interface CollectionDto {
   photos: PhotoDto[];
 }
 
+export type PhotoMedal = 'GOLD' | 'SILVER' | 'NONE';
+
 export interface PhotoDto {
   id: string;
   url: string;
   isPrimary: boolean;
-  geoVerified: boolean;
+  medal: PhotoMedal;
   createdAt: string;
 }
 

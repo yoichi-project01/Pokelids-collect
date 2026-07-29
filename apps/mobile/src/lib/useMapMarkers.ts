@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { fetchMyCollections, fetchPokeLids } from './api';
+import { useAuth } from './auth';
 import { getGuestCollectedIds } from './guestStorage';
 import type { MapMarkerData } from './mapHtml';
 
 export function useMapMarkers(): MapMarkerData[] | null {
+  const { user, isLoading: authLoading } = useAuth();
   const [markers, setMarkers] = useState<MapMarkerData[] | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     let cancelled = false;
     Promise.all([fetchPokeLids(), fetchMyCollections(), getGuestCollectedIds()]).then(
       ([lids, collections, guestIds]) => {
@@ -27,7 +30,7 @@ export function useMapMarkers(): MapMarkerData[] | null {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [authLoading, user]);
 
   return markers;
 }

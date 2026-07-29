@@ -3,16 +3,19 @@ import { useEffect, useState } from 'react';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { PokeLidDto } from '@pokelids/shared';
 import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
+import { useAuth } from '../../src/lib/auth';
 import { getGuestCollectedIds } from '../../src/lib/guestStorage';
 
 export default function PrefecturePokeLidsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   const [lids, setLids] = useState<PokeLidDto[]>([]);
   const [collectedIds, setCollectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
     let cancelled = false;
     Promise.all([fetchPokeLids(Number(id)), fetchMyCollections(), getGuestCollectedIds()]).then(
       ([lidsRes, collectionsRes, guestIds]) => {
@@ -25,7 +28,7 @@ export default function PrefecturePokeLidsScreen() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, authLoading, user]);
 
   return (
     <FlatList

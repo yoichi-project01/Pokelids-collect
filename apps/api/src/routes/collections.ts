@@ -5,6 +5,7 @@ import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
 import exifr from 'exifr';
 import { z } from 'zod';
+import { PhotoMedal } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
 
@@ -83,22 +84,26 @@ collectionsRouter.post('/', requireAuth, upload.single('photo'), async (req: Aut
       collectionId: collection.id,
       photoId: null,
       visitedAt: collection.visitedAt.toISOString(),
-      geoVerified: null,
+      medal: null,
     });
   }
 
   const existingPhotoCount = await prisma.photo.count({ where: { collectionId: collection.id } });
 
   const exif = await extractPhotoExif(req.file.buffer);
-  const geoVerified =
-    exif.latitude !== null &&
-    exif.longitude !== null &&
+  const hasLocation = exif.latitude !== null && exif.longitude !== null;
+  const matchesPokeLid =
+    hasLocation &&
     haversineDistanceMeters(
-      exif.latitude,
-      exif.longitude,
+      exif.latitude!,
+      exif.longitude!,
       Number(pokeLid.latitude),
       Number(pokeLid.longitude),
     ) <= GEO_VERIFY_RADIUS_METERS;
+  // Gold: photo's location matches the poke lid. Silver: no location data at
+  // all (can't be checked, so we don't penalize it). Otherwise no medal —
+  // the photo's location contradicts the poke lid's.
+  const medal = matchesPokeLid ? PhotoMedal.GOLD : hasLocation ? PhotoMedal.NONE : PhotoMedal.SILVER;
 
   const ext = path.extname(req.file.originalname) || '.jpg';
   const photoId = crypto.randomUUID();
@@ -120,7 +125,7 @@ collectionsRouter.post('/', requireAuth, upload.single('photo'), async (req: Aut
       exifCapturedAt: exif.capturedAt,
       exifLatitude: exif.latitude,
       exifLongitude: exif.longitude,
-      geoVerified,
+      medal,
       isPrimary: existingPhotoCount === 0,
     },
   });
@@ -129,7 +134,7 @@ collectionsRouter.post('/', requireAuth, upload.single('photo'), async (req: Aut
     collectionId: collection.id,
     photoId: photo.id,
     visitedAt: collection.visitedAt.toISOString(),
-    geoVerified: photo.geoVerified,
+    medal: photo.medal,
   });
 });
 
@@ -150,7 +155,7 @@ collectionsRouter.get('/me', requireAuth, async (req: AuthedRequest, res) => {
         id: p.id,
         url: `/api/photos/${p.id}`,
         isPrimary: p.isPrimary,
-        geoVerified: p.geoVerified,
+        medal: p.medal,
         createdAt: p.createdAt.toISOString(),
       })),
     })),

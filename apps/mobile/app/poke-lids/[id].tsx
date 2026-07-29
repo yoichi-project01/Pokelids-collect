@@ -12,7 +12,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import type { PokeLidDto } from '@pokelids/shared';
+import type { PhotoMedal, PokeLidDto } from '@pokelids/shared';
 import { fetchMyCollections, fetchPokeLid, photoUrl, uploadCollection } from '../../src/lib/api';
 import type { CollectionSummary } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
@@ -22,11 +22,12 @@ import {
   setGuestCollected,
   type GuestCollection,
 } from '../../src/lib/guestStorage';
+import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
 
 export default function PokeLidDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [lid, setLid] = useState<PokeLidDto | null>(null);
   const [collection, setCollection] = useState<CollectionSummary | null>(null);
   const [guestCollection, setGuestCollectionState] = useState<GuestCollection | null>(null);
@@ -35,6 +36,7 @@ export default function PokeLidDetailScreen() {
   const [savingGuest, setSavingGuest] = useState(false);
 
   useEffect(() => {
+    if (authLoading) return;
     let cancelled = false;
     Promise.all([fetchPokeLid(id), fetchMyCollections(), getGuestCollection(id)]).then(
       ([lidRes, collectionsRes, guestRes]) => {
@@ -48,7 +50,7 @@ export default function PokeLidDetailScreen() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, authLoading, user]);
 
   async function onMarkGuestVisited() {
     setSavingGuest(true);
@@ -91,12 +93,12 @@ export default function PokeLidDetailScreen() {
       });
       const updated = await fetchMyCollections();
       setCollection(updated.find((c) => c.pokeLidId === id) ?? null);
-      Alert.alert(
-        '保存しました',
-        uploaded.geoVerified
-          ? 'ポケふたを収集済みとして記録しました（位置情報を確認済み）'
-          : 'ポケふたを収集済みとして記録しました\n※写真の位置情報が現地と一致しなかったため未確認です',
-      );
+      const medalMessage: Record<PhotoMedal, string> = {
+        GOLD: 'ポケふたを収集済みとして記録しました🥇（写真の位置情報が一致しました）',
+        SILVER: 'ポケふたを収集済みとして記録しました🥈（写真に位置情報がありませんでした）',
+        NONE: 'ポケふたを収集済みとして記録しました\n※写真の位置情報が現地と一致しませんでした',
+      };
+      Alert.alert('保存しました', uploaded.medal ? medalMessage[uploaded.medal] : '保存しました');
     } catch {
       Alert.alert('エラー', 'アップロードに失敗しました');
     } finally {
@@ -126,8 +128,8 @@ export default function PokeLidDetailScreen() {
             {collection.photos.map((p) => (
               <View key={p.id} style={styles.photoThumbWrapper}>
                 <Image source={{ uri: photoUrl(p.id) }} style={styles.photoThumb} />
-                <View style={[styles.geoBadge, p.geoVerified ? styles.geoBadgeVerified : styles.geoBadgeUnverified]}>
-                  <Text style={styles.geoBadgeText}>{p.geoVerified ? '📍確認済み' : '未確認'}</Text>
+                <View style={[styles.geoBadge, { backgroundColor: MEDAL_BADGE_COLOR[p.medal] }]}>
+                  <Text style={styles.geoBadgeText}>{MEDAL_LABEL[p.medal]}</Text>
                 </View>
               </View>
             ))}
@@ -211,8 +213,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignItems: 'center',
   },
-  geoBadgeVerified: { backgroundColor: 'rgba(46, 139, 87, 0.85)' },
-  geoBadgeUnverified: { backgroundColor: 'rgba(153, 153, 153, 0.85)' },
   geoBadgeText: { color: '#fff', fontSize: 10, fontWeight: '600' },
   notesInput: {
     borderWidth: 1,

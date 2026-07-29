@@ -1,0 +1,7273 @@
+[
+  {
+    "officialRef": "445",
+    "name": "別海町｜アローラロコン・トドグラー",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "トドグラー"
+    ],
+    "prefectureId": 1,
+    "municipality": "別海町",
+    "address": "北海道別海町尾岱沼5-27",
+    "latitude": 43.533265,
+    "longitude": 145.23697,
+    "officialImageUrl": "/api/official-images/445.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/445/"
+  },
+  {
+    "officialRef": "444",
+    "name": "湧別町｜ロコン・アローラロコン・アブリー",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "アブリー"
+    ],
+    "prefectureId": 1,
+    "municipality": "湧別町",
+    "address": "北海道湧別町中湧別中町3020番地の1",
+    "latitude": 44.18466,
+    "longitude": 143.594848,
+    "officialImageUrl": "/api/official-images/444.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/444/"
+  },
+  {
+    "officialRef": "443",
+    "name": "津別町｜ロコン・アローラロコン・メブキジカ",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "メブキジカ"
+    ],
+    "prefectureId": 1,
+    "municipality": "津別町",
+    "address": "北海道津別町共和127番地1",
+    "latitude": 43.69494344,
+    "longitude": 144.029683,
+    "officialImageUrl": "/api/official-images/443.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/443/"
+  },
+  {
+    "officialRef": "442",
+    "name": "幌延町｜ロコン・アローラロコン・フラベベ",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "フラベベ"
+    ],
+    "prefectureId": 1,
+    "municipality": "幌延町",
+    "address": "北海道幌延町北進３９８－１",
+    "latitude": 45.040817,
+    "longitude": 141.8612,
+    "officialImageUrl": "/api/official-images/442.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/442/"
+  },
+  {
+    "officialRef": "441",
+    "name": "厚沢部町｜ロコン・アローラロコン・ミノマダム",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "ミノマダム"
+    ],
+    "prefectureId": 1,
+    "municipality": "厚沢部町",
+    "address": "北海道厚沢部町緑町72-1",
+    "latitude": 41.916775,
+    "longitude": 140.216556,
+    "officialImageUrl": "/api/official-images/441.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/441/"
+  },
+  {
+    "officialRef": "440",
+    "name": "由仁町｜ロコン・アローラロコン・ヤクデ",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "ヤクデ"
+    ],
+    "prefectureId": 1,
+    "municipality": "由仁町",
+    "address": "北海道由仁町東栄87-1",
+    "latitude": 43.01186,
+    "longitude": 141.78697,
+    "officialImageUrl": "/api/official-images/440.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/440/"
+  },
+  {
+    "officialRef": "439",
+    "name": "砂川市｜ロコン・アローラロコン・ペロリーム",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "ペロリーム"
+    ],
+    "prefectureId": 1,
+    "municipality": "砂川市",
+    "address": "北海道砂川市西１条北２丁目１番２０号",
+    "latitude": 43.493037,
+    "longitude": 141.907367,
+    "officialImageUrl": "/api/official-images/439.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/439/"
+  },
+  {
+    "officialRef": "438",
+    "name": "札幌市｜ロコン・ケッキング",
+    "pokemonFeatured": [
+      "ロコン",
+      "ケッキング"
+    ],
+    "prefectureId": 1,
+    "municipality": "札幌市",
+    "address": "北海道札幌市南区定山渓温泉東３丁目212",
+    "latitude": 42.96615624,
+    "longitude": 141.1669585,
+    "officialImageUrl": "/api/official-images/438.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/438/"
+  },
+  {
+    "officialRef": "324",
+    "name": "美瑛町｜アローラロコン・ヒスイウォーグル",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ヒスイウォーグル"
+    ],
+    "prefectureId": 1,
+    "municipality": "美瑛町",
+    "address": "北海道美瑛町本町1丁目9番21号",
+    "latitude": 43.59198,
+    "longitude": 142.46372,
+    "officialImageUrl": "/api/official-images/324.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/324/"
+  },
+  {
+    "officialRef": "307",
+    "name": "美幌町｜ロコン・アローラロコン・ハネッコ",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "ハネッコ"
+    ],
+    "prefectureId": 1,
+    "municipality": "美幌町",
+    "address": "北海道美幌町字新町3丁目97",
+    "latitude": 43.836455,
+    "longitude": 144.105878,
+    "officialImageUrl": "/api/official-images/307.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/307/"
+  },
+  {
+    "officialRef": "306",
+    "name": "猿払村｜ロコン・アローラロコン・エイパム",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "エイパム"
+    ],
+    "prefectureId": 1,
+    "municipality": "猿払村",
+    "address": "北海道猿払村浜鬼志別214-7",
+    "latitude": 45.329186,
+    "longitude": 142.177267,
+    "officialImageUrl": "/api/official-images/306.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/306/"
+  },
+  {
+    "officialRef": "305",
+    "name": "木古内町｜ロコン・アローラロコン・ヒメンカ",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "ヒメンカ"
+    ],
+    "prefectureId": 1,
+    "municipality": "木古内町",
+    "address": "北海道木古内町字本町338−14",
+    "latitude": 41.678024,
+    "longitude": 140.43558,
+    "officialImageUrl": "/api/official-images/305.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/305/"
+  },
+  {
+    "officialRef": "304",
+    "name": "歌志内市｜ロコン・アローラロコン・バチュル",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "バチュル"
+    ],
+    "prefectureId": 1,
+    "municipality": "歌志内市",
+    "address": "北海道歌志内市字中村72番地2",
+    "latitude": 43.503206,
+    "longitude": 142.005914,
+    "officialImageUrl": "/api/official-images/304.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/304/"
+  },
+  {
+    "officialRef": "303",
+    "name": "北見市｜ロコン・アローラロコン",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン"
+    ],
+    "prefectureId": 1,
+    "municipality": "北見市",
+    "address": "北海道北見市留辺蘂町松山1-4",
+    "latitude": 43.75359,
+    "longitude": 143.500587,
+    "officialImageUrl": "/api/official-images/303.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/303/"
+  },
+  {
+    "officialRef": "302",
+    "name": "室蘭市｜ロコン・アローラロコン・イルミーゼ",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "イルミーゼ"
+    ],
+    "prefectureId": 1,
+    "municipality": "室蘭市",
+    "address": "北海道室蘭市本町2-2",
+    "latitude": 42.313837,
+    "longitude": 140.973986,
+    "officialImageUrl": "/api/official-images/302.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/302/"
+  },
+  {
+    "officialRef": "278",
+    "name": "当別町｜アローラロコン・ヤバチャ・ポットデス",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ヤバチャ",
+      "ポットデス"
+    ],
+    "prefectureId": 1,
+    "municipality": "当別町",
+    "address": "北海道当別町当別太７７４−１１",
+    "latitude": 43.17716187047716,
+    "longitude": 141.4485234,
+    "officialImageUrl": "/api/official-images/278.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/278/"
+  },
+  {
+    "officialRef": "221",
+    "name": "えりも町｜アローラロコン・ルガルガン",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ルガルガン"
+    ],
+    "prefectureId": 1,
+    "municipality": "えりも町",
+    "address": "北海道えりも町本町53-1",
+    "latitude": 42.01782,
+    "longitude": 143.14619,
+    "officialImageUrl": "/api/official-images/221.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/221/"
+  },
+  {
+    "officialRef": "220",
+    "name": "斜里町｜ロコン・パルキア",
+    "pokemonFeatured": [
+      "ロコン",
+      "パルキア"
+    ],
+    "prefectureId": 1,
+    "municipality": "斜里町",
+    "address": "北海道斜里町ウトロ西186番地8",
+    "latitude": 44.06884,
+    "longitude": 144.99062,
+    "officialImageUrl": "/api/official-images/220.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/220/"
+  },
+  {
+    "officialRef": "219",
+    "name": "東川町｜アローラロコン・ディアルガ",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ディアルガ"
+    ],
+    "prefectureId": 1,
+    "municipality": "東川町",
+    "address": "北海道東川町北町1丁目1番2号",
+    "latitude": 43.698404,
+    "longitude": 142.507039,
+    "officialImageUrl": "/api/official-images/219.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/219/"
+  },
+  {
+    "officialRef": "218",
+    "name": "赤井川村｜アローラロコン・バニプッチ・ミブリム",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "バニプッチ",
+      "ミブリム"
+    ],
+    "prefectureId": 1,
+    "municipality": "赤井川村",
+    "address": "北海道赤井川村字都190番地16",
+    "latitude": 43.05125,
+    "longitude": 140.844262,
+    "officialImageUrl": "/api/official-images/218.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/218/"
+  },
+  {
+    "officialRef": "217",
+    "name": "網走市｜アローラロコン・マニューラ",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "マニューラ"
+    ],
+    "prefectureId": 1,
+    "municipality": "網走市",
+    "address": "北海道網走市南3条東4丁目5-1",
+    "latitude": 44.021949,
+    "longitude": 144.274423,
+    "officialImageUrl": "/api/official-images/217.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/217/"
+  },
+  {
+    "officialRef": "216",
+    "name": "帯広市｜ロコン・アローラロコン・ドロバンコ",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン",
+      "ドロバンコ"
+    ],
+    "prefectureId": 1,
+    "municipality": "帯広市",
+    "address": "北海道帯広市西2条南12丁目6",
+    "latitude": 42.918205,
+    "longitude": 143.202563,
+    "officialImageUrl": "/api/official-images/216.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/216/"
+  },
+  {
+    "officialRef": "215",
+    "name": "釧路市｜アローラロコン・ジュナイパー",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ジュナイパー"
+    ],
+    "prefectureId": 1,
+    "municipality": "釧路市",
+    "address": "北海道釧路市阿寒町上阿寒23線36番地1",
+    "latitude": 43.144027,
+    "longitude": 144.14549,
+    "officialImageUrl": "/api/official-images/215.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/215/"
+  },
+  {
+    "officialRef": "214",
+    "name": "旭川市｜アローラロコン・コオリッポ・クマシュン",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "コオリッポ",
+      "クマシュン"
+    ],
+    "prefectureId": 1,
+    "municipality": "旭川市",
+    "address": "北海道旭川市神楽4条6丁目1-12",
+    "latitude": 43.7595958,
+    "longitude": 142.3485094,
+    "officialImageUrl": "/api/official-images/214.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/214/"
+  },
+  {
+    "officialRef": "193",
+    "name": "中標津町｜ロコン・ワカシャモ",
+    "pokemonFeatured": [
+      "ロコン",
+      "ワカシャモ"
+    ],
+    "prefectureId": 1,
+    "municipality": "中標津町",
+    "address": "北海道中標津町丸山2丁目1番地18",
+    "latitude": 43.554566,
+    "longitude": 144.969609,
+    "officialImageUrl": "/api/official-images/193.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/193/"
+  },
+  {
+    "officialRef": "192",
+    "name": "陸別町｜アローラロコン・カチコール",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "カチコール"
+    ],
+    "prefectureId": 1,
+    "municipality": "陸別町",
+    "address": "北海道陸別町字陸別原野基線69-1",
+    "latitude": 43.467701,
+    "longitude": 143.742721,
+    "officialImageUrl": "/api/official-images/192.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/192/"
+  },
+  {
+    "officialRef": "191",
+    "name": "本別町｜ロコン・メタモン",
+    "pokemonFeatured": [
+      "ロコン",
+      "メタモン"
+    ],
+    "prefectureId": 1,
+    "municipality": "本別町",
+    "address": "北海道本別町北3丁目1-2",
+    "latitude": 43.125781,
+    "longitude": 143.613441,
+    "officialImageUrl": "/api/official-images/191.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/191/"
+  },
+  {
+    "officialRef": "190",
+    "name": "登別市｜ロコン・キテルグマ",
+    "pokemonFeatured": [
+      "ロコン",
+      "キテルグマ"
+    ],
+    "prefectureId": 1,
+    "municipality": "登別市",
+    "address": "北海道登別市登別市登別港町１丁目4-9",
+    "latitude": 42.452786,
+    "longitude": 141.180999,
+    "officialImageUrl": "/api/official-images/190.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/190/"
+  },
+  {
+    "officialRef": "189",
+    "name": "根室市｜アローラロコン・バリコオル",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "バリコオル"
+    ],
+    "prefectureId": 1,
+    "municipality": "根室市",
+    "address": "北海道根室市牧の内146番地243　明治公園内",
+    "latitude": 43.335936,
+    "longitude": 145.598194,
+    "officialImageUrl": "/api/official-images/189.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/189/"
+  },
+  {
+    "officialRef": "188",
+    "name": "小樽市｜アローラロコン",
+    "pokemonFeatured": [
+      "アローラロコン"
+    ],
+    "prefectureId": 1,
+    "municipality": "小樽市",
+    "address": "北海道小樽市稲穂1丁目3番8号",
+    "latitude": 43.195544,
+    "longitude": 140.998285,
+    "officialImageUrl": "/api/official-images/188.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/188/"
+  },
+  {
+    "officialRef": "187",
+    "name": "函館市｜アローラロコン・トゲキッス",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "トゲキッス"
+    ],
+    "prefectureId": 1,
+    "municipality": "函館市",
+    "address": "北海道函館市青柳町17",
+    "latitude": 41.755926,
+    "longitude": 140.715684,
+    "officialImageUrl": "/api/official-images/187.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/187/"
+  },
+  {
+    "officialRef": "143",
+    "name": "剣淵町｜アローラロコン・ヒトツキ",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ヒトツキ"
+    ],
+    "prefectureId": 1,
+    "municipality": "剣淵町",
+    "address": "北海道剣淵町緑町15-3",
+    "latitude": 44.1000303,
+    "longitude": 142.3593096,
+    "officialImageUrl": "/api/official-images/143.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/143/"
+  },
+  {
+    "officialRef": "142",
+    "name": "上富良野町｜アローラロコン・エネコロロ",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "エネコロロ"
+    ],
+    "prefectureId": 1,
+    "municipality": "上富良野町",
+    "address": "北海道上富良野町東1線北27号",
+    "latitude": 43.462246,
+    "longitude": 142.479068,
+    "officialImageUrl": "/api/official-images/142.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/142/"
+  },
+  {
+    "officialRef": "141",
+    "name": "三笠市｜ロコン・オムナイト・ズガイドス",
+    "pokemonFeatured": [
+      "ロコン",
+      "オムナイト",
+      "ズガイドス"
+    ],
+    "prefectureId": 1,
+    "municipality": "三笠市",
+    "address": "北海道三笠市幾春別錦町1-212-1",
+    "latitude": 43.2613165,
+    "longitude": 141.9626673,
+    "officialImageUrl": "/api/official-images/141.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/141/"
+  },
+  {
+    "officialRef": "140",
+    "name": "苫小牧市｜ロコン・キュウコン",
+    "pokemonFeatured": [
+      "ロコン",
+      "キュウコン"
+    ],
+    "prefectureId": 1,
+    "municipality": "苫小牧市",
+    "address": "北海道苫小牧市末広町3丁目1",
+    "latitude": 42.635755,
+    "longitude": 141.61009,
+    "officialImageUrl": "/api/official-images/140.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/140/"
+  },
+  {
+    "officialRef": "73",
+    "name": "足寄町｜アローラロコン・ユクシー・エムリット・アグノム",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ユクシー",
+      "エムリット",
+      "アグノム"
+    ],
+    "prefectureId": 1,
+    "municipality": "足寄町",
+    "address": "北海道足寄町北1条1丁目1",
+    "latitude": 43.244229,
+    "longitude": 143.546753,
+    "officialImageUrl": "/api/official-images/73.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/73/"
+  },
+  {
+    "officialRef": "72",
+    "name": "新得町｜アローラロコン・ヒメグマ",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ヒメグマ"
+    ],
+    "prefectureId": 1,
+    "municipality": "新得町",
+    "address": "北海道新得町本通北1丁目",
+    "latitude": 43.082684,
+    "longitude": 142.832927,
+    "officialImageUrl": "/api/official-images/72.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/72/"
+  },
+  {
+    "officialRef": "71",
+    "name": "大空町｜ロコン・ムクホーク",
+    "pokemonFeatured": [
+      "ロコン",
+      "ムクホーク"
+    ],
+    "prefectureId": 1,
+    "municipality": "大空町",
+    "address": "北海道大空町女満別本通1丁目",
+    "latitude": 43.915555,
+    "longitude": 144.17137,
+    "officialImageUrl": "/api/official-images/71.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/71/"
+  },
+  {
+    "officialRef": "70",
+    "name": "遠軽町｜アローラロコン・ユキメノコ",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ユキメノコ"
+    ],
+    "prefectureId": 1,
+    "municipality": "遠軽町",
+    "address": "北海道遠軽町野上150番地",
+    "latitude": 44.021878,
+    "longitude": 143.497131,
+    "officialImageUrl": "/api/official-images/70.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/70/"
+  },
+  {
+    "officialRef": "69",
+    "name": "紋別市｜アローラロコン・タマザラシ",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "タマザラシ"
+    ],
+    "prefectureId": 1,
+    "municipality": "紋別市",
+    "address": "北海道紋別市海洋公園",
+    "latitude": 44.334641,
+    "longitude": 143.372211,
+    "officialImageUrl": "/api/official-images/69.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/69/"
+  },
+  {
+    "officialRef": "68",
+    "name": "豊富町｜アローラロコン・ミルタンク",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ミルタンク"
+    ],
+    "prefectureId": 1,
+    "municipality": "豊富町",
+    "address": "北海道豊富町東1条6丁目",
+    "latitude": 45.103245,
+    "longitude": 141.778643,
+    "officialImageUrl": "/api/official-images/68.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/68/"
+  },
+  {
+    "officialRef": "67",
+    "name": "稚内市｜アローラロコン・アローラキュウコン",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "アローラキュウコン"
+    ],
+    "prefectureId": 1,
+    "municipality": "稚内市",
+    "address": "北海道稚内市中央3-5",
+    "latitude": 45.417236,
+    "longitude": 141.677095,
+    "officialImageUrl": "/api/official-images/67.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/67/"
+  },
+  {
+    "officialRef": "66",
+    "name": "天塩町｜ロコン・アローラロコン",
+    "pokemonFeatured": [
+      "ロコン",
+      "アローラロコン"
+    ],
+    "prefectureId": 1,
+    "municipality": "天塩町",
+    "address": "北海道天塩町新開通4丁目7227番地2",
+    "latitude": 44.88452,
+    "longitude": 141.74797,
+    "officialImageUrl": "/api/official-images/66.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/66/"
+  },
+  {
+    "officialRef": "65",
+    "name": "比布町｜アローラロコン・ポッチャマ",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "ポッチャマ"
+    ],
+    "prefectureId": 1,
+    "municipality": "比布町",
+    "address": "北海道比布町西町2丁目6番1号",
+    "latitude": 43.875033,
+    "longitude": 142.471699,
+    "officialImageUrl": "/api/official-images/65.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/65/"
+  },
+  {
+    "officialRef": "64",
+    "name": "士別市｜ロコン・メリープ",
+    "pokemonFeatured": [
+      "ロコン",
+      "メリープ"
+    ],
+    "prefectureId": 1,
+    "municipality": "士別市",
+    "address": "北海道士別市大通東5丁目",
+    "latitude": 44.175974,
+    "longitude": 142.392417,
+    "officialImageUrl": "/api/official-images/64.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/64/"
+  },
+  {
+    "officialRef": "63",
+    "name": "上ノ国町｜ロコン・ヒコザル",
+    "pokemonFeatured": [
+      "ロコン",
+      "ヒコザル"
+    ],
+    "prefectureId": 1,
+    "municipality": "上ノ国町",
+    "address": "北海道上ノ国町字原歌3番地",
+    "latitude": 41.808398,
+    "longitude": 140.095409,
+    "officialImageUrl": "/api/official-images/63.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/63/"
+  },
+  {
+    "officialRef": "62",
+    "name": "森町｜アローラロコン・マーイーカ",
+    "pokemonFeatured": [
+      "アローラロコン",
+      "マーイーカ"
+    ],
+    "prefectureId": 1,
+    "municipality": "森町",
+    "address": "北海道森町本町6-22",
+    "latitude": 42.108855,
+    "longitude": 140.572941,
+    "officialImageUrl": "/api/official-images/62.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/62/"
+  },
+  {
+    "officialRef": "61",
+    "name": "洞爺湖町｜ロコン・ウリムー",
+    "pokemonFeatured": [
+      "ロコン",
+      "ウリムー"
+    ],
+    "prefectureId": 1,
+    "municipality": "洞爺湖町",
+    "address": "北海道洞爺湖町洞爺湖温泉224",
+    "latitude": 42.566111,
+    "longitude": 140.819072,
+    "officialImageUrl": "/api/official-images/61.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/61/"
+  },
+  {
+    "officialRef": "60",
+    "name": "恵庭市｜ロコン",
+    "pokemonFeatured": [
+      "ロコン"
+    ],
+    "prefectureId": 1,
+    "municipality": "恵庭市",
+    "address": "北海道恵庭市南島松817-18",
+    "latitude": 42.897132,
+    "longitude": 141.585789,
+    "officialImageUrl": "/api/official-images/60.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/60/"
+  },
+  {
+    "officialRef": "59",
+    "name": "石狩市｜ロコン・ナエトル",
+    "pokemonFeatured": [
+      "ロコン",
+      "ナエトル"
+    ],
+    "prefectureId": 1,
+    "municipality": "石狩市",
+    "address": "北海道石狩市浜益区実田254-4",
+    "latitude": 43.585848,
+    "longitude": 141.423898,
+    "officialImageUrl": "/api/official-images/59.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/59/"
+  },
+  {
+    "officialRef": "158",
+    "name": "階上町｜ナマコブシ・バチンウニ・ユキハミ",
+    "pokemonFeatured": [
+      "ナマコブシ",
+      "バチンウニ",
+      "ユキハミ"
+    ],
+    "prefectureId": 2,
+    "municipality": "階上町",
+    "address": "青森県階上町大字道仏字耳ケ吠3-3",
+    "latitude": 40.458437,
+    "longitude": 141.608335,
+    "officialImageUrl": "/api/official-images/158.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/158/"
+  },
+  {
+    "officialRef": "157",
+    "name": "八戸市｜イシツブテ・キャモメ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "キャモメ"
+    ],
+    "prefectureId": 2,
+    "municipality": "八戸市",
+    "address": "青森県八戸市大字鮫町鮫付近",
+    "latitude": 40.537937,
+    "longitude": 141.558034,
+    "officialImageUrl": "/api/official-images/157.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/157/"
+  },
+  {
+    "officialRef": "467",
+    "name": "盛岡市｜イシツブテ・イワンコ・ルガルガン",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "イワンコ",
+      "ルガルガン"
+    ],
+    "prefectureId": 3,
+    "municipality": "盛岡市",
+    "address": "岩手県盛岡市本宮字蛇屋敷地内",
+    "latitude": 39.694005,
+    "longitude": 141.128421,
+    "officialImageUrl": "/api/official-images/467.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/467/"
+  },
+  {
+    "officialRef": "466",
+    "name": "金ヶ崎町｜アローライシツブテ・ブロロン・メルタン",
+    "pokemonFeatured": [
+      "アローライシツブテ",
+      "ブロロン",
+      "メルタン"
+    ],
+    "prefectureId": 3,
+    "municipality": "金ヶ崎町",
+    "address": "岩手県金ケ崎町西根伊勢分25番地7",
+    "latitude": 39.200006,
+    "longitude": 141.112971,
+    "officialImageUrl": "/api/official-images/466.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/466/"
+  },
+  {
+    "officialRef": "465",
+    "name": "矢巾町｜イシツブテ・キマワリ・ヒスイガーディ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "キマワリ",
+      "ヒスイガーディ"
+    ],
+    "prefectureId": 3,
+    "municipality": "矢巾町",
+    "address": "岩手県矢巾町駅東1丁目55",
+    "latitude": 39.6135292,
+    "longitude": 141.1498184,
+    "officialImageUrl": "/api/official-images/465.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/465/"
+  },
+  {
+    "officialRef": "464",
+    "name": "雫石町｜イシツブテ・イワンコ・ウールー",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "イワンコ",
+      "ウールー"
+    ],
+    "prefectureId": 3,
+    "municipality": "雫石町",
+    "address": "岩手県雫石町橋場坂本118-10",
+    "latitude": 39.706964,
+    "longitude": 140.874287,
+    "officialImageUrl": "/api/official-images/464.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/464/"
+  },
+  {
+    "officialRef": "463",
+    "name": "奥州市｜イシツブテ・ガブリアス・カジッチュ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "ガブリアス",
+      "カジッチュ"
+    ],
+    "prefectureId": 3,
+    "municipality": "奥州市",
+    "address": "岩手県奥州市水沢西町1番1号",
+    "latitude": 39.138288,
+    "longitude": 141.137353,
+    "officialImageUrl": "/api/official-images/463.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/463/"
+  },
+  {
+    "officialRef": "426",
+    "name": "葛巻町｜アローライシツブテ・ミルタンク・マホミル",
+    "pokemonFeatured": [
+      "アローライシツブテ",
+      "ミルタンク",
+      "マホミル"
+    ],
+    "prefectureId": 3,
+    "municipality": "葛巻町",
+    "address": "岩手県葛巻町葛巻39-159-3",
+    "latitude": 39.984472,
+    "longitude": 141.339917,
+    "officialImageUrl": "/api/official-images/426.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/426/"
+  },
+  {
+    "officialRef": "398",
+    "name": "盛岡市｜イシツブテ・アローライシツブテ・ウソッキー",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "アローライシツブテ",
+      "ウソッキー"
+    ],
+    "prefectureId": 3,
+    "municipality": "盛岡市",
+    "address": "岩手県盛岡市渋民80番地42",
+    "latitude": 39.846667,
+    "longitude": 141.173111,
+    "officialImageUrl": "/api/official-images/398.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/398/"
+  },
+  {
+    "officialRef": "397",
+    "name": "北上市｜イシツブテ・オーガポン・カミッチュ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "オーガポン",
+      "カミッチュ"
+    ],
+    "prefectureId": 3,
+    "municipality": "北上市",
+    "address": "岩手県北上市立花13地割（展勝地公園）",
+    "latitude": 39.27362,
+    "longitude": 141.1282,
+    "officialImageUrl": "/api/official-images/397.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/397/"
+  },
+  {
+    "officialRef": "323",
+    "name": "北上市｜ゴローニャ・キリキザン",
+    "pokemonFeatured": [
+      "ゴローニャ",
+      "キリキザン"
+    ],
+    "prefectureId": 3,
+    "municipality": "北上市",
+    "address": "岩手県北上市川岸一丁目１（さくらＰＯＲＴ・スクエア内）",
+    "latitude": 39.281115,
+    "longitude": 141.122747,
+    "officialImageUrl": "/api/official-images/323.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/323/"
+  },
+  {
+    "officialRef": "299",
+    "name": "久慈市｜イシツブテ・プテラ・ビーダル",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "プテラ",
+      "ビーダル"
+    ],
+    "prefectureId": 3,
+    "municipality": "久慈市",
+    "address": "岩手県久慈市夏井町第7地割3-2",
+    "latitude": 40.225538,
+    "longitude": 141.781703,
+    "officialImageUrl": "/api/official-images/299.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/299/"
+  },
+  {
+    "officialRef": "270",
+    "name": "一戸町｜イシツブテ・ヤジロン",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "ヤジロン"
+    ],
+    "prefectureId": 3,
+    "municipality": "一戸町",
+    "address": "岩手県一戸町一戸砂森",
+    "latitude": 40.20885,
+    "longitude": 141.30468,
+    "officialImageUrl": "/api/official-images/270.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/270/"
+  },
+  {
+    "officialRef": "269",
+    "name": "九戸村｜イシツブテ・ホーホー・フクスロー",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "ホーホー",
+      "フクスロー"
+    ],
+    "prefectureId": 3,
+    "municipality": "九戸村",
+    "address": "岩手県九戸村山屋第2地割28−1",
+    "latitude": 40.24854,
+    "longitude": 141.416759,
+    "officialImageUrl": "/api/official-images/269.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/269/"
+  },
+  {
+    "officialRef": "268",
+    "name": "軽米町｜イシツブテ・ナゲツケサル・イワンコ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "ナゲツケサル",
+      "イワンコ"
+    ],
+    "prefectureId": 3,
+    "municipality": "軽米町",
+    "address": "岩手県軽米町晴山第22地割38",
+    "latitude": 40.322649,
+    "longitude": 141.381779,
+    "officialImageUrl": "/api/official-images/268.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/268/"
+  },
+  {
+    "officialRef": "267",
+    "name": "平泉町｜クレセリア・ルナトーン",
+    "pokemonFeatured": [
+      "クレセリア",
+      "ルナトーン"
+    ],
+    "prefectureId": 3,
+    "municipality": "平泉町",
+    "address": "岩手県平泉町平泉大沢",
+    "latitude": 38.986635,
+    "longitude": 141.108167,
+    "officialImageUrl": "/api/official-images/267.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/267/"
+  },
+  {
+    "officialRef": "266",
+    "name": "西和賀町｜イシツブテ・ミノムッチ・メブキジカ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "ミノムッチ",
+      "メブキジカ"
+    ],
+    "prefectureId": 3,
+    "municipality": "西和賀町",
+    "address": "岩手県西和賀町川尻40地割",
+    "latitude": 39.31446,
+    "longitude": 140.77649,
+    "officialImageUrl": "/api/official-images/266.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/266/"
+  },
+  {
+    "officialRef": "265",
+    "name": "紫波町｜イシツブテ・アママイコ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "アママイコ"
+    ],
+    "prefectureId": 3,
+    "municipality": "紫波町",
+    "address": "岩手県紫波町紫波中央駅前1丁目",
+    "latitude": 39.554641,
+    "longitude": 141.158293,
+    "officialImageUrl": "/api/official-images/265.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/265/"
+  },
+  {
+    "officialRef": "264",
+    "name": "岩手町｜イシツブテ・メタモン・アローライシツブテ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "メタモン",
+      "アローライシツブテ"
+    ],
+    "prefectureId": 3,
+    "municipality": "岩手町",
+    "address": "岩手県岩手町五日市第10地割121−20",
+    "latitude": 39.968579,
+    "longitude": 141.213736,
+    "officialImageUrl": "/api/official-images/264.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/264/"
+  },
+  {
+    "officialRef": "263",
+    "name": "滝沢市｜イシツブテ・ドロバンコ・ルチャブル",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "ドロバンコ",
+      "ルチャブル"
+    ],
+    "prefectureId": 3,
+    "municipality": "滝沢市",
+    "address": "岩手県滝沢市下鵜飼1−15",
+    "latitude": 39.734,
+    "longitude": 141.07829,
+    "officialImageUrl": "/api/official-images/263.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/263/"
+  },
+  {
+    "officialRef": "262",
+    "name": "八幡平市｜イシツブテ・アマルス",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "アマルス"
+    ],
+    "prefectureId": 3,
+    "municipality": "八幡平市",
+    "address": "岩手県八幡平市大更第2地割154−36",
+    "latitude": 39.87958,
+    "longitude": 141.099388,
+    "officialImageUrl": "/api/official-images/262.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/262/"
+  },
+  {
+    "officialRef": "261",
+    "name": "二戸市｜イシツブテ・ユキワラシ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "ユキワラシ"
+    ],
+    "prefectureId": 3,
+    "municipality": "二戸市",
+    "address": "岩手県二戸市金田一字湯田41",
+    "latitude": 40.320335,
+    "longitude": 141.318849,
+    "officialImageUrl": "/api/official-images/261.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/261/"
+  },
+  {
+    "officialRef": "260",
+    "name": "一関市｜イシツブテ・ダンゴロ・ドサイドン",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "ダンゴロ",
+      "ドサイドン"
+    ],
+    "prefectureId": 3,
+    "municipality": "一関市",
+    "address": "岩手県一関市東山町長坂字町467-１",
+    "latitude": 38.98958,
+    "longitude": 141.25527,
+    "officialImageUrl": "/api/official-images/260.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/260/"
+  },
+  {
+    "officialRef": "259",
+    "name": "遠野市｜イシツブテ・ハスブレロ・ルンパッパ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "ハスブレロ",
+      "ルンパッパ"
+    ],
+    "prefectureId": 3,
+    "municipality": "遠野市",
+    "address": "岩手県遠野市中央通り4−6",
+    "latitude": 39.330638,
+    "longitude": 141.528872,
+    "officialImageUrl": "/api/official-images/259.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/259/"
+  },
+  {
+    "officialRef": "258",
+    "name": "花巻市｜イシツブテ・コスモッグ・レックウザ",
+    "pokemonFeatured": [
+      "イシツブテ",
+      "コスモッグ",
+      "レックウザ"
+    ],
+    "prefectureId": 3,
+    "municipality": "花巻市",
+    "address": "岩手県花巻市大通り1丁目2−21",
+    "latitude": 39.392034,
+    "longitude": 141.11169,
+    "officialImageUrl": "/api/official-images/258.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/258/"
+  },
+  {
+    "officialRef": "22",
+    "name": "住田町｜ヨーギラス",
+    "pokemonFeatured": [
+      "ヨーギラス"
+    ],
+    "prefectureId": 3,
+    "municipality": "住田町",
+    "address": "岩手県住田町上有住字土倉298-81",
+    "latitude": 39.242903,
+    "longitude": 141.68432,
+    "officialImageUrl": "/api/official-images/22.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/22/"
+  },
+  {
+    "officialRef": "21",
+    "name": "陸前高田市｜イワンコ",
+    "pokemonFeatured": [
+      "イワンコ"
+    ],
+    "prefectureId": 3,
+    "municipality": "陸前高田市",
+    "address": "岩手県陸前高田市高田町字馬場前89-1",
+    "latitude": 39.01675,
+    "longitude": 141.628694,
+    "officialImageUrl": "/api/official-images/21.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/21/"
+  },
+  {
+    "officialRef": "20",
+    "name": "大船渡市｜サイホーン",
+    "pokemonFeatured": [
+      "サイホーン"
+    ],
+    "prefectureId": 3,
+    "municipality": "大船渡市",
+    "address": "岩手県大船渡市盛町字町13-1",
+    "latitude": 39.085906,
+    "longitude": 141.710256,
+    "officialImageUrl": "/api/official-images/20.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/20/"
+  },
+  {
+    "officialRef": "19",
+    "name": "釜石市｜ココドラ",
+    "pokemonFeatured": [
+      "ココドラ"
+    ],
+    "prefectureId": 3,
+    "municipality": "釜石市",
+    "address": "岩手県釜石市鵜住居町第16地割72-1",
+    "latitude": 39.326865,
+    "longitude": 141.887862,
+    "officialImageUrl": "/api/official-images/19.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/19/"
+  },
+  {
+    "officialRef": "18",
+    "name": "大槌町｜ツボツボ",
+    "pokemonFeatured": [
+      "ツボツボ"
+    ],
+    "prefectureId": 3,
+    "municipality": "大槌町",
+    "address": "岩手県大槌町本町1-1",
+    "latitude": 39.357255,
+    "longitude": 141.90316,
+    "officialImageUrl": "/api/official-images/18.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/18/"
+  },
+  {
+    "officialRef": "17",
+    "name": "山田町｜オムナイト",
+    "pokemonFeatured": [
+      "オムナイト"
+    ],
+    "prefectureId": 3,
+    "municipality": "山田町",
+    "address": "岩手県山田町川向町51-15",
+    "latitude": 39.464186,
+    "longitude": 141.951043,
+    "officialImageUrl": "/api/official-images/17.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/17/"
+  },
+  {
+    "officialRef": "16",
+    "name": "宮古市｜イシツブテ",
+    "pokemonFeatured": [
+      "イシツブテ"
+    ],
+    "prefectureId": 3,
+    "municipality": "宮古市",
+    "address": "岩手県宮古市臨港通1-20",
+    "latitude": 39.639471,
+    "longitude": 141.969701,
+    "officialImageUrl": "/api/official-images/16.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/16/"
+  },
+  {
+    "officialRef": "15",
+    "name": "田野畑村｜ノズパス",
+    "pokemonFeatured": [
+      "ノズパス"
+    ],
+    "prefectureId": 3,
+    "municipality": "田野畑村",
+    "address": "岩手県田野畑村松前沢1-38",
+    "latitude": 39.916682,
+    "longitude": 141.938688,
+    "officialImageUrl": "/api/official-images/15.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/15/"
+  },
+  {
+    "officialRef": "14",
+    "name": "岩泉町｜チゴラス",
+    "pokemonFeatured": [
+      "チゴラス"
+    ],
+    "prefectureId": 3,
+    "municipality": "岩泉町",
+    "address": "岩手県岩泉町岩泉字神成1-1",
+    "latitude": 39.86044,
+    "longitude": 141.796532,
+    "officialImageUrl": "/api/official-images/14.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/14/"
+  },
+  {
+    "officialRef": "13",
+    "name": "普代村｜タテトプス",
+    "pokemonFeatured": [
+      "タテトプス"
+    ],
+    "prefectureId": 3,
+    "municipality": "普代村",
+    "address": "岩手県普代村9-5-3",
+    "latitude": 40.002821,
+    "longitude": 141.885736,
+    "officialImageUrl": "/api/official-images/13.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/13/"
+  },
+  {
+    "officialRef": "12",
+    "name": "野田村｜イワーク",
+    "pokemonFeatured": [
+      "イワーク"
+    ],
+    "prefectureId": 3,
+    "municipality": "野田村",
+    "address": "岩手県野田村大字野田第5地割",
+    "latitude": 40.082726,
+    "longitude": 141.828678,
+    "officialImageUrl": "/api/official-images/12.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/12/"
+  },
+  {
+    "officialRef": "11",
+    "name": "久慈市｜プテラ",
+    "pokemonFeatured": [
+      "プテラ"
+    ],
+    "prefectureId": 3,
+    "municipality": "久慈市",
+    "address": "岩手県久慈市中町2-5-6",
+    "latitude": 40.189742,
+    "longitude": 141.765832,
+    "officialImageUrl": "/api/official-images/11.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/11/"
+  },
+  {
+    "officialRef": "10",
+    "name": "洋野町｜カブト",
+    "pokemonFeatured": [
+      "カブト"
+    ],
+    "prefectureId": 3,
+    "municipality": "洋野町",
+    "address": "岩手県洋野町種市22-133-11",
+    "latitude": 40.406101,
+    "longitude": 141.719531,
+    "officialImageUrl": "/api/official-images/10.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/10/"
+  },
+  {
+    "officialRef": "474",
+    "name": "仙台市｜ラプラス・チョンチー・ホエルコ・ウミディグダ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "チョンチー",
+      "ホエルコ",
+      "ウミディグダ"
+    ],
+    "prefectureId": 4,
+    "municipality": "仙台市",
+    "address": "宮城県仙台市若林区藤塚地内　海岸公園（藤塚地区）",
+    "latitude": 38.182602,
+    "longitude": 140.956528,
+    "officialImageUrl": "/api/official-images/474.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/474/"
+  },
+  {
+    "officialRef": "447",
+    "name": "加瀬沼公園｜ラプラス・スワンナ・タマンタ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "スワンナ",
+      "タマンタ"
+    ],
+    "prefectureId": 4,
+    "municipality": "加瀬沼公園",
+    "address": "宮城県加瀬沼公園内（宮城県宮城郡利府町加瀬新堤下）",
+    "latitude": 38.311641,
+    "longitude": 140.983236,
+    "officialImageUrl": "/api/official-images/447.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/447/"
+  },
+  {
+    "officialRef": "139",
+    "name": "美里町｜ラプラス・ドードー・ドードリオ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ドードー",
+      "ドードリオ"
+    ],
+    "prefectureId": 4,
+    "municipality": "美里町",
+    "address": "宮城県美里町木間塚原田5",
+    "latitude": 38.489061,
+    "longitude": 141.133053,
+    "officialImageUrl": "/api/official-images/139.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/139/"
+  },
+  {
+    "officialRef": "138",
+    "name": "涌谷町｜ラプラス・バンバドロ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "バンバドロ"
+    ],
+    "prefectureId": 4,
+    "municipality": "涌谷町",
+    "address": "宮城県涌谷町字新町裏110",
+    "latitude": 38.5392702,
+    "longitude": 141.1267433,
+    "officialImageUrl": "/api/official-images/138.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/138/"
+  },
+  {
+    "officialRef": "137",
+    "name": "加美町｜ラプラス・ロゼリア",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ロゼリア"
+    ],
+    "prefectureId": 4,
+    "municipality": "加美町",
+    "address": "宮城県加美町味ヶ袋薬莱原1-76",
+    "latitude": 38.57215,
+    "longitude": 140.72859,
+    "officialImageUrl": "/api/official-images/137.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/137/"
+  },
+  {
+    "officialRef": "136",
+    "name": "色麻町｜ラプラス・ハスブレロ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ハスブレロ"
+    ],
+    "prefectureId": 4,
+    "municipality": "色麻町",
+    "address": "宮城県色麻町四竃字東原1-12",
+    "latitude": 38.530136,
+    "longitude": 140.86142,
+    "officialImageUrl": "/api/official-images/136.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/136/"
+  },
+  {
+    "officialRef": "135",
+    "name": "大衡村｜ラプラス・プルリル・ラブカス",
+    "pokemonFeatured": [
+      "ラプラス",
+      "プルリル",
+      "ラブカス"
+    ],
+    "prefectureId": 4,
+    "municipality": "大衡村",
+    "address": "宮城県大衡村大衡字鐙沢12-2",
+    "latitude": 38.46943814,
+    "longitude": 140.8902292,
+    "officialImageUrl": "/api/official-images/135.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/135/"
+  },
+  {
+    "officialRef": "134",
+    "name": "大郷町｜ラプラス・チュリネ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "チュリネ"
+    ],
+    "prefectureId": 4,
+    "municipality": "大郷町",
+    "address": "宮城県大郷町中村字北浦51-6",
+    "latitude": 38.424016,
+    "longitude": 140.992673,
+    "officialImageUrl": "/api/official-images/134.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/134/"
+  },
+  {
+    "officialRef": "133",
+    "name": "大和町｜ラプラス・タマゲタケ・ドダイトス",
+    "pokemonFeatured": [
+      "ラプラス",
+      "タマゲタケ",
+      "ドダイトス"
+    ],
+    "prefectureId": 4,
+    "municipality": "大和町",
+    "address": "宮城県大和町吉岡まほろば一丁目1-1前",
+    "latitude": 38.437364,
+    "longitude": 140.885648,
+    "officialImageUrl": "/api/official-images/133.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/133/"
+  },
+  {
+    "officialRef": "132",
+    "name": "丸森町｜ラプラス・ニャース・ニャスパー",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ニャース",
+      "ニャスパー"
+    ],
+    "prefectureId": 4,
+    "municipality": "丸森町",
+    "address": "宮城県丸森町字町東77-1",
+    "latitude": 37.913873,
+    "longitude": 140.762531,
+    "officialImageUrl": "/api/official-images/132.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/132/"
+  },
+  {
+    "officialRef": "131",
+    "name": "川崎町｜ラプラス",
+    "pokemonFeatured": [
+      "ラプラス"
+    ],
+    "prefectureId": 4,
+    "municipality": "川崎町",
+    "address": "宮城県川崎町前川字裏丁175-1",
+    "latitude": 38.177534,
+    "longitude": 140.643653,
+    "officialImageUrl": "/api/official-images/131.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/131/"
+  },
+  {
+    "officialRef": "130",
+    "name": "柴田町｜ラプラス・フラベベ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "フラベベ"
+    ],
+    "prefectureId": 4,
+    "municipality": "柴田町",
+    "address": "宮城県柴田町船岡中央1丁目1-1",
+    "latitude": 38.059143,
+    "longitude": 140.768239,
+    "officialImageUrl": "/api/official-images/130.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/130/"
+  },
+  {
+    "officialRef": "129",
+    "name": "村田町｜ラプラス・ベロベルト",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ベロベルト"
+    ],
+    "prefectureId": 4,
+    "municipality": "村田町",
+    "address": "宮城県村田町大字村田字北塩内41",
+    "latitude": 38.119071,
+    "longitude": 140.717821,
+    "officialImageUrl": "/api/official-images/129.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/129/"
+  },
+  {
+    "officialRef": "128",
+    "name": "大河原町｜ラプラス・チェリム",
+    "pokemonFeatured": [
+      "ラプラス",
+      "チェリム"
+    ],
+    "prefectureId": 4,
+    "municipality": "大河原町",
+    "address": "宮城県大河原町大谷字町向116-26地先",
+    "latitude": 38.0485032,
+    "longitude": 140.738089,
+    "officialImageUrl": "/api/official-images/128.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/128/"
+  },
+  {
+    "officialRef": "127",
+    "name": "七ヶ宿町｜ラプラス・ビーダル",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ビーダル"
+    ],
+    "prefectureId": 4,
+    "municipality": "七ヶ宿町",
+    "address": "宮城県七ヶ宿町上野8‐1",
+    "latitude": 37.982523,
+    "longitude": 140.46662,
+    "officialImageUrl": "/api/official-images/127.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/127/"
+  },
+  {
+    "officialRef": "126",
+    "name": "蔵王町｜ラプラス・ユキノオー",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ユキノオー"
+    ],
+    "prefectureId": 4,
+    "municipality": "蔵王町",
+    "address": "宮城県蔵王町遠刈田温泉仲町34",
+    "latitude": 38.123663,
+    "longitude": 140.577192,
+    "officialImageUrl": "/api/official-images/126.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/126/"
+  },
+  {
+    "officialRef": "125",
+    "name": "富谷市｜ラプラス・ブルー",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ブルー"
+    ],
+    "prefectureId": 4,
+    "municipality": "富谷市",
+    "address": "宮城県富谷市富谷新町111",
+    "latitude": 38.398336,
+    "longitude": 140.8875,
+    "officialImageUrl": "/api/official-images/125.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/125/"
+  },
+  {
+    "officialRef": "124",
+    "name": "大崎市｜ラプラス・ダグトリオ・オニスズメ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ダグトリオ",
+      "オニスズメ"
+    ],
+    "prefectureId": 4,
+    "municipality": "大崎市",
+    "address": "宮城県大崎市古川駅前大通１丁目５　古川駅前",
+    "latitude": 38.571356,
+    "longitude": 140.967465,
+    "officialImageUrl": "/api/official-images/124.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/124/"
+  },
+  {
+    "officialRef": "123",
+    "name": "栗原市｜ラプラス・コアルヒー",
+    "pokemonFeatured": [
+      "ラプラス",
+      "コアルヒー"
+    ],
+    "prefectureId": 4,
+    "municipality": "栗原市",
+    "address": "宮城県栗原市花山字本沢北ノ前112-1",
+    "latitude": 38.794479,
+    "longitude": 140.844403,
+    "officialImageUrl": "/api/official-images/123.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/123/"
+  },
+  {
+    "officialRef": "122",
+    "name": "登米市｜ラプラス・ハスボー",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ハスボー"
+    ],
+    "prefectureId": 4,
+    "municipality": "登米市",
+    "address": "宮城県登米市米山町字桜岡貝待井581-2",
+    "latitude": 38.616649,
+    "longitude": 141.235491,
+    "officialImageUrl": "/api/official-images/122.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/122/"
+  },
+  {
+    "officialRef": "121",
+    "name": "角田市｜ラプラス・ラティアス",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ラティアス"
+    ],
+    "prefectureId": 4,
+    "municipality": "角田市",
+    "address": "宮城県角田市枝野字北島81-1",
+    "latitude": 37.968694,
+    "longitude": 140.807077,
+    "officialImageUrl": "/api/official-images/121.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/121/"
+  },
+  {
+    "officialRef": "120",
+    "name": "白石市｜ラプラス・クスネ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "クスネ"
+    ],
+    "prefectureId": 4,
+    "municipality": "白石市",
+    "address": "宮城県白石市益岡町1-16",
+    "latitude": 38.002511,
+    "longitude": 140.61735,
+    "officialImageUrl": "/api/official-images/120.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/120/"
+  },
+  {
+    "officialRef": "58",
+    "name": "山元町｜ラプラス・ラッキー",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ラッキー"
+    ],
+    "prefectureId": 4,
+    "municipality": "山元町",
+    "address": "宮城県山元町坂元字町東31-10",
+    "latitude": 37.923988,
+    "longitude": 140.900996,
+    "officialImageUrl": "/api/official-images/58.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/58/"
+  },
+  {
+    "officialRef": "57",
+    "name": "亘理町｜ラプラス・チルット・ムックル・スバメ・マメパト",
+    "pokemonFeatured": [
+      "ラプラス",
+      "チルット",
+      "ムックル",
+      "スバメ",
+      "マメパト"
+    ],
+    "prefectureId": 4,
+    "municipality": "亘理町",
+    "address": "宮城県亘理町荒浜字隈崎9-2",
+    "latitude": 38.04217,
+    "longitude": 140.915724,
+    "officialImageUrl": "/api/official-images/57.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/57/"
+  },
+  {
+    "officialRef": "56",
+    "name": "岩沼市｜ラプラス・トゲピー",
+    "pokemonFeatured": [
+      "ラプラス",
+      "トゲピー"
+    ],
+    "prefectureId": 4,
+    "municipality": "岩沼市",
+    "address": "宮城県岩沼市中央1丁目2-13",
+    "latitude": 38.105296,
+    "longitude": 140.866325,
+    "officialImageUrl": "/api/official-images/56.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/56/"
+  },
+  {
+    "officialRef": "55",
+    "name": "名取市｜ラプラス",
+    "pokemonFeatured": [
+      "ラプラス"
+    ],
+    "prefectureId": 4,
+    "municipality": "名取市",
+    "address": "宮城県名取市閖上東二丁目13‐2",
+    "latitude": 38.17213,
+    "longitude": 140.954044,
+    "officialImageUrl": "/api/official-images/55.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/55/"
+  },
+  {
+    "officialRef": "54",
+    "name": "仙台市｜ラプラス・ジラーチ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ジラーチ"
+    ],
+    "prefectureId": 4,
+    "municipality": "仙台市",
+    "address": "宮城県仙台市青葉区一番町二丁目6-5",
+    "latitude": 38.258587,
+    "longitude": 140.872666,
+    "officialImageUrl": "/api/official-images/54.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/54/"
+  },
+  {
+    "officialRef": "53",
+    "name": "多賀城市｜ラプラス・タッツー",
+    "pokemonFeatured": [
+      "ラプラス",
+      "タッツー"
+    ],
+    "prefectureId": 4,
+    "municipality": "多賀城市",
+    "address": "宮城県多賀城市中央2丁目7番地",
+    "latitude": 38.291943,
+    "longitude": 141.007158,
+    "officialImageUrl": "/api/official-images/53.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/53/"
+  },
+  {
+    "officialRef": "52",
+    "name": "七ヶ浜町｜ラプラス・メタモン・ヒトデマン",
+    "pokemonFeatured": [
+      "ラプラス",
+      "メタモン",
+      "ヒトデマン"
+    ],
+    "prefectureId": 4,
+    "municipality": "七ヶ浜町",
+    "address": "宮城県七ヶ浜町花渕浜字館下184",
+    "latitude": 38.304315,
+    "longitude": 141.083342,
+    "officialImageUrl": "/api/official-images/52.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/52/"
+  },
+  {
+    "officialRef": "51",
+    "name": "利府町｜ラプラス・マイナン",
+    "pokemonFeatured": [
+      "ラプラス",
+      "マイナン"
+    ],
+    "prefectureId": 4,
+    "municipality": "利府町",
+    "address": "宮城県利府町利府字新並松4",
+    "latitude": 38.329512,
+    "longitude": 140.975248,
+    "officialImageUrl": "/api/official-images/51.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/51/"
+  },
+  {
+    "officialRef": "50",
+    "name": "塩竈市｜ラプラス・プラスル",
+    "pokemonFeatured": [
+      "ラプラス",
+      "プラスル"
+    ],
+    "prefectureId": 4,
+    "municipality": "塩竈市",
+    "address": "宮城県塩竈市海岸通200-15",
+    "latitude": 38.318226,
+    "longitude": 141.023075,
+    "officialImageUrl": "/api/official-images/50.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/50/"
+  },
+  {
+    "officialRef": "49",
+    "name": "松島町｜ラプラス",
+    "pokemonFeatured": [
+      "ラプラス"
+    ],
+    "prefectureId": 4,
+    "municipality": "松島町",
+    "address": "宮城県松島町松島字浪打浜地内",
+    "latitude": 38.368987,
+    "longitude": 141.061207,
+    "officialImageUrl": "/api/official-images/49.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/49/"
+  },
+  {
+    "officialRef": "48",
+    "name": "東松島市｜ラプラス・ラティオス",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ラティオス"
+    ],
+    "prefectureId": 4,
+    "municipality": "東松島市",
+    "address": "宮城県東松島市野蒜ケ丘一丁目15-1",
+    "latitude": 38.379414,
+    "longitude": 141.15671,
+    "officialImageUrl": "/api/official-images/48.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/48/"
+  },
+  {
+    "officialRef": "47",
+    "name": "石巻市｜ラプラス・ニャース・ニャビー・エネコ・ニャルマー",
+    "pokemonFeatured": [
+      "ラプラス",
+      "ニャース",
+      "ニャビー",
+      "エネコ",
+      "ニャルマー"
+    ],
+    "prefectureId": 4,
+    "municipality": "石巻市",
+    "address": "宮城県石巻市穀町14番1号",
+    "latitude": 38.433844,
+    "longitude": 141.303041,
+    "officialImageUrl": "/api/official-images/47.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/47/"
+  },
+  {
+    "officialRef": "46",
+    "name": "女川町｜ラプラス・キャモメ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "キャモメ"
+    ],
+    "prefectureId": 4,
+    "municipality": "女川町",
+    "address": "宮城県女川町女川2-65",
+    "latitude": 38.445695,
+    "longitude": 141.44623,
+    "officialImageUrl": "/api/official-images/46.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/46/"
+  },
+  {
+    "officialRef": "45",
+    "name": "南三陸町｜ラプラス・オクタン",
+    "pokemonFeatured": [
+      "ラプラス",
+      "オクタン"
+    ],
+    "prefectureId": 4,
+    "municipality": "南三陸町",
+    "address": "宮城県南三陸町歌津字伊里前96-1",
+    "latitude": 38.717061,
+    "longitude": 141.52115,
+    "officialImageUrl": "/api/official-images/45.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/45/"
+  },
+  {
+    "officialRef": "44",
+    "name": "気仙沼市｜ラプラス・イシツブテ",
+    "pokemonFeatured": [
+      "ラプラス",
+      "イシツブテ"
+    ],
+    "prefectureId": 4,
+    "municipality": "気仙沼市",
+    "address": "宮城県気仙沼市南町海岸1-14",
+    "latitude": 38.905694,
+    "longitude": 141.574667,
+    "officialImageUrl": "/api/official-images/44.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/44/"
+  },
+  {
+    "officialRef": "322",
+    "name": "仙北市｜ハクリュー・ワシボン",
+    "pokemonFeatured": [
+      "ハクリュー",
+      "ワシボン"
+    ],
+    "prefectureId": 5,
+    "municipality": "仙北市",
+    "address": "秋田県仙北市田沢湖潟字ヨテコ沢４",
+    "latitude": 39.699992,
+    "longitude": 140.662631,
+    "officialImageUrl": "/api/official-images/322.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/322/"
+  },
+  {
+    "officialRef": "321",
+    "name": "鹿角市｜カラカラ・ガラルデスマス",
+    "pokemonFeatured": [
+      "カラカラ",
+      "ガラルデスマス"
+    ],
+    "prefectureId": 5,
+    "municipality": "鹿角市",
+    "address": "秋田県鹿角市花輪字新田町11-4",
+    "latitude": 40.181213,
+    "longitude": 140.785474,
+    "officialImageUrl": "/api/official-images/321.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/321/"
+  },
+  {
+    "officialRef": "320",
+    "name": "男鹿市｜オニゴーリ・ヘルガー・グランブル",
+    "pokemonFeatured": [
+      "オニゴーリ",
+      "ヘルガー",
+      "グランブル"
+    ],
+    "prefectureId": 5,
+    "municipality": "男鹿市",
+    "address": "秋田県男鹿市船川港船川字新浜町1-19",
+    "latitude": 39.88201,
+    "longitude": 139.84772,
+    "officialImageUrl": "/api/official-images/320.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/320/"
+  },
+  {
+    "officialRef": "319",
+    "name": "横手市｜パピモッチ・ユキワラシ",
+    "pokemonFeatured": [
+      "パピモッチ",
+      "ユキワラシ"
+    ],
+    "prefectureId": 5,
+    "municipality": "横手市",
+    "address": "秋田県横手市赤坂富ケ沢62-46",
+    "latitude": 39.293561,
+    "longitude": 140.545941,
+    "officialImageUrl": "/api/official-images/319.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/319/"
+  },
+  {
+    "officialRef": "318",
+    "name": "秋田市｜ガーディ・イワンコ・バウッツェル",
+    "pokemonFeatured": [
+      "ガーディ",
+      "イワンコ",
+      "バウッツェル"
+    ],
+    "prefectureId": 5,
+    "municipality": "秋田市",
+    "address": "秋田県秋田市土崎港西１丁目9-1",
+    "latitude": 39.752642,
+    "longitude": 140.061295,
+    "officialImageUrl": "/api/official-images/318.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/318/"
+  },
+  {
+    "officialRef": "403",
+    "name": "鶴岡市｜ブルンゲル・ドククラゲ・メノクラゲ・プルリル",
+    "pokemonFeatured": [
+      "ブルンゲル",
+      "ドククラゲ",
+      "メノクラゲ",
+      "プルリル"
+    ],
+    "prefectureId": 6,
+    "municipality": "鶴岡市",
+    "address": "山形県鶴岡市由良2-14",
+    "latitude": 38.721151,
+    "longitude": 139.684635,
+    "officialImageUrl": "/api/official-images/403.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/403/"
+  },
+  {
+    "officialRef": "402",
+    "name": "小国町｜クマシュン・ツンベアー・アルクジラ",
+    "pokemonFeatured": [
+      "クマシュン",
+      "ツンベアー",
+      "アルクジラ"
+    ],
+    "prefectureId": 6,
+    "municipality": "小国町",
+    "address": "山形県小国町小国小坂町616",
+    "latitude": 38.072713,
+    "longitude": 139.73128,
+    "officialImageUrl": "/api/official-images/402.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/402/"
+  },
+  {
+    "officialRef": "401",
+    "name": "大蔵村｜ランプラー・ガラルヒヒダルマ・テールナー",
+    "pokemonFeatured": [
+      "ランプラー",
+      "ガラルヒヒダルマ",
+      "テールナー"
+    ],
+    "prefectureId": 6,
+    "municipality": "大蔵村",
+    "address": "山形県大蔵村南山４５１－２",
+    "latitude": 38.611083,
+    "longitude": 140.169653,
+    "officialImageUrl": "/api/official-images/401.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/401/"
+  },
+  {
+    "officialRef": "400",
+    "name": "寒河江市｜チェリム・チェリンボ",
+    "pokemonFeatured": [
+      "チェリム",
+      "チェリンボ"
+    ],
+    "prefectureId": 6,
+    "municipality": "寒河江市",
+    "address": "山形県寒河江市山西甲1269",
+    "latitude": 38.363842,
+    "longitude": 140.26637,
+    "officialImageUrl": "/api/official-images/400.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/400/"
+  },
+  {
+    "officialRef": "399",
+    "name": "山形市｜ポポッコ・ラフレシア・ドレディア",
+    "pokemonFeatured": [
+      "ポポッコ",
+      "ラフレシア",
+      "ドレディア"
+    ],
+    "prefectureId": 6,
+    "municipality": "山形市",
+    "address": "山形県山形市双葉町1-2-38",
+    "latitude": 38.248477,
+    "longitude": 140.325854,
+    "officialImageUrl": "/api/official-images/399.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/399/"
+  },
+  {
+    "officialRef": "462",
+    "name": "大熊町｜ラッキー・ヒメグマ・キテルグマ・ヌイコグマ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ヒメグマ",
+      "キテルグマ",
+      "ヌイコグマ"
+    ],
+    "prefectureId": 7,
+    "municipality": "大熊町",
+    "address": "福島県大熊町下野上大野116-5",
+    "latitude": 37.4099576,
+    "longitude": 140.983206,
+    "officialImageUrl": "/api/official-images/462.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/462/"
+  },
+  {
+    "officialRef": "461",
+    "name": "小野町｜ラッキー・ゴチミル・ブリムオン",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ゴチミル",
+      "ブリムオン"
+    ],
+    "prefectureId": 7,
+    "municipality": "小野町",
+    "address": "福島県小野町大字小野新町字中通2",
+    "latitude": 37.279216,
+    "longitude": 140.633912,
+    "officialImageUrl": "/api/official-images/461.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/461/"
+  },
+  {
+    "officialRef": "460",
+    "name": "浅川町｜ラッキー・ピンプク・バオップ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ピンプク",
+      "バオップ"
+    ],
+    "prefectureId": 7,
+    "municipality": "浅川町",
+    "address": "福島県浅川町本町西裏（JR磐城浅川駅前広場）",
+    "latitude": 37.0802942,
+    "longitude": 140.4146001,
+    "officialImageUrl": "/api/official-images/460.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/460/"
+  },
+  {
+    "officialRef": "459",
+    "name": "鮫川村｜ラッキー・サメハダー・フカマル",
+    "pokemonFeatured": [
+      "ラッキー",
+      "サメハダー",
+      "フカマル"
+    ],
+    "prefectureId": 7,
+    "municipality": "鮫川村",
+    "address": "福島県鮫川村大字赤阪中野字巡ヶ作116番地",
+    "latitude": 37.040242,
+    "longitude": 140.50677,
+    "officialImageUrl": "/api/official-images/459.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/459/"
+  },
+  {
+    "officialRef": "458",
+    "name": "泉崎村｜ラッキー・ヤジロン・アオガラス",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ヤジロン",
+      "アオガラス"
+    ],
+    "prefectureId": 7,
+    "municipality": "泉崎村",
+    "address": "福島県泉崎村泉崎笹立山12-7",
+    "latitude": 37.157384,
+    "longitude": 140.314605,
+    "officialImageUrl": "/api/official-images/458.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/458/"
+  },
+  {
+    "officialRef": "457",
+    "name": "西会津町｜ラッキー・マシェード・ピクシー",
+    "pokemonFeatured": [
+      "ラッキー",
+      "マシェード",
+      "ピクシー"
+    ],
+    "prefectureId": 7,
+    "municipality": "西会津町",
+    "address": "福島県西会津町野沢字下條乙1969-26",
+    "latitude": 37.585568,
+    "longitude": 139.642677,
+    "officialImageUrl": "/api/official-images/457.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/457/"
+  },
+  {
+    "officialRef": "456",
+    "name": "下郷町｜ラッキー・ハリマロン・カモネギ・チリーン",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ハリマロン",
+      "カモネギ",
+      "チリーン"
+    ],
+    "prefectureId": 7,
+    "municipality": "下郷町",
+    "address": "福島県下郷町大字南倉沢字木賊844番地188",
+    "latitude": 37.203534,
+    "longitude": 139.916146,
+    "officialImageUrl": "/api/official-images/456.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/456/"
+  },
+  {
+    "officialRef": "455",
+    "name": "天栄村｜ラッキー・イエッサン",
+    "pokemonFeatured": [
+      "ラッキー",
+      "イエッサン"
+    ],
+    "prefectureId": 7,
+    "municipality": "天栄村",
+    "address": "福島県天栄村大字大里字天房41-2",
+    "latitude": 37.243406,
+    "longitude": 140.243722,
+    "officialImageUrl": "/api/official-images/455.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/455/"
+  },
+  {
+    "officialRef": "454",
+    "name": "須賀川市｜ラッキー・マフォクシー",
+    "pokemonFeatured": [
+      "ラッキー",
+      "マフォクシー"
+    ],
+    "prefectureId": 7,
+    "municipality": "須賀川市",
+    "address": "福島県須賀川市愛宕山5",
+    "latitude": 37.291536,
+    "longitude": 140.382947,
+    "officialImageUrl": "/api/official-images/454.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/454/"
+  },
+  {
+    "officialRef": "376",
+    "name": "白河市｜ラッキー・ダルマッカ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ダルマッカ"
+    ],
+    "prefectureId": 7,
+    "municipality": "白河市",
+    "address": "福島県白河市郭内",
+    "latitude": 37.1296,
+    "longitude": 140.212974,
+    "officialImageUrl": "/api/official-images/376.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/376/"
+  },
+  {
+    "officialRef": "375",
+    "name": "平田村｜ラッキー・カプサイジ・スコヴィラン",
+    "pokemonFeatured": [
+      "ラッキー",
+      "カプサイジ",
+      "スコヴィラン"
+    ],
+    "prefectureId": 7,
+    "municipality": "平田村",
+    "address": "福島県平田村大字蓬田新田字蓬田岳437",
+    "latitude": 37.262128,
+    "longitude": 140.547538,
+    "officialImageUrl": "/api/official-images/375.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/375/"
+  },
+  {
+    "officialRef": "374",
+    "name": "広野町｜ラッキー・ヤンヤンマ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ヤンヤンマ"
+    ],
+    "prefectureId": 7,
+    "municipality": "広野町",
+    "address": "福島県広野町大字下北迫字大谷地原74-1",
+    "latitude": 37.23297,
+    "longitude": 141.0018,
+    "officialImageUrl": "/api/official-images/374.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/374/"
+  },
+  {
+    "officialRef": "373",
+    "name": "国見町｜ラッキー・ピンプク・クルマユ・タブンネ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ピンプク",
+      "クルマユ",
+      "タブンネ"
+    ],
+    "prefectureId": 7,
+    "municipality": "国見町",
+    "address": "福島県国見町大字藤田字日渡二18-1",
+    "latitude": 37.872639,
+    "longitude": 140.546861,
+    "officialImageUrl": "/api/official-images/373.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/373/"
+  },
+  {
+    "officialRef": "372",
+    "name": "湯川村｜ラッキー・アブリー・ラルトス",
+    "pokemonFeatured": [
+      "ラッキー",
+      "アブリー",
+      "ラルトス"
+    ],
+    "prefectureId": 7,
+    "municipality": "湯川村",
+    "address": "福島県湯川村大字佐野目字五丁ノ目78-1",
+    "latitude": 37.55742,
+    "longitude": 139.862167,
+    "officialImageUrl": "/api/official-images/372.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/372/"
+  },
+  {
+    "officialRef": "371",
+    "name": "棚倉町｜ラッキー・ニョロトノ・カジリガメ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ニョロトノ",
+      "カジリガメ"
+    ],
+    "prefectureId": 7,
+    "municipality": "棚倉町",
+    "address": "福島県棚倉町大字棚倉字城跡33-7の先",
+    "latitude": 37.029237,
+    "longitude": 140.387151,
+    "officialImageUrl": "/api/official-images/371.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/371/"
+  },
+  {
+    "officialRef": "370",
+    "name": "鏡石町｜ラッキー・ミルタンク・メリープ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ミルタンク",
+      "メリープ"
+    ],
+    "prefectureId": 7,
+    "municipality": "鏡石町",
+    "address": "福島県鏡石町中央245番地",
+    "latitude": 37.251117,
+    "longitude": 140.347153,
+    "officialImageUrl": "/api/official-images/370.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/370/"
+  },
+  {
+    "officialRef": "369",
+    "name": "会津坂下町｜ラッキー・カイリキー",
+    "pokemonFeatured": [
+      "ラッキー",
+      "カイリキー"
+    ],
+    "prefectureId": 7,
+    "municipality": "会津坂下町",
+    "address": "福島県会津坂下町字西南町裏甲3998番地2",
+    "latitude": 37.56046,
+    "longitude": 139.821186,
+    "officialImageUrl": "/api/official-images/369.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/369/"
+  },
+  {
+    "officialRef": "287",
+    "name": "三春町｜ラッキー・ロズレイド",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ロズレイド"
+    ],
+    "prefectureId": 7,
+    "municipality": "三春町",
+    "address": "福島県三春町字北町10",
+    "latitude": 37.4433,
+    "longitude": 140.49124,
+    "officialImageUrl": "/api/official-images/287.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/287/"
+  },
+  {
+    "officialRef": "286",
+    "name": "古殿町｜ラッキー・ハピナス",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ハピナス"
+    ],
+    "prefectureId": 7,
+    "municipality": "古殿町",
+    "address": "福島県古殿町大字田口字平舘25番地",
+    "latitude": 37.092891,
+    "longitude": 140.529308,
+    "officialImageUrl": "/api/official-images/286.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/286/"
+  },
+  {
+    "officialRef": "285",
+    "name": "矢吹町｜ラッキー・ファイアロー",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ファイアロー"
+    ],
+    "prefectureId": 7,
+    "municipality": "矢吹町",
+    "address": "福島県矢吹町大池145",
+    "latitude": 37.21842,
+    "longitude": 140.335635,
+    "officialImageUrl": "/api/official-images/285.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/285/"
+  },
+  {
+    "officialRef": "284",
+    "name": "西郷村｜ラッキー・ウパー",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ウパー"
+    ],
+    "prefectureId": 7,
+    "municipality": "西郷村",
+    "address": "福島県西郷村大字熊倉字折口原146",
+    "latitude": 37.1399,
+    "longitude": 140.15467,
+    "officialImageUrl": "/api/official-images/284.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/284/"
+  },
+  {
+    "officialRef": "283",
+    "name": "会津美里町｜ラッキー・ドレディア",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ドレディア"
+    ],
+    "prefectureId": 7,
+    "municipality": "会津美里町",
+    "address": "福島県会津美里町字宮林甲4377番地１",
+    "latitude": 37.455169,
+    "longitude": 139.840297,
+    "officialImageUrl": "/api/official-images/283.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/283/"
+  },
+  {
+    "officialRef": "282",
+    "name": "猪苗代町｜ラッキー・ハヤシガメ・スワンナ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ハヤシガメ",
+      "スワンナ"
+    ],
+    "prefectureId": 7,
+    "municipality": "猪苗代町",
+    "address": "福島県猪苗代町大字堅田字五百苅1番地",
+    "latitude": 37.538088,
+    "longitude": 140.107569,
+    "officialImageUrl": "/api/official-images/282.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/282/"
+  },
+  {
+    "officialRef": "281",
+    "name": "北塩原村｜ラッキー・バニリッチ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "バニリッチ"
+    ],
+    "prefectureId": 7,
+    "municipality": "北塩原村",
+    "address": "福島県北塩原村大字桧原字剣ヶ峯1093-1055",
+    "latitude": 37.656148,
+    "longitude": 140.089446,
+    "officialImageUrl": "/api/official-images/281.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/281/"
+  },
+  {
+    "officialRef": "280",
+    "name": "伊達市｜ラッキー・ゴリランダー",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ゴリランダー"
+    ],
+    "prefectureId": 7,
+    "municipality": "伊達市",
+    "address": "福島県伊達市霊山町石田字中沢19-1",
+    "latitude": 37.760799,
+    "longitude": 140.691402,
+    "officialImageUrl": "/api/official-images/280.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/280/"
+  },
+  {
+    "officialRef": "279",
+    "name": "二本松市｜ラッキー・ペロッパフ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ペロッパフ"
+    ],
+    "prefectureId": 7,
+    "municipality": "二本松市",
+    "address": "福島県二本松市安達ヶ原四丁目100番地",
+    "latitude": 37.593347,
+    "longitude": 140.464001,
+    "officialImageUrl": "/api/official-images/279.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/279/"
+  },
+  {
+    "officialRef": "254",
+    "name": "飯舘村｜ラッキー・フラエッテ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "フラエッテ"
+    ],
+    "prefectureId": 7,
+    "municipality": "飯舘村",
+    "address": "福島県飯舘村深谷字深谷前11-1",
+    "latitude": 37.698145,
+    "longitude": 140.735552,
+    "officialImageUrl": "/api/official-images/254.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/254/"
+  },
+  {
+    "officialRef": "253",
+    "name": "双葉町｜ラッキー・ヒマナッツ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ヒマナッツ"
+    ],
+    "prefectureId": 7,
+    "municipality": "双葉町",
+    "address": "福島県双葉町大字中野字高田1番地1",
+    "latitude": 37.45745,
+    "longitude": 141.02692,
+    "officialImageUrl": "/api/official-images/253.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/253/"
+  },
+  {
+    "officialRef": "252",
+    "name": "昭和村｜ラッキー・クルミル",
+    "pokemonFeatured": [
+      "ラッキー",
+      "クルミル"
+    ],
+    "prefectureId": 7,
+    "municipality": "昭和村",
+    "address": "福島県昭和村大字佐倉字上ノ原1番地",
+    "latitude": 37.325691,
+    "longitude": 139.630641,
+    "officialImageUrl": "/api/official-images/252.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/252/"
+  },
+  {
+    "officialRef": "251",
+    "name": "柳津町｜ラッキー・ピンプク",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ピンプク"
+    ],
+    "prefectureId": 7,
+    "municipality": "柳津町",
+    "address": "福島県柳津町大字柳津字下平乙161番地1",
+    "latitude": 37.528189,
+    "longitude": 139.722662,
+    "officialImageUrl": "/api/official-images/251.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/251/"
+  },
+  {
+    "officialRef": "250",
+    "name": "南会津町｜ラッキー・ドッコラー",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ドッコラー"
+    ],
+    "prefectureId": 7,
+    "municipality": "南会津町",
+    "address": "福島県南会津町田島字宮本東33番地１",
+    "latitude": 37.2057204,
+    "longitude": 139.7778739,
+    "officialImageUrl": "/api/official-images/250.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/250/"
+  },
+  {
+    "officialRef": "249",
+    "name": "郡山市｜ラッキー・プリン",
+    "pokemonFeatured": [
+      "ラッキー",
+      "プリン"
+    ],
+    "prefectureId": 7,
+    "municipality": "郡山市",
+    "address": "福島県郡山市開成1丁目5",
+    "latitude": 37.396784,
+    "longitude": 140.35612,
+    "officialImageUrl": "/api/official-images/249.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/249/"
+  },
+  {
+    "officialRef": "248",
+    "name": "会津若松市｜ラッキー・エルレイド",
+    "pokemonFeatured": [
+      "ラッキー",
+      "エルレイド"
+    ],
+    "prefectureId": 7,
+    "municipality": "会津若松市",
+    "address": "福島県会津若松市門田町大字堤沢村上164 会津総合運動公園内",
+    "latitude": 37.461098,
+    "longitude": 139.927545,
+    "officialImageUrl": "/api/official-images/248.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/248/"
+  },
+  {
+    "officialRef": "247",
+    "name": "福島市｜ラッキー・モルペコ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "モルペコ"
+    ],
+    "prefectureId": 7,
+    "municipality": "福島市",
+    "address": "福島県福島市大笹生字月崎1-1",
+    "latitude": 37.80441,
+    "longitude": 140.41091,
+    "officialImageUrl": "/api/official-images/247.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/247/"
+  },
+  {
+    "officialRef": "96",
+    "name": "川内村｜ラッキー・ヨワシ・サシカマス",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ヨワシ",
+      "サシカマス"
+    ],
+    "prefectureId": 7,
+    "municipality": "川内村",
+    "address": "福島県川内村大字下川内字宮ノ下25-1",
+    "latitude": 37.329458,
+    "longitude": 140.82162,
+    "officialImageUrl": "/api/official-images/96.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/96/"
+  },
+  {
+    "officialRef": "95",
+    "name": "田村市｜ラッキー・ヘラクロス",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ヘラクロス"
+    ],
+    "prefectureId": 7,
+    "municipality": "田村市",
+    "address": "福島県田村市滝根町菅谷字東釜山1",
+    "latitude": 37.344423,
+    "longitude": 140.674289,
+    "officialImageUrl": "/api/official-images/95.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/95/"
+  },
+  {
+    "officialRef": "94",
+    "name": "川俣町｜ラッキー・カラサリス・マユルド",
+    "pokemonFeatured": [
+      "ラッキー",
+      "カラサリス",
+      "マユルド"
+    ],
+    "prefectureId": 7,
+    "municipality": "川俣町",
+    "address": "福島県川俣町大字鶴沢字東13-1",
+    "latitude": 37.667671,
+    "longitude": 140.57675,
+    "officialImageUrl": "/api/official-images/94.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/94/"
+  },
+  {
+    "officialRef": "93",
+    "name": "いわき市｜ラッキー・キレイハナ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "キレイハナ"
+    ],
+    "prefectureId": 7,
+    "municipality": "いわき市",
+    "address": "福島県いわき市四倉町字5-218-1",
+    "latitude": 37.1073084,
+    "longitude": 140.9932743,
+    "officialImageUrl": "/api/official-images/93.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/93/"
+  },
+  {
+    "officialRef": "92",
+    "name": "楢葉町｜ラッキー・ラビフット",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ラビフット"
+    ],
+    "prefectureId": 7,
+    "municipality": "楢葉町",
+    "address": "福島県楢葉町大字山田岡字大堤入22-1",
+    "latitude": 37.2501442,
+    "longitude": 140.9975789,
+    "officialImageUrl": "/api/official-images/92.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/92/"
+  },
+  {
+    "officialRef": "91",
+    "name": "浪江町｜ラッキー",
+    "pokemonFeatured": [
+      "ラッキー"
+    ],
+    "prefectureId": 7,
+    "municipality": "浪江町",
+    "address": "福島県浪江町大字幾世橋字知命寺60（道の駅なみえ敷地内）",
+    "latitude": 37.496395,
+    "longitude": 141.000919,
+    "officialImageUrl": "/api/official-images/91.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/91/"
+  },
+  {
+    "officialRef": "90",
+    "name": "南相馬市｜ラッキー・ギャロップ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ギャロップ"
+    ],
+    "prefectureId": 7,
+    "municipality": "南相馬市",
+    "address": "福島県南相馬市原町区高見町2-30-1",
+    "latitude": 37.63577,
+    "longitude": 140.983041,
+    "officialImageUrl": "/api/official-images/90.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/90/"
+  },
+  {
+    "officialRef": "89",
+    "name": "相馬市｜ラッキー・ポニータ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "ポニータ"
+    ],
+    "prefectureId": 7,
+    "municipality": "相馬市",
+    "address": "福島県相馬市尾浜字寺前111-1",
+    "latitude": 37.827708,
+    "longitude": 140.963244,
+    "officialImageUrl": "/api/official-images/89.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/89/"
+  },
+  {
+    "officialRef": "88",
+    "name": "新地町｜ラッキー・オドシシ",
+    "pokemonFeatured": [
+      "ラッキー",
+      "オドシシ"
+    ],
+    "prefectureId": 7,
+    "municipality": "新地町",
+    "address": "福島県新地町駅前1丁目3番地",
+    "latitude": 37.878748,
+    "longitude": 140.925027,
+    "officialImageUrl": "/api/official-images/88.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/88/"
+  },
+  {
+    "officialRef": "413",
+    "name": "水戸市｜ジャローダ・ナットレイ・ハーデリア",
+    "pokemonFeatured": [
+      "ジャローダ",
+      "ナットレイ",
+      "ハーデリア"
+    ],
+    "prefectureId": 8,
+    "municipality": "水戸市",
+    "address": "茨城県水戸市見川1-1251",
+    "latitude": 36.372273,
+    "longitude": 140.452358,
+    "officialImageUrl": "/api/official-images/413.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/413/"
+  },
+  {
+    "officialRef": "412",
+    "name": "常陸太田市｜ボーマンダ・ルチャブル",
+    "pokemonFeatured": [
+      "ボーマンダ",
+      "ルチャブル"
+    ],
+    "prefectureId": 8,
+    "municipality": "常陸太田市",
+    "address": "茨城県常陸太田市下河合町1016-1",
+    "latitude": 36.510672,
+    "longitude": 140.525632,
+    "officialImageUrl": "/api/official-images/412.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/412/"
+  },
+  {
+    "officialRef": "411",
+    "name": "つくば市｜レックウザ",
+    "pokemonFeatured": [
+      "レックウザ"
+    ],
+    "prefectureId": 8,
+    "municipality": "つくば市",
+    "address": "茨城県つくば市吾妻2-7-5",
+    "latitude": 36.08581,
+    "longitude": 140.110839,
+    "officialImageUrl": "/api/official-images/411.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/411/"
+  },
+  {
+    "officialRef": "410",
+    "name": "筑西市｜グレッグル・ハラバリー",
+    "pokemonFeatured": [
+      "グレッグル",
+      "ハラバリー"
+    ],
+    "prefectureId": 8,
+    "municipality": "筑西市",
+    "address": "茨城県筑西市川澄１８５０",
+    "latitude": 36.322445,
+    "longitude": 139.994116,
+    "officialImageUrl": "/api/official-images/410.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/410/"
+  },
+  {
+    "officialRef": "409",
+    "name": "神栖市｜マラカッチ・オトシドリ",
+    "pokemonFeatured": [
+      "マラカッチ",
+      "オトシドリ"
+    ],
+    "prefectureId": 8,
+    "municipality": "神栖市",
+    "address": "茨城県神栖市木崎1203-9",
+    "latitude": 35.897341,
+    "longitude": 140.649095,
+    "officialImageUrl": "/api/official-images/409.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/409/"
+  },
+  {
+    "officialRef": "228",
+    "name": "宇都宮市｜ボルトロス",
+    "pokemonFeatured": [
+      "ボルトロス"
+    ],
+    "prefectureId": 9,
+    "municipality": "宇都宮市",
+    "address": "栃木県宇都宮市大曽2丁目地内",
+    "latitude": 36.57228,
+    "longitude": 139.88722,
+    "officialImageUrl": "/api/official-images/228.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/228/"
+  },
+  {
+    "officialRef": "227",
+    "name": "宇都宮市｜ラクライ・イワパレス",
+    "pokemonFeatured": [
+      "ラクライ",
+      "イワパレス"
+    ],
+    "prefectureId": 9,
+    "municipality": "宇都宮市",
+    "address": "栃木県宇都宮市新里町丙254番地",
+    "latitude": 36.63422,
+    "longitude": 139.83102,
+    "officialImageUrl": "/api/official-images/227.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/227/"
+  },
+  {
+    "officialRef": "226",
+    "name": "宇都宮市｜エレブー・ホシガリス",
+    "pokemonFeatured": [
+      "エレブー",
+      "ホシガリス"
+    ],
+    "prefectureId": 9,
+    "municipality": "宇都宮市",
+    "address": "栃木県宇都宮市元今泉5丁目10-1",
+    "latitude": 36.56077,
+    "longitude": 139.909489,
+    "officialImageUrl": "/api/official-images/226.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/226/"
+  },
+  {
+    "officialRef": "213",
+    "name": "所沢市｜カイリュー",
+    "pokemonFeatured": [
+      "カイリュー"
+    ],
+    "prefectureId": 11,
+    "municipality": "所沢市",
+    "address": "埼玉県所沢市並木1-13",
+    "latitude": 35.798734,
+    "longitude": 139.471991,
+    "officialImageUrl": "/api/official-images/213.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/213/"
+  },
+  {
+    "officialRef": "212",
+    "name": "所沢市｜ハクリュー・エアームド",
+    "pokemonFeatured": [
+      "ハクリュー",
+      "エアームド"
+    ],
+    "prefectureId": 11,
+    "municipality": "所沢市",
+    "address": "埼玉県所沢市日吉町1",
+    "latitude": 35.786887,
+    "longitude": 139.472881,
+    "officialImageUrl": "/api/official-images/212.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/212/"
+  },
+  {
+    "officialRef": "211",
+    "name": "所沢市｜ミニリュウ・アーマーガア",
+    "pokemonFeatured": [
+      "ミニリュウ",
+      "アーマーガア"
+    ],
+    "prefectureId": 11,
+    "municipality": "所沢市",
+    "address": "埼玉県所沢市松郷143-3",
+    "latitude": 35.797482,
+    "longitude": 139.505528,
+    "officialImageUrl": "/api/official-images/211.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/211/"
+  },
+  {
+    "officialRef": "225",
+    "name": "香取市｜ハスボー・タネボー・ムクバード",
+    "pokemonFeatured": [
+      "ハスボー",
+      "タネボー",
+      "ムクバード"
+    ],
+    "prefectureId": 12,
+    "municipality": "香取市",
+    "address": "千葉県香取市佐原イ4053-3",
+    "latitude": 35.896204,
+    "longitude": 140.506419,
+    "officialImageUrl": "/api/official-images/225.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/225/"
+  },
+  {
+    "officialRef": "224",
+    "name": "香取市｜フラージェス・ヤヤコマ",
+    "pokemonFeatured": [
+      "フラージェス",
+      "ヤヤコマ"
+    ],
+    "prefectureId": 12,
+    "municipality": "香取市",
+    "address": "千葉県香取市佐原ハ4549-1",
+    "latitude": 35.928206,
+    "longitude": 140.523401,
+    "officialImageUrl": "/api/official-images/224.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/224/"
+  },
+  {
+    "officialRef": "223",
+    "name": "香取市｜ココガラ・タイレーツ",
+    "pokemonFeatured": [
+      "ココガラ",
+      "タイレーツ"
+    ],
+    "prefectureId": 12,
+    "municipality": "香取市",
+    "address": "千葉県香取市佐原イ1722-1",
+    "latitude": 35.888376,
+    "longitude": 140.497568,
+    "officialImageUrl": "/api/official-images/223.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/223/"
+  },
+  {
+    "officialRef": "222",
+    "name": "香取市｜ガラルカモネギ",
+    "pokemonFeatured": [
+      "ガラルカモネギ"
+    ],
+    "prefectureId": 12,
+    "municipality": "香取市",
+    "address": "千葉県香取市佐原イ109-14",
+    "latitude": 35.894417,
+    "longitude": 140.493902,
+    "officialImageUrl": "/api/official-images/222.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/222/"
+  },
+  {
+    "officialRef": "173",
+    "name": "台東区上野｜ヤジロン・ドーミラー",
+    "pokemonFeatured": [
+      "ヤジロン",
+      "ドーミラー"
+    ],
+    "prefectureId": 13,
+    "municipality": "台東区上野",
+    "address": "東京都台東区上野公園13-9",
+    "latitude": 35.717715,
+    "longitude": 139.775397,
+    "officialImageUrl": "/api/official-images/173.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/173/"
+  },
+  {
+    "officialRef": "172",
+    "name": "台東区上野｜チゴラス・ソーナノ",
+    "pokemonFeatured": [
+      "チゴラス",
+      "ソーナノ"
+    ],
+    "prefectureId": 13,
+    "municipality": "台東区上野",
+    "address": "東京都台東区上野公園7-20",
+    "latitude": 35.71681,
+    "longitude": 139.776399,
+    "officialImageUrl": "/api/official-images/172.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/172/"
+  },
+  {
+    "officialRef": "156",
+    "name": "小笠原村｜ミュウ",
+    "pokemonFeatured": [
+      "ミュウ"
+    ],
+    "prefectureId": 13,
+    "municipality": "小笠原村",
+    "address": "東京都小笠原村父島字東町",
+    "latitude": 27.09448,
+    "longitude": 142.19235,
+    "officialImageUrl": "/api/official-images/156.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/156/"
+  },
+  {
+    "officialRef": "155",
+    "name": "小笠原村｜カメックス",
+    "pokemonFeatured": [
+      "カメックス"
+    ],
+    "prefectureId": 13,
+    "municipality": "小笠原村",
+    "address": "東京都小笠原村父島字東町",
+    "latitude": 27.094596,
+    "longitude": 142.192781,
+    "officialImageUrl": "/api/official-images/155.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/155/"
+  },
+  {
+    "officialRef": "154",
+    "name": "小笠原村｜リザードン",
+    "pokemonFeatured": [
+      "リザードン"
+    ],
+    "prefectureId": 13,
+    "municipality": "小笠原村",
+    "address": "東京都小笠原村父島字東町",
+    "latitude": 27.094708,
+    "longitude": 142.193279,
+    "officialImageUrl": "/api/official-images/154.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/154/"
+  },
+  {
+    "officialRef": "153",
+    "name": "小笠原村｜フシギバナ",
+    "pokemonFeatured": [
+      "フシギバナ"
+    ],
+    "prefectureId": 13,
+    "municipality": "小笠原村",
+    "address": "東京都小笠原村父島字東町",
+    "latitude": 27.094863,
+    "longitude": 142.194033,
+    "officialImageUrl": "/api/official-images/153.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/153/"
+  },
+  {
+    "officialRef": "103",
+    "name": "町田市｜ニョロモ",
+    "pokemonFeatured": [
+      "ニョロモ"
+    ],
+    "prefectureId": 13,
+    "municipality": "町田市",
+    "address": "東京都町田市原町田5-16",
+    "latitude": 35.546713,
+    "longitude": 139.45398,
+    "officialImageUrl": "/api/official-images/103.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/103/"
+  },
+  {
+    "officialRef": "102",
+    "name": "町田市｜ポッポ・コラッタ",
+    "pokemonFeatured": [
+      "ポッポ",
+      "コラッタ"
+    ],
+    "prefectureId": 13,
+    "municipality": "町田市",
+    "address": "東京都町田市原町田5-16",
+    "latitude": 35.545645,
+    "longitude": 139.45488,
+    "officialImageUrl": "/api/official-images/102.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/102/"
+  },
+  {
+    "officialRef": "101",
+    "name": "町田市｜ナゾノクサ・ビードル・キャタピー",
+    "pokemonFeatured": [
+      "ナゾノクサ",
+      "ビードル",
+      "キャタピー"
+    ],
+    "prefectureId": 13,
+    "municipality": "町田市",
+    "address": "東京都町田市原町田5-16",
+    "latitude": 35.546111,
+    "longitude": 139.45436,
+    "officialImageUrl": "/api/official-images/101.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/101/"
+  },
+  {
+    "officialRef": "100",
+    "name": "町田市｜ゼニガメ",
+    "pokemonFeatured": [
+      "ゼニガメ"
+    ],
+    "prefectureId": 13,
+    "municipality": "町田市",
+    "address": "東京都町田市原町田5-16",
+    "latitude": 35.545302,
+    "longitude": 139.45501,
+    "officialImageUrl": "/api/official-images/100.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/100/"
+  },
+  {
+    "officialRef": "99",
+    "name": "町田市｜ヒトカゲ",
+    "pokemonFeatured": [
+      "ヒトカゲ"
+    ],
+    "prefectureId": 13,
+    "municipality": "町田市",
+    "address": "東京都町田市原町田5-16",
+    "latitude": 35.548171,
+    "longitude": 139.4513,
+    "officialImageUrl": "/api/official-images/99.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/99/"
+  },
+  {
+    "officialRef": "98",
+    "name": "町田市｜フシギダネ",
+    "pokemonFeatured": [
+      "フシギダネ"
+    ],
+    "prefectureId": 13,
+    "municipality": "町田市",
+    "address": "東京都町田市原町田5-16",
+    "latitude": 35.548108,
+    "longitude": 139.45034,
+    "officialImageUrl": "/api/official-images/98.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/98/"
+  },
+  {
+    "officialRef": "314",
+    "name": "横浜市｜ピカチュウ・コダック・ワンリキー",
+    "pokemonFeatured": [
+      "ピカチュウ",
+      "コダック",
+      "ワンリキー"
+    ],
+    "prefectureId": 14,
+    "municipality": "横浜市",
+    "address": "神奈川県横浜市西区みなとみらい2-1-1",
+    "latitude": 35.453319,
+    "longitude": 139.631688,
+    "officialImageUrl": "/api/official-images/314.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/314/"
+  },
+  {
+    "officialRef": "313",
+    "name": "横浜市｜ピカチュウ・ビクティニ・ゴンべ",
+    "pokemonFeatured": [
+      "ピカチュウ",
+      "ビクティニ",
+      "ゴンべ"
+    ],
+    "prefectureId": 14,
+    "municipality": "横浜市",
+    "address": "神奈川県横浜市西区みなとみらい一丁目",
+    "latitude": 35.458698,
+    "longitude": 139.638331,
+    "officialImageUrl": "/api/official-images/313.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/313/"
+  },
+  {
+    "officialRef": "312",
+    "name": "横浜市｜ピカチュウ・ペリッパー",
+    "pokemonFeatured": [
+      "ピカチュウ",
+      "ペリッパー"
+    ],
+    "prefectureId": 14,
+    "municipality": "横浜市",
+    "address": "神奈川県横浜市中区山下町14-1",
+    "latitude": 35.443707,
+    "longitude": 139.650904,
+    "officialImageUrl": "/api/official-images/312.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/312/"
+  },
+  {
+    "officialRef": "311",
+    "name": "横浜市｜ピカチュウ・ライチュウ",
+    "pokemonFeatured": [
+      "ピカチュウ",
+      "ライチュウ"
+    ],
+    "prefectureId": 14,
+    "municipality": "横浜市",
+    "address": "神奈川県横浜市中区新港一丁目",
+    "latitude": 35.451037,
+    "longitude": 139.644154,
+    "officialImageUrl": "/api/official-images/311.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/311/"
+  },
+  {
+    "officialRef": "23",
+    "name": "横浜市｜ピカチュウ",
+    "pokemonFeatured": [
+      "ピカチュウ"
+    ],
+    "prefectureId": 14,
+    "municipality": "横浜市",
+    "address": "神奈川県横浜市中区桜木町1-1",
+    "latitude": 35.451167,
+    "longitude": 139.631501,
+    "officialImageUrl": "/api/official-images/23.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/23/"
+  },
+  {
+    "officialRef": "147",
+    "name": "小千谷市｜コイキング・ピジョン",
+    "pokemonFeatured": [
+      "コイキング",
+      "ピジョン"
+    ],
+    "prefectureId": 15,
+    "municipality": "小千谷市",
+    "address": "新潟県小千谷市小千谷市大字桜町4915",
+    "latitude": 37.314301,
+    "longitude": 138.7835,
+    "officialImageUrl": "/api/official-images/147.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/147/"
+  },
+  {
+    "officialRef": "146",
+    "name": "小千谷市｜コイキング・ヒンバス",
+    "pokemonFeatured": [
+      "コイキング",
+      "ヒンバス"
+    ],
+    "prefectureId": 15,
+    "municipality": "小千谷市",
+    "address": "新潟県小千谷市小千谷市城内1-8-22",
+    "latitude": 37.311028,
+    "longitude": 138.795653,
+    "officialImageUrl": "/api/official-images/146.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/146/"
+  },
+  {
+    "officialRef": "145",
+    "name": "小千谷市｜コイキング",
+    "pokemonFeatured": [
+      "コイキング"
+    ],
+    "prefectureId": 15,
+    "municipality": "小千谷市",
+    "address": "新潟県小千谷市東栄1-1付近",
+    "latitude": 37.309883,
+    "longitude": 138.812939,
+    "officialImageUrl": "/api/official-images/145.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/145/"
+  },
+  {
+    "officialRef": "144",
+    "name": "小千谷市｜コイキング",
+    "pokemonFeatured": [
+      "コイキング"
+    ],
+    "prefectureId": 15,
+    "municipality": "小千谷市",
+    "address": "新潟県小千谷市城内2-7-5",
+    "latitude": 37.314216,
+    "longitude": 138.794792,
+    "officialImageUrl": "/api/official-images/144.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/144/"
+  },
+  {
+    "officialRef": "277",
+    "name": "富山市｜レディバ・キュワワー",
+    "pokemonFeatured": [
+      "レディバ",
+      "キュワワー"
+    ],
+    "prefectureId": 16,
+    "municipality": "富山市",
+    "address": "富山県富山市丸の内三丁目1-1",
+    "latitude": 36.692325,
+    "longitude": 137.210281,
+    "officialImageUrl": "/api/official-images/277.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/277/"
+  },
+  {
+    "officialRef": "276",
+    "name": "富山市｜マーイーカ",
+    "pokemonFeatured": [
+      "マーイーカ"
+    ],
+    "prefectureId": 16,
+    "municipality": "富山市",
+    "address": "富山県富山市湊入船町75-1",
+    "latitude": 36.70987,
+    "longitude": 137.213161,
+    "officialImageUrl": "/api/official-images/276.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/276/"
+  },
+  {
+    "officialRef": "275",
+    "name": "富山市｜アブソル",
+    "pokemonFeatured": [
+      "アブソル"
+    ],
+    "prefectureId": 16,
+    "municipality": "富山市",
+    "address": "富山県富山市呉羽町2247-3",
+    "latitude": 36.715615,
+    "longitude": 137.164366,
+    "officialImageUrl": "/api/official-images/275.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/275/"
+  },
+  {
+    "officialRef": "475",
+    "name": "輪島市｜タツベイ・ボーマンダ",
+    "pokemonFeatured": [
+      "タツベイ",
+      "ボーマンダ"
+    ],
+    "prefectureId": 17,
+    "municipality": "輪島市",
+    "address": "石川県輪島市・のと里山空港敷地内（輪島市三井町洲衛10-11-1）",
+    "latitude": 37.295752,
+    "longitude": 136.957244,
+    "officialImageUrl": "/api/official-images/475.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/475/"
+  },
+  {
+    "officialRef": "473",
+    "name": "能登町｜ロゼリア・メテノ・ハスボー",
+    "pokemonFeatured": [
+      "ロゼリア",
+      "メテノ",
+      "ハスボー"
+    ],
+    "prefectureId": 17,
+    "municipality": "能登町",
+    "address": "石川県能登町字上町ロ部1-1",
+    "latitude": 37.333975,
+    "longitude": 137.138718,
+    "officialImageUrl": "/api/official-images/473.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/473/"
+  },
+  {
+    "officialRef": "472",
+    "name": "穴水町｜カビゴン・プラスル・マイナン",
+    "pokemonFeatured": [
+      "カビゴン",
+      "プラスル",
+      "マイナン"
+    ],
+    "prefectureId": 17,
+    "municipality": "穴水町",
+    "address": "石川県穴水町字大町ト33",
+    "latitude": 37.228298,
+    "longitude": 136.905007,
+    "officialImageUrl": "/api/official-images/472.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/472/"
+  },
+  {
+    "officialRef": "471",
+    "name": "志賀町｜カイデン・サクラビス",
+    "pokemonFeatured": [
+      "カイデン",
+      "サクラビス"
+    ],
+    "prefectureId": 17,
+    "municipality": "志賀町",
+    "address": "石川県志賀町富来領家町",
+    "latitude": 37.139152,
+    "longitude": 136.724847,
+    "officialImageUrl": "/api/official-images/471.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/471/"
+  },
+  {
+    "officialRef": "470",
+    "name": "珠洲市｜ラブカス・ニンフィア",
+    "pokemonFeatured": [
+      "ラブカス",
+      "ニンフィア"
+    ],
+    "prefectureId": 17,
+    "municipality": "珠洲市",
+    "address": "石川県珠洲市宝立町鵜島二47-1",
+    "latitude": 37.39454,
+    "longitude": 137.240367,
+    "officialImageUrl": "/api/official-images/470.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/470/"
+  },
+  {
+    "officialRef": "469",
+    "name": "輪島市｜ダルマッカ・ゲッコウガ",
+    "pokemonFeatured": [
+      "ダルマッカ",
+      "ゲッコウガ"
+    ],
+    "prefectureId": 17,
+    "municipality": "輪島市",
+    "address": "石川県輪島市河井町20-1-131",
+    "latitude": 37.388972,
+    "longitude": 136.90625,
+    "officialImageUrl": "/api/official-images/469.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/469/"
+  },
+  {
+    "officialRef": "468",
+    "name": "七尾市｜ニョロトノ・ギャラドス・ニョロモ",
+    "pokemonFeatured": [
+      "ニョロトノ",
+      "ギャラドス",
+      "ニョロモ"
+    ],
+    "prefectureId": 17,
+    "municipality": "七尾市",
+    "address": "石川県七尾市和倉町ひばり1丁目1番地",
+    "latitude": 37.087801,
+    "longitude": 136.923564,
+    "officialImageUrl": "/api/official-images/468.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/468/"
+  },
+  {
+    "officialRef": "301",
+    "name": "金沢市｜ミロカロス",
+    "pokemonFeatured": [
+      "ミロカロス"
+    ],
+    "prefectureId": 17,
+    "municipality": "金沢市",
+    "address": "石川県金沢市出羽町3-2",
+    "latitude": 36.559162,
+    "longitude": 136.661926,
+    "officialImageUrl": "/api/official-images/301.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/301/"
+  },
+  {
+    "officialRef": "421",
+    "name": "越前町｜カイリュー・プクリン",
+    "pokemonFeatured": [
+      "カイリュー",
+      "プクリン"
+    ],
+    "prefectureId": 18,
+    "municipality": "越前町",
+    "address": "福井県越前町小曽原120-60",
+    "latitude": 35.93468,
+    "longitude": 136.05872,
+    "officialImageUrl": "/api/official-images/421.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/421/"
+  },
+  {
+    "officialRef": "420",
+    "name": "若狭町｜カイリュー・コアルヒー・クワッス",
+    "pokemonFeatured": [
+      "カイリュー",
+      "コアルヒー",
+      "クワッス"
+    ],
+    "prefectureId": 18,
+    "municipality": "若狭町",
+    "address": "福井県若狭町市場18-18",
+    "latitude": 35.461441,
+    "longitude": 135.860204,
+    "officialImageUrl": "/api/official-images/420.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/420/"
+  },
+  {
+    "officialRef": "419",
+    "name": "鯖江市｜カイリュー・モルペコ・サッチムシ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "モルペコ",
+      "サッチムシ"
+    ],
+    "prefectureId": 18,
+    "municipality": "鯖江市",
+    "address": "福井県鯖江市桜町3丁目8-1",
+    "latitude": 35.950098,
+    "longitude": 136.181116,
+    "officialImageUrl": "/api/official-images/419.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/419/"
+  },
+  {
+    "officialRef": "418",
+    "name": "おおい町｜カイリュー・ケーシィ・ニャオニクス",
+    "pokemonFeatured": [
+      "カイリュー",
+      "ケーシィ",
+      "ニャオニクス"
+    ],
+    "prefectureId": 18,
+    "municipality": "おおい町",
+    "address": "福井県おおい町成海1-1-1",
+    "latitude": 35.48179,
+    "longitude": 135.62838,
+    "officialImageUrl": "/api/official-images/418.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/418/"
+  },
+  {
+    "officialRef": "417",
+    "name": "福井市｜カイリュー・ジャラランガ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "ジャラランガ"
+    ],
+    "prefectureId": 18,
+    "municipality": "福井市",
+    "address": "福井県福井市手寄1丁目1　（JR福井駅東口）",
+    "latitude": 36.061483,
+    "longitude": 136.223635,
+    "officialImageUrl": "/api/official-images/417.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/417/"
+  },
+  {
+    "officialRef": "416",
+    "name": "坂井市｜カイリュー・マフィティフ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "マフィティフ"
+    ],
+    "prefectureId": 18,
+    "municipality": "坂井市",
+    "address": "福井県坂井市丸岡町山口64-31",
+    "latitude": 36.161806,
+    "longitude": 136.333313,
+    "officialImageUrl": "/api/official-images/416.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/416/"
+  },
+  {
+    "officialRef": "368",
+    "name": "池田町｜カイリュー・ハクリュー・ミニリュウ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "ハクリュー",
+      "ミニリュウ"
+    ],
+    "prefectureId": 18,
+    "municipality": "池田町",
+    "address": "福井県池田町池田9-6-1",
+    "latitude": 35.890505,
+    "longitude": 136.339213,
+    "officialImageUrl": "/api/official-images/368.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/368/"
+  },
+  {
+    "officialRef": "367",
+    "name": "小浜市｜カイリュー・ココガラ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "ココガラ"
+    ],
+    "prefectureId": 18,
+    "municipality": "小浜市",
+    "address": "福井県小浜市小浜白鬚111-1",
+    "latitude": 35.494981,
+    "longitude": 135.741761,
+    "officialImageUrl": "/api/official-images/367.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/367/"
+  },
+  {
+    "officialRef": "366",
+    "name": "南越前町｜カイリュー・バタフリー",
+    "pokemonFeatured": [
+      "カイリュー",
+      "バタフリー"
+    ],
+    "prefectureId": 18,
+    "municipality": "南越前町",
+    "address": "福井県南越前町牧谷39-2-2",
+    "latitude": 35.831454,
+    "longitude": 136.201365,
+    "officialImageUrl": "/api/official-images/366.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/366/"
+  },
+  {
+    "officialRef": "365",
+    "name": "敦賀市｜カイリュー・マッギョ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "マッギョ"
+    ],
+    "prefectureId": 18,
+    "municipality": "敦賀市",
+    "address": "福井県敦賀市金ケ崎町4-1",
+    "latitude": 35.661865,
+    "longitude": 136.074281,
+    "officialImageUrl": "/api/official-images/365.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/365/"
+  },
+  {
+    "officialRef": "364",
+    "name": "大野市｜カイリュー",
+    "pokemonFeatured": [
+      "カイリュー"
+    ],
+    "prefectureId": 18,
+    "municipality": "大野市",
+    "address": "福井県大野市城町1-5（大手門広場内）",
+    "latitude": 35.9845016,
+    "longitude": 136.4859314,
+    "officialImageUrl": "/api/official-images/364.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/364/"
+  },
+  {
+    "officialRef": "341",
+    "name": "美浜町｜カイリュー・ヒドイデ・ウミディグダ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "ヒドイデ",
+      "ウミディグダ"
+    ],
+    "prefectureId": 18,
+    "municipality": "美浜町",
+    "address": "福井県美浜町松原35-15-1",
+    "latitude": 35.604507,
+    "longitude": 135.936876,
+    "officialImageUrl": "/api/official-images/341.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/341/"
+  },
+  {
+    "officialRef": "340",
+    "name": "高浜町｜カイリュー・シャリタツ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "シャリタツ"
+    ],
+    "prefectureId": 18,
+    "municipality": "高浜町",
+    "address": "福井県高浜町塩土第1号200番地",
+    "latitude": 35.492951,
+    "longitude": 135.54556,
+    "officialImageUrl": "/api/official-images/340.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/340/"
+  },
+  {
+    "officialRef": "339",
+    "name": "永平寺町｜カイリュー・ダクマ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "ダクマ"
+    ],
+    "prefectureId": 18,
+    "municipality": "永平寺町",
+    "address": "福井県永平寺町清水2-21-1",
+    "latitude": 36.079891,
+    "longitude": 136.399312,
+    "officialImageUrl": "/api/official-images/339.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/339/"
+  },
+  {
+    "officialRef": "338",
+    "name": "越前市｜カイリュー・エレズン・ヒトツキ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "エレズン",
+      "ヒトツキ"
+    ],
+    "prefectureId": 18,
+    "municipality": "越前市",
+    "address": "福井県越前市大屋町38-5-1",
+    "latitude": 35.895286,
+    "longitude": 136.198727,
+    "officialImageUrl": "/api/official-images/338.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/338/"
+  },
+  {
+    "officialRef": "337",
+    "name": "あわら市｜カイリュー・トゲチック・ジグザグマ",
+    "pokemonFeatured": [
+      "カイリュー",
+      "トゲチック",
+      "ジグザグマ"
+    ],
+    "prefectureId": 18,
+    "municipality": "あわら市",
+    "address": "福井県あわら市春宮1-13",
+    "latitude": 36.215613,
+    "longitude": 136.234226,
+    "officialImageUrl": "/api/official-images/337.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/337/"
+  },
+  {
+    "officialRef": "336",
+    "name": "勝山市｜カイリュー・アーケン・ガチゴラス",
+    "pokemonFeatured": [
+      "カイリュー",
+      "アーケン",
+      "ガチゴラス"
+    ],
+    "prefectureId": 18,
+    "municipality": "勝山市",
+    "address": "福井県勝山市遅羽町比島34-2-7",
+    "latitude": 36.056787,
+    "longitude": 136.492007,
+    "officialImageUrl": "/api/official-images/336.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/336/"
+  },
+  {
+    "officialRef": "486",
+    "name": "山ノ内町｜マンキー・ガラルダルマッカ・ヒヤップ",
+    "pokemonFeatured": [
+      "マンキー",
+      "ガラルダルマッカ",
+      "ヒヤップ"
+    ],
+    "prefectureId": 20,
+    "municipality": "山ノ内町",
+    "address": "長野県山ノ内町大字平穏3227番地1",
+    "latitude": 36.74156,
+    "longitude": 138.41505,
+    "officialImageUrl": "/api/official-images/486.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/486/"
+  },
+  {
+    "officialRef": "485",
+    "name": "木祖村｜パチリス・オーロット・ココガラ",
+    "pokemonFeatured": [
+      "パチリス",
+      "オーロット",
+      "ココガラ"
+    ],
+    "prefectureId": 20,
+    "municipality": "木祖村",
+    "address": "長野県木祖村薮原1038-1",
+    "latitude": 35.935271,
+    "longitude": 137.784559,
+    "officialImageUrl": "/api/official-images/485.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/485/"
+  },
+  {
+    "officialRef": "484",
+    "name": "南牧村｜エレザード・エリキテル",
+    "pokemonFeatured": [
+      "エレザード",
+      "エリキテル"
+    ],
+    "prefectureId": 20,
+    "municipality": "南牧村",
+    "address": "長野県南牧村大字野辺山306付近",
+    "latitude": 35.955351,
+    "longitude": 138.474215,
+    "officialImageUrl": "/api/official-images/484.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/484/"
+  },
+  {
+    "officialRef": "483",
+    "name": "大町市｜ミニリュウ・ビッパ",
+    "pokemonFeatured": [
+      "ミニリュウ",
+      "ビッパ"
+    ],
+    "prefectureId": 20,
+    "municipality": "大町市",
+    "address": "長野県大町市大町2532-7（名店街）",
+    "latitude": 36.506032,
+    "longitude": 137.859702,
+    "officialImageUrl": "/api/official-images/483.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/483/"
+  },
+  {
+    "officialRef": "482",
+    "name": "伊那市｜バサギリ・ヒヒダルマ・アマージョ",
+    "pokemonFeatured": [
+      "バサギリ",
+      "ヒヒダルマ",
+      "アマージョ"
+    ],
+    "prefectureId": 20,
+    "municipality": "伊那市",
+    "address": "長野県伊那市西箕輪3416-1（みはらしファーム内 名人亭南側）",
+    "latitude": 35.882479,
+    "longitude": 137.919057,
+    "officialImageUrl": "/api/official-images/482.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/482/"
+  },
+  {
+    "officialRef": "481",
+    "name": "岡谷市｜モスノウ・ユキハミ",
+    "pokemonFeatured": [
+      "モスノウ",
+      "ユキハミ"
+    ],
+    "prefectureId": 20,
+    "municipality": "岡谷市",
+    "address": "長野県岡谷市幸町1",
+    "latitude": 36.06648,
+    "longitude": 138.0511,
+    "officialImageUrl": "/api/official-images/481.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/481/"
+  },
+  {
+    "officialRef": "363",
+    "name": "高山市｜ヤナップ・バオップ・ヒヤップ",
+    "pokemonFeatured": [
+      "ヤナップ",
+      "バオップ",
+      "ヒヤップ"
+    ],
+    "prefectureId": 21,
+    "municipality": "高山市",
+    "address": "岐阜県高山市本町４－１",
+    "latitude": 36.144911,
+    "longitude": 137.257235,
+    "officialImageUrl": "/api/official-images/363.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/363/"
+  },
+  {
+    "officialRef": "362",
+    "name": "関ケ原町｜ドドゲザン・コマタナ",
+    "pokemonFeatured": [
+      "ドドゲザン",
+      "コマタナ"
+    ],
+    "prefectureId": 21,
+    "municipality": "関ケ原町",
+    "address": "岐阜県関ケ原町大字関ケ原894-95",
+    "latitude": 35.36402,
+    "longitude": 136.46842,
+    "officialImageUrl": "/api/official-images/362.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/362/"
+  },
+  {
+    "officialRef": "361",
+    "name": "関市｜ウッウ",
+    "pokemonFeatured": [
+      "ウッウ"
+    ],
+    "prefectureId": 21,
+    "municipality": "関市",
+    "address": "岐阜県関市東桜町8-1",
+    "latitude": 35.490472,
+    "longitude": 136.91225,
+    "officialImageUrl": "/api/official-images/361.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/361/"
+  },
+  {
+    "officialRef": "360",
+    "name": "下呂市｜ガマゲロゲ・ガマガル・オタマロ",
+    "pokemonFeatured": [
+      "ガマゲロゲ",
+      "ガマガル",
+      "オタマロ"
+    ],
+    "prefectureId": 21,
+    "municipality": "下呂市",
+    "address": "岐阜県下呂市森1075-1",
+    "latitude": 35.807771,
+    "longitude": 137.242963,
+    "officialImageUrl": "/api/official-images/360.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/360/"
+  },
+  {
+    "officialRef": "359",
+    "name": "各務原市｜ナマズン・ドジョッチ",
+    "pokemonFeatured": [
+      "ナマズン",
+      "ドジョッチ"
+    ],
+    "prefectureId": 21,
+    "municipality": "各務原市",
+    "address": "岐阜県各務原市川島笠田町1569-1",
+    "latitude": 35.37067,
+    "longitude": 136.807773,
+    "officialImageUrl": "/api/official-images/359.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/359/"
+  },
+  {
+    "officialRef": "351",
+    "name": "伊豆市｜ヤンチャム・ゴロンダ",
+    "pokemonFeatured": [
+      "ヤンチャム",
+      "ゴロンダ"
+    ],
+    "prefectureId": 22,
+    "municipality": "伊豆市",
+    "address": "静岡県伊豆市修善寺９４７",
+    "latitude": 34.970285,
+    "longitude": 138.92774,
+    "officialImageUrl": "/api/official-images/351.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/351/"
+  },
+  {
+    "officialRef": "350",
+    "name": "富士市｜ファイヤー",
+    "pokemonFeatured": [
+      "ファイヤー"
+    ],
+    "prefectureId": 22,
+    "municipality": "富士市",
+    "address": "静岡県富士市岩淵富士山 築山",
+    "latitude": 35.161532,
+    "longitude": 138.617705,
+    "officialImageUrl": "/api/official-images/350.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/350/"
+  },
+  {
+    "officialRef": "349",
+    "name": "沼津市｜ハンテール・ジーランス・サクラビス",
+    "pokemonFeatured": [
+      "ハンテール",
+      "ジーランス",
+      "サクラビス"
+    ],
+    "prefectureId": 22,
+    "municipality": "沼津市",
+    "address": "静岡県沼津市本千本１９０１−１７",
+    "latitude": 35.081579,
+    "longitude": 138.854731,
+    "officialImageUrl": "/api/official-images/349.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/349/"
+  },
+  {
+    "officialRef": "348",
+    "name": "浜松市｜メロエッタ・シビルドン",
+    "pokemonFeatured": [
+      "メロエッタ",
+      "シビルドン"
+    ],
+    "prefectureId": 22,
+    "municipality": "浜松市",
+    "address": "静岡県浜松市中央区砂山町320-2 （浜松UP-ON付近）",
+    "latitude": 34.704017,
+    "longitude": 137.732587,
+    "officialImageUrl": "/api/official-images/348.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/348/"
+  },
+  {
+    "officialRef": "347",
+    "name": "静岡市｜フシギソウ・ムクホーク",
+    "pokemonFeatured": [
+      "フシギソウ",
+      "ムクホーク"
+    ],
+    "prefectureId": 22,
+    "municipality": "静岡市",
+    "address": "静岡県静岡市葵区駿府城公園１－１",
+    "latitude": 34.977499,
+    "longitude": 138.382564,
+    "officialImageUrl": "/api/official-images/347.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/347/"
+  },
+  {
+    "officialRef": "408",
+    "name": "西尾市｜マホイップ・ゴクリン",
+    "pokemonFeatured": [
+      "マホイップ",
+      "ゴクリン"
+    ],
+    "prefectureId": 23,
+    "municipality": "西尾市",
+    "address": "愛知県西尾市錦城町233",
+    "latitude": 34.867221,
+    "longitude": 137.048298,
+    "officialImageUrl": "/api/official-images/408.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/408/"
+  },
+  {
+    "officialRef": "407",
+    "name": "刈谷市｜タツベイ・ジュカイン・キバゴ",
+    "pokemonFeatured": [
+      "タツベイ",
+      "ジュカイン",
+      "キバゴ"
+    ],
+    "prefectureId": 23,
+    "municipality": "刈谷市",
+    "address": "愛知県刈谷市東境町吉野55",
+    "latitude": 35.04095,
+    "longitude": 137.0481,
+    "officialImageUrl": "/api/official-images/407.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/407/"
+  },
+  {
+    "officialRef": "406",
+    "name": "常滑市｜ピジョット・アローラニャース",
+    "pokemonFeatured": [
+      "ピジョット",
+      "アローラニャース"
+    ],
+    "prefectureId": 23,
+    "municipality": "常滑市",
+    "address": "愛知県常滑市りんくう町２丁目　りんくうビーチ",
+    "latitude": 34.88566,
+    "longitude": 136.8231592,
+    "officialImageUrl": "/api/official-images/406.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/406/"
+  },
+  {
+    "officialRef": "405",
+    "name": "瀬戸市｜ニャヒート・ブーバー",
+    "pokemonFeatured": [
+      "ニャヒート",
+      "ブーバー"
+    ],
+    "prefectureId": 23,
+    "municipality": "瀬戸市",
+    "address": "愛知県瀬戸市蔵所町1-1",
+    "latitude": 35.2257073,
+    "longitude": 137.1008385,
+    "officialImageUrl": "/api/official-images/405.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/405/"
+  },
+  {
+    "officialRef": "404",
+    "name": "名古屋市｜コイキング・ネッコアラ",
+    "pokemonFeatured": [
+      "コイキング",
+      "ネッコアラ"
+    ],
+    "prefectureId": 23,
+    "municipality": "名古屋市",
+    "address": "愛知県名古屋市中区二の丸１番2・3号",
+    "latitude": 35.1831277,
+    "longitude": 136.9045981,
+    "officialImageUrl": "/api/official-images/404.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/404/"
+  },
+  {
+    "officialRef": "274",
+    "name": "豊橋市｜カブト・クワガノン",
+    "pokemonFeatured": [
+      "カブト",
+      "クワガノン"
+    ],
+    "prefectureId": 23,
+    "municipality": "豊橋市",
+    "address": "愛知県豊橋市大岩町大穴1-238",
+    "latitude": 34.72096,
+    "longitude": 137.429448,
+    "officialImageUrl": "/api/official-images/274.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/274/"
+  },
+  {
+    "officialRef": "273",
+    "name": "豊橋市｜スターミー・デンヂムシ",
+    "pokemonFeatured": [
+      "スターミー",
+      "デンヂムシ"
+    ],
+    "prefectureId": 23,
+    "municipality": "豊橋市",
+    "address": "愛知県豊橋市東七根町一の沢113-2",
+    "latitude": 34.695901,
+    "longitude": 137.413953,
+    "officialImageUrl": "/api/official-images/273.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/273/"
+  },
+  {
+    "officialRef": "272",
+    "name": "豊橋市｜アゴジムシ・アブリボン",
+    "pokemonFeatured": [
+      "アゴジムシ",
+      "アブリボン"
+    ],
+    "prefectureId": 23,
+    "municipality": "豊橋市",
+    "address": "愛知県豊橋市駅前大通1-134",
+    "latitude": 34.762599,
+    "longitude": 137.382958,
+    "officialImageUrl": "/api/official-images/272.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/272/"
+  },
+  {
+    "officialRef": "271",
+    "name": "豊橋市｜バクフーン",
+    "pokemonFeatured": [
+      "バクフーン"
+    ],
+    "prefectureId": 23,
+    "municipality": "豊橋市",
+    "address": "愛知県豊橋市今橋町3",
+    "latitude": 34.768863,
+    "longitude": 137.393843,
+    "officialImageUrl": "/api/official-images/271.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/271/"
+  },
+  {
+    "officialRef": "415",
+    "name": "鈴鹿市｜ミジュマル",
+    "pokemonFeatured": [
+      "ミジュマル"
+    ],
+    "prefectureId": 24,
+    "municipality": "鈴鹿市",
+    "address": "三重県鈴鹿市住吉町地内",
+    "latitude": 34.852227,
+    "longitude": 136.538663,
+    "officialImageUrl": "/api/official-images/415.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/415/"
+  },
+  {
+    "officialRef": "414",
+    "name": "鳥羽市｜ミジュマル",
+    "pokemonFeatured": [
+      "ミジュマル"
+    ],
+    "prefectureId": 24,
+    "municipality": "鳥羽市",
+    "address": "三重県鳥羽市鳥羽一丁目地内",
+    "latitude": 34.490787,
+    "longitude": 136.844965,
+    "officialImageUrl": "/api/official-images/414.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/414/"
+  },
+  {
+    "officialRef": "389",
+    "name": "御浜町｜ミジュマル・パチリス",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "パチリス"
+    ],
+    "prefectureId": 24,
+    "municipality": "御浜町",
+    "address": "三重県御浜町大字阿田和４９２６番地５",
+    "latitude": 33.80391,
+    "longitude": 136.04345,
+    "officialImageUrl": "/api/official-images/389.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/389/"
+  },
+  {
+    "officialRef": "388",
+    "name": "紀北町｜ミジュマル・ママンボウ",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ママンボウ"
+    ],
+    "prefectureId": 24,
+    "municipality": "紀北町",
+    "address": "三重県紀北町東長島２４１０−７３",
+    "latitude": 34.216869,
+    "longitude": 136.346376,
+    "officialImageUrl": "/api/official-images/388.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/388/"
+  },
+  {
+    "officialRef": "387",
+    "name": "大紀町｜ミジュマル・ランクルス・ダブラン・ミルタンク",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ランクルス",
+      "ダブラン",
+      "ミルタンク"
+    ],
+    "prefectureId": 24,
+    "municipality": "大紀町",
+    "address": "三重県大紀町崎２１５４−１",
+    "latitude": 34.297193,
+    "longitude": 136.399061,
+    "officialImageUrl": "/api/official-images/387.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/387/"
+  },
+  {
+    "officialRef": "386",
+    "name": "菰野町｜ミジュマル・メェークル・ゴーゴート",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "メェークル",
+      "ゴーゴート"
+    ],
+    "prefectureId": 24,
+    "municipality": "菰野町",
+    "address": "三重県菰野町大字潤田1281番地",
+    "latitude": 35.019585,
+    "longitude": 136.506542,
+    "officialImageUrl": "/api/official-images/386.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/386/"
+  },
+  {
+    "officialRef": "385",
+    "name": "いなべ市｜ミジュマル・プラスル・マイナン",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "プラスル",
+      "マイナン"
+    ],
+    "prefectureId": 24,
+    "municipality": "いなべ市",
+    "address": "三重県いなべ市北勢町阿下喜31番地",
+    "latitude": 35.15788,
+    "longitude": 136.51618,
+    "officialImageUrl": "/api/official-images/385.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/385/"
+  },
+  {
+    "officialRef": "384",
+    "name": "尾鷲市｜ミジュマル・ニャイキング",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ニャイキング"
+    ],
+    "prefectureId": 24,
+    "municipality": "尾鷲市",
+    "address": "三重県尾鷲市向井１２－４",
+    "latitude": 34.06078,
+    "longitude": 136.216025,
+    "officialImageUrl": "/api/official-images/384.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/384/"
+  },
+  {
+    "officialRef": "383",
+    "name": "桑名市｜ミジュマル・ジャランゴ・ドゴーム",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ジャランゴ",
+      "ドゴーム"
+    ],
+    "prefectureId": 24,
+    "municipality": "桑名市",
+    "address": "三重県桑名市長島町駒江漆畑270",
+    "latitude": 35.08304,
+    "longitude": 136.703006,
+    "officialImageUrl": "/api/official-images/383.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/383/"
+  },
+  {
+    "officialRef": "335",
+    "name": "南伊勢町｜ミジュマル・メタモン",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "メタモン"
+    ],
+    "prefectureId": 24,
+    "municipality": "南伊勢町",
+    "address": "三重県南伊勢町道行竈（見江島展望台）",
+    "latitude": 34.268997,
+    "longitude": 136.54891,
+    "officialImageUrl": "/api/official-images/335.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/335/"
+  },
+  {
+    "officialRef": "334",
+    "name": "玉城町｜ミジュマル・バネブー",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "バネブー"
+    ],
+    "prefectureId": 24,
+    "municipality": "玉城町",
+    "address": "三重県玉城町原４２５４−１",
+    "latitude": 34.4678411,
+    "longitude": 136.5876056,
+    "officialImageUrl": "/api/official-images/334.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/334/"
+  },
+  {
+    "officialRef": "333",
+    "name": "松阪市｜ミジュマル・ニャース",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ニャース"
+    ],
+    "prefectureId": 24,
+    "municipality": "松阪市",
+    "address": "三重県松阪市外五曲町１番地１",
+    "latitude": 34.578655,
+    "longitude": 136.519839,
+    "officialImageUrl": "/api/official-images/333.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/333/"
+  },
+  {
+    "officialRef": "332",
+    "name": "多気町｜ミジュマル・グルトン・ゴマゾウ",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "グルトン",
+      "ゴマゾウ"
+    ],
+    "prefectureId": 24,
+    "municipality": "多気町",
+    "address": "三重県多気町五桂９９２",
+    "latitude": 34.466166,
+    "longitude": 136.5537339,
+    "officialImageUrl": "/api/official-images/332.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/332/"
+  },
+  {
+    "officialRef": "331",
+    "name": "川越町｜ミジュマル・スバメ・アメタマ",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "スバメ",
+      "アメタマ"
+    ],
+    "prefectureId": 24,
+    "municipality": "川越町",
+    "address": "三重県川越町大字豊田283番4",
+    "latitude": 35.01731,
+    "longitude": 136.659834,
+    "officialImageUrl": "/api/official-images/331.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/331/"
+  },
+  {
+    "officialRef": "330",
+    "name": "鈴鹿市｜ミジュマル・モトトカゲ",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "モトトカゲ"
+    ],
+    "prefectureId": 24,
+    "municipality": "鈴鹿市",
+    "address": "三重県鈴鹿市寺家3-10-1（※「鈴鹿市伝統産業会館」敷地内）",
+    "latitude": 34.823065,
+    "longitude": 136.584609,
+    "officialImageUrl": "/api/official-images/330.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/330/"
+  },
+  {
+    "officialRef": "310",
+    "name": "東員町｜ミジュマル・マネネ",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "マネネ"
+    ],
+    "prefectureId": 24,
+    "municipality": "東員町",
+    "address": "三重県東員町北大社1634番地",
+    "latitude": 35.073792,
+    "longitude": 136.581108,
+    "officialImageUrl": "/api/official-images/310.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/310/"
+  },
+  {
+    "officialRef": "309",
+    "name": "木曽岬町｜ミジュマル・ゴーリキー",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ゴーリキー"
+    ],
+    "prefectureId": 24,
+    "municipality": "木曽岬町",
+    "address": "三重県木曽岬町西対海地251番地",
+    "latitude": 35.0755751,
+    "longitude": 136.7318048,
+    "officialImageUrl": "/api/official-images/309.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/309/"
+  },
+  {
+    "officialRef": "308",
+    "name": "名張市｜ミジュマル・フタチマル",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "フタチマル"
+    ],
+    "prefectureId": 24,
+    "municipality": "名張市",
+    "address": "三重県名張市朝日町1319番地5",
+    "latitude": 34.626212,
+    "longitude": 136.088911,
+    "officialImageUrl": "/api/official-images/308.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/308/"
+  },
+  {
+    "officialRef": "297",
+    "name": "紀宝町｜ミジュマル・プロトーガ",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "プロトーガ"
+    ],
+    "prefectureId": 24,
+    "municipality": "紀宝町",
+    "address": "三重県紀宝町井田568-7",
+    "latitude": 33.769742,
+    "longitude": 136.028632,
+    "officialImageUrl": "/api/official-images/297.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/297/"
+  },
+  {
+    "officialRef": "296",
+    "name": "度会町｜ミジュマル・マリル・ネンドール",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "マリル",
+      "ネンドール"
+    ],
+    "prefectureId": 24,
+    "municipality": "度会町",
+    "address": "三重県度会町大野木１２６０",
+    "latitude": 34.4320615,
+    "longitude": 136.6313249,
+    "officialImageUrl": "/api/official-images/296.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/296/"
+  },
+  {
+    "officialRef": "295",
+    "name": "大台町｜ミジュマル・ヤナップ・ビリジオン",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ヤナップ",
+      "ビリジオン"
+    ],
+    "prefectureId": 24,
+    "municipality": "大台町",
+    "address": "三重県大台町薗993",
+    "latitude": 34.356007,
+    "longitude": 136.34766,
+    "officialImageUrl": "/api/official-images/295.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/295/"
+  },
+  {
+    "officialRef": "294",
+    "name": "明和町｜ミジュマル・アマカジ・フラージェス",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "アマカジ",
+      "フラージェス"
+    ],
+    "prefectureId": 24,
+    "municipality": "明和町",
+    "address": "三重県明和町斎宮２８１１",
+    "latitude": 34.5399661,
+    "longitude": 136.6184925,
+    "officialImageUrl": "/api/official-images/294.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/294/"
+  },
+  {
+    "officialRef": "293",
+    "name": "朝日町｜ミジュマル・エルフーン",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "エルフーン"
+    ],
+    "prefectureId": 24,
+    "municipality": "朝日町",
+    "address": "三重県朝日町柿2340-36",
+    "latitude": 35.037263,
+    "longitude": 136.658857,
+    "officialImageUrl": "/api/official-images/293.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/293/"
+  },
+  {
+    "officialRef": "292",
+    "name": "亀山市｜ミジュマル・リオル・ドダイトス",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "リオル",
+      "ドダイトス"
+    ],
+    "prefectureId": 24,
+    "municipality": "亀山市",
+    "address": "三重県亀山市若山町７",
+    "latitude": 34.8594415,
+    "longitude": 136.4474608,
+    "officialImageUrl": "/api/official-images/292.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/292/"
+  },
+  {
+    "officialRef": "246",
+    "name": "伊賀市｜ミジュマル・アギルダー",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "アギルダー"
+    ],
+    "prefectureId": 24,
+    "municipality": "伊賀市",
+    "address": "三重県伊賀市上野丸之内504",
+    "latitude": 34.767543,
+    "longitude": 136.130081,
+    "officialImageUrl": "/api/official-images/246.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/246/"
+  },
+  {
+    "officialRef": "245",
+    "name": "志摩市｜ミジュマル・パールル",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "パールル"
+    ],
+    "prefectureId": 24,
+    "municipality": "志摩市",
+    "address": "三重県志摩市大王町波切110-3",
+    "latitude": 34.275988,
+    "longitude": 136.898317,
+    "officialImageUrl": "/api/official-images/245.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/245/"
+  },
+  {
+    "officialRef": "244",
+    "name": "熊野市｜ミジュマル・ヌイコグマ",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ヌイコグマ"
+    ],
+    "prefectureId": 24,
+    "municipality": "熊野市",
+    "address": "三重県熊野市木本町1835-7",
+    "latitude": 33.891753,
+    "longitude": 136.116125,
+    "officialImageUrl": "/api/official-images/244.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/244/"
+  },
+  {
+    "officialRef": "243",
+    "name": "鳥羽市｜ミジュマル・ジュゴン",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ジュゴン"
+    ],
+    "prefectureId": 24,
+    "municipality": "鳥羽市",
+    "address": "三重県鳥羽市鳥羽一丁目2383-42",
+    "latitude": 34.48691,
+    "longitude": 136.844825,
+    "officialImageUrl": "/api/official-images/243.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/243/"
+  },
+  {
+    "officialRef": "242",
+    "name": "伊勢市｜ミジュマル・リーシャン",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "リーシャン"
+    ],
+    "prefectureId": 24,
+    "municipality": "伊勢市",
+    "address": "三重県伊勢市本町20",
+    "latitude": 34.487787,
+    "longitude": 136.707097,
+    "officialImageUrl": "/api/official-images/242.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/242/"
+  },
+  {
+    "officialRef": "241",
+    "name": "四日市市｜ミジュマル・ダイケンキ",
+    "pokemonFeatured": [
+      "ミジュマル",
+      "ダイケンキ"
+    ],
+    "prefectureId": 24,
+    "municipality": "四日市市",
+    "address": "三重県四日市市日永東一丁目3-21",
+    "latitude": 34.952407,
+    "longitude": 136.611964,
+    "officialImageUrl": "/api/official-images/241.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/241/"
+  },
+  {
+    "officialRef": "240",
+    "name": "津市｜ミジュマル",
+    "pokemonFeatured": [
+      "ミジュマル"
+    ],
+    "prefectureId": 24,
+    "municipality": "津市",
+    "address": "三重県津市大門7-4",
+    "latitude": 34.718493,
+    "longitude": 136.5108,
+    "officialImageUrl": "/api/official-images/240.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/240/"
+  },
+  {
+    "officialRef": "239",
+    "name": "甲賀市｜ゲッコウガ・ゲコガシラ",
+    "pokemonFeatured": [
+      "ゲッコウガ",
+      "ゲコガシラ"
+    ],
+    "prefectureId": 25,
+    "municipality": "甲賀市",
+    "address": "滋賀県甲賀市甲賀町大久保507番地2",
+    "latitude": 34.900437,
+    "longitude": 136.229399,
+    "officialImageUrl": "/api/official-images/239.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/239/"
+  },
+  {
+    "officialRef": "238",
+    "name": "甲賀市｜ゲッコウガ",
+    "pokemonFeatured": [
+      "ゲッコウガ"
+    ],
+    "prefectureId": 25,
+    "municipality": "甲賀市",
+    "address": "滋賀県甲賀市水口町北内貴230",
+    "latitude": 34.960528,
+    "longitude": 136.165168,
+    "officialImageUrl": "/api/official-images/238.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/238/"
+  },
+  {
+    "officialRef": "237",
+    "name": "甲賀市｜ゲッコウガ",
+    "pokemonFeatured": [
+      "ゲッコウガ"
+    ],
+    "prefectureId": 25,
+    "municipality": "甲賀市",
+    "address": "滋賀県甲賀市甲南町竜法師600",
+    "latitude": 34.919591,
+    "longitude": 136.170196,
+    "officialImageUrl": "/api/official-images/237.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/237/"
+  },
+  {
+    "officialRef": "105",
+    "name": "大津市｜ギャラドス",
+    "pokemonFeatured": [
+      "ギャラドス"
+    ],
+    "prefectureId": 25,
+    "municipality": "大津市",
+    "address": "滋賀県大津市由美浜",
+    "latitude": 34.9981,
+    "longitude": 135.8946,
+    "officialImageUrl": "/api/official-images/105.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/105/"
+  },
+  {
+    "officialRef": "104",
+    "name": "大津市｜ギャラドス",
+    "pokemonFeatured": [
+      "ギャラドス"
+    ],
+    "prefectureId": 25,
+    "municipality": "大津市",
+    "address": "滋賀県大津市島の関14",
+    "latitude": 35.0102,
+    "longitude": 135.8699,
+    "officialImageUrl": "/api/official-images/104.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/104/"
+  },
+  {
+    "officialRef": "382",
+    "name": "宇治市｜ピカチュウ",
+    "pokemonFeatured": [
+      "ピカチュウ"
+    ],
+    "prefectureId": 26,
+    "municipality": "宇治市",
+    "address": "京都府ニンテンドーミュージアム施設内（宇治市小倉町神楽田56番地）",
+    "latitude": 34.892561,
+    "longitude": 135.784525,
+    "officialImageUrl": "/api/official-images/382.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/382/"
+  },
+  {
+    "officialRef": "353",
+    "name": "宇治市｜チャデス・ヤバソチャ",
+    "pokemonFeatured": [
+      "チャデス",
+      "ヤバソチャ"
+    ],
+    "prefectureId": 26,
+    "municipality": "宇治市",
+    "address": "京都府宇治市菟道丸山203-1",
+    "latitude": 34.895547,
+    "longitude": 135.805962,
+    "officialImageUrl": "/api/official-images/353.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/353/"
+  },
+  {
+    "officialRef": "352",
+    "name": "宇治市｜ヒバニー・パッチール",
+    "pokemonFeatured": [
+      "ヒバニー",
+      "パッチール"
+    ],
+    "prefectureId": 26,
+    "municipality": "宇治市",
+    "address": "京都府宇治市宇治又振",
+    "latitude": 34.890627,
+    "longitude": 135.809787,
+    "officialImageUrl": "/api/official-images/352.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/352/"
+  },
+  {
+    "officialRef": "163",
+    "name": "京都市｜ワニノコ・マリルリ",
+    "pokemonFeatured": [
+      "ワニノコ",
+      "マリルリ"
+    ],
+    "prefectureId": 26,
+    "municipality": "京都市",
+    "address": "京都府京都市下京区観喜寺町",
+    "latitude": 34.987804,
+    "longitude": 135.743538,
+    "officialImageUrl": "/api/official-images/163.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/163/"
+  },
+  {
+    "officialRef": "162",
+    "name": "京都市｜ヒノアラシ・ヒヒダルマ",
+    "pokemonFeatured": [
+      "ヒノアラシ",
+      "ヒヒダルマ"
+    ],
+    "prefectureId": 26,
+    "municipality": "京都市",
+    "address": "京都府京都市左京区岡崎最勝寺町",
+    "latitude": 35.014858,
+    "longitude": 135.782013,
+    "officialImageUrl": "/api/official-images/162.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/162/"
+  },
+  {
+    "officialRef": "161",
+    "name": "京都市｜チコリータ・ダーテング",
+    "pokemonFeatured": [
+      "チコリータ",
+      "ダーテング"
+    ],
+    "prefectureId": 26,
+    "municipality": "京都市",
+    "address": "京都府京都市右京区西京極新明町",
+    "latitude": 34.994784,
+    "longitude": 135.714323,
+    "officialImageUrl": "/api/official-images/161.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/161/"
+  },
+  {
+    "officialRef": "160",
+    "name": "京都市｜ピチュー・ピィ・ププリン",
+    "pokemonFeatured": [
+      "ピチュー",
+      "ピィ",
+      "ププリン"
+    ],
+    "prefectureId": 26,
+    "municipality": "京都市",
+    "address": "京都府京都市東山区円山町",
+    "latitude": 35.00337,
+    "longitude": 135.780573,
+    "officialImageUrl": "/api/official-images/160.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/160/"
+  },
+  {
+    "officialRef": "159",
+    "name": "京都市｜ホウオウ",
+    "pokemonFeatured": [
+      "ホウオウ"
+    ],
+    "prefectureId": 26,
+    "municipality": "京都市",
+    "address": "京都府京都市右京区嵯峨中ノ島町",
+    "latitude": 35.011863,
+    "longitude": 135.678745,
+    "officialImageUrl": "/api/official-images/159.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/159/"
+  },
+  {
+    "officialRef": "210",
+    "name": "東大阪市｜ワンパチ・トゲデマル",
+    "pokemonFeatured": [
+      "ワンパチ",
+      "トゲデマル"
+    ],
+    "prefectureId": 27,
+    "municipality": "東大阪市",
+    "address": "大阪府東大阪市松原南2-6",
+    "latitude": 34.669486,
+    "longitude": 135.630586,
+    "officialImageUrl": "/api/official-images/210.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/210/"
+  },
+  {
+    "officialRef": "209",
+    "name": "東大阪市｜ライコウ",
+    "pokemonFeatured": [
+      "ライコウ"
+    ],
+    "prefectureId": 27,
+    "municipality": "東大阪市",
+    "address": "大阪府東大阪市松原南1-1",
+    "latitude": 34.667678,
+    "longitude": 135.626309,
+    "officialImageUrl": "/api/official-images/209.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/209/"
+  },
+  {
+    "officialRef": "208",
+    "name": "東大阪市｜エレキッド・クチート",
+    "pokemonFeatured": [
+      "エレキッド",
+      "クチート"
+    ],
+    "prefectureId": 27,
+    "municipality": "東大阪市",
+    "address": "大阪府東大阪市東石切町2-4",
+    "latitude": 34.680678,
+    "longitude": 135.650788,
+    "officialImageUrl": "/api/official-images/208.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/208/"
+  },
+  {
+    "officialRef": "207",
+    "name": "東大阪市｜ギアル・ギギアル",
+    "pokemonFeatured": [
+      "ギアル",
+      "ギギアル"
+    ],
+    "prefectureId": 27,
+    "municipality": "東大阪市",
+    "address": "大阪府東大阪市旭町1番1号",
+    "latitude": 34.66771,
+    "longitude": 135.63989,
+    "officialImageUrl": "/api/official-images/207.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/207/"
+  },
+  {
+    "officialRef": "206",
+    "name": "東大阪市｜コイル・レアコイル",
+    "pokemonFeatured": [
+      "コイル",
+      "レアコイル"
+    ],
+    "prefectureId": 27,
+    "municipality": "東大阪市",
+    "address": "大阪府東大阪市荒本北1丁目1番1号",
+    "latitude": 34.679788,
+    "longitude": 135.601221,
+    "officialImageUrl": "/api/official-images/206.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/206/"
+  },
+  {
+    "officialRef": "205",
+    "name": "淡路市｜パルシェン・トリトドン",
+    "pokemonFeatured": [
+      "パルシェン",
+      "トリトドン"
+    ],
+    "prefectureId": 28,
+    "municipality": "淡路市",
+    "address": "兵庫県淡路市尾崎3025-1",
+    "latitude": 34.482151,
+    "longitude": 134.873103,
+    "officialImageUrl": "/api/official-images/205.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/205/"
+  },
+  {
+    "officialRef": "204",
+    "name": "淡路市｜ベイリーフ・フレフワン",
+    "pokemonFeatured": [
+      "ベイリーフ",
+      "フレフワン"
+    ],
+    "prefectureId": 28,
+    "municipality": "淡路市",
+    "address": "兵庫県淡路市小倉177",
+    "latitude": 34.550436,
+    "longitude": 134.938094,
+    "officialImageUrl": "/api/official-images/204.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/204/"
+  },
+  {
+    "officialRef": "203",
+    "name": "淡路市｜ルギア",
+    "pokemonFeatured": [
+      "ルギア"
+    ],
+    "prefectureId": 28,
+    "municipality": "淡路市",
+    "address": "兵庫県淡路市岩屋1873-1",
+    "latitude": 34.601828,
+    "longitude": 135.009441,
+    "officialImageUrl": "/api/official-images/203.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/203/"
+  },
+  {
+    "officialRef": "152",
+    "name": "斑鳩町｜エンテイ",
+    "pokemonFeatured": [
+      "エンテイ"
+    ],
+    "prefectureId": 29,
+    "municipality": "斑鳩町",
+    "address": "奈良県斑鳩町法隆寺1丁目8番25号",
+    "latitude": 34.60983,
+    "longitude": 135.73529,
+    "officialImageUrl": "/api/official-images/152.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/152/"
+  },
+  {
+    "officialRef": "151",
+    "name": "斑鳩町｜ヒノヤコマ・シキジカ",
+    "pokemonFeatured": [
+      "ヒノヤコマ",
+      "シキジカ"
+    ],
+    "prefectureId": 29,
+    "municipality": "斑鳩町",
+    "address": "奈良県斑鳩町法隆寺南1丁目2番地内",
+    "latitude": 34.60826,
+    "longitude": 135.73755,
+    "officialImageUrl": "/api/official-images/151.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/151/"
+  },
+  {
+    "officialRef": "150",
+    "name": "斑鳩町｜ブビィ・チリーン",
+    "pokemonFeatured": [
+      "ブビィ",
+      "チリーン"
+    ],
+    "prefectureId": 29,
+    "municipality": "斑鳩町",
+    "address": "奈良県斑鳩町興留2丁目1番地内",
+    "latitude": 34.60827,
+    "longitude": 135.73769,
+    "officialImageUrl": "/api/official-images/150.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/150/"
+  },
+  {
+    "officialRef": "149",
+    "name": "斑鳩町｜マダツボミ・ガーディ",
+    "pokemonFeatured": [
+      "マダツボミ",
+      "ガーディ"
+    ],
+    "prefectureId": 29,
+    "municipality": "斑鳩町",
+    "address": "奈良県斑鳩町興留5丁目5番28号",
+    "latitude": 34.60474,
+    "longitude": 135.7376,
+    "officialImageUrl": "/api/official-images/149.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/149/"
+  },
+  {
+    "officialRef": "148",
+    "name": "斑鳩町｜ドータクン・バオッキー",
+    "pokemonFeatured": [
+      "ドータクン",
+      "バオッキー"
+    ],
+    "prefectureId": 29,
+    "municipality": "斑鳩町",
+    "address": "奈良県斑鳩町興留7丁目3番地内",
+    "latitude": 34.60189,
+    "longitude": 135.73917,
+    "officialImageUrl": "/api/official-images/148.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/148/"
+  },
+  {
+    "officialRef": "346",
+    "name": "那智勝浦町｜セレビィ",
+    "pokemonFeatured": [
+      "セレビィ"
+    ],
+    "prefectureId": 30,
+    "municipality": "那智勝浦町",
+    "address": "和歌山県那智勝浦町大字市野々3034-2",
+    "latitude": 33.668973,
+    "longitude": 135.902917,
+    "officialImageUrl": "/api/official-images/346.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/346/"
+  },
+  {
+    "officialRef": "345",
+    "name": "串本町｜ピィ・リグレー・ジバコイル",
+    "pokemonFeatured": [
+      "ピィ",
+      "リグレー",
+      "ジバコイル"
+    ],
+    "prefectureId": 30,
+    "municipality": "串本町",
+    "address": "和歌山県串本町西向359番地",
+    "latitude": 33.517997,
+    "longitude": 135.823074,
+    "officialImageUrl": "/api/official-images/345.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/345/"
+  },
+  {
+    "officialRef": "344",
+    "name": "白浜町｜ヤンチャム・ナミイルカ",
+    "pokemonFeatured": [
+      "ヤンチャム",
+      "ナミイルカ"
+    ],
+    "prefectureId": 30,
+    "municipality": "白浜町",
+    "address": "和歌山県白浜町堅田1474",
+    "latitude": 33.675779,
+    "longitude": 135.387056,
+    "officialImageUrl": "/api/official-images/344.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/344/"
+  },
+  {
+    "officialRef": "343",
+    "name": "高野町｜ウーラオス",
+    "pokemonFeatured": [
+      "ウーラオス"
+    ],
+    "prefectureId": 30,
+    "municipality": "高野町",
+    "address": "和歌山県高野町高野山357",
+    "latitude": 34.212091,
+    "longitude": 135.583052,
+    "officialImageUrl": "/api/official-images/343.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/343/"
+  },
+  {
+    "officialRef": "342",
+    "name": "和歌山市｜レントラー・アシレーヌ",
+    "pokemonFeatured": [
+      "レントラー",
+      "アシレーヌ"
+    ],
+    "prefectureId": 30,
+    "municipality": "和歌山市",
+    "address": "和歌山県和歌山市七番丁23",
+    "latitude": 34.2300173,
+    "longitude": 135.171405,
+    "officialImageUrl": "/api/official-images/342.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/342/"
+  },
+  {
+    "officialRef": "300",
+    "name": "鳥取市｜サンド・アローラサンド・ホルビー",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド",
+      "ホルビー"
+    ],
+    "prefectureId": 31,
+    "municipality": "鳥取市",
+    "address": "鳥取県鳥取市浜坂1157-1",
+    "latitude": 35.53395,
+    "longitude": 134.224478,
+    "officialImageUrl": "/api/official-images/300.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/300/"
+  },
+  {
+    "officialRef": "110",
+    "name": "江府町｜サンド・アローラサンド",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド"
+    ],
+    "prefectureId": 31,
+    "municipality": "江府町",
+    "address": "鳥取県江府町佐川908-3",
+    "latitude": 35.295841,
+    "longitude": 133.474089,
+    "officialImageUrl": "/api/official-images/110.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/110/"
+  },
+  {
+    "officialRef": "109",
+    "name": "日吉津村｜サンド・メタモン",
+    "pokemonFeatured": [
+      "サンド",
+      "メタモン"
+    ],
+    "prefectureId": 31,
+    "municipality": "日吉津村",
+    "address": "鳥取県日吉津村大字日吉津930番地",
+    "latitude": 35.441126,
+    "longitude": 133.379578,
+    "officialImageUrl": "/api/official-images/109.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/109/"
+  },
+  {
+    "officialRef": "108",
+    "name": "北栄町｜サンド・アローラサンド",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド"
+    ],
+    "prefectureId": 31,
+    "municipality": "北栄町",
+    "address": "鳥取県北栄町田井488-1",
+    "latitude": 35.49924,
+    "longitude": 133.81794,
+    "officialImageUrl": "/api/official-images/108.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/108/"
+  },
+  {
+    "officialRef": "107",
+    "name": "八頭町｜アローラサンド・アローラサンドパン",
+    "pokemonFeatured": [
+      "アローラサンド",
+      "アローラサンドパン"
+    ],
+    "prefectureId": 31,
+    "municipality": "八頭町",
+    "address": "鳥取県八頭町徳丸625",
+    "latitude": 35.366456,
+    "longitude": 134.339426,
+    "officialImageUrl": "/api/official-images/107.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/107/"
+  },
+  {
+    "officialRef": "106",
+    "name": "智頭町｜サンド・サンドパン・ウソッキー",
+    "pokemonFeatured": [
+      "サンド",
+      "サンドパン",
+      "ウソッキー"
+    ],
+    "prefectureId": 31,
+    "municipality": "智頭町",
+    "address": "鳥取県智頭町大字智頭2067-1",
+    "latitude": 35.265428,
+    "longitude": 134.226103,
+    "officialImageUrl": "/api/official-images/106.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/106/"
+  },
+  {
+    "officialRef": "87",
+    "name": "日野町｜サンド・アローラサンド・チルット",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド",
+      "チルット"
+    ],
+    "prefectureId": 31,
+    "municipality": "日野町",
+    "address": "鳥取県日野町根雨170番地1",
+    "latitude": 35.24192,
+    "longitude": 133.441049,
+    "officialImageUrl": "/api/official-images/87.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/87/"
+  },
+  {
+    "officialRef": "86",
+    "name": "日南町｜サンド・バルビート・イルミーゼ",
+    "pokemonFeatured": [
+      "サンド",
+      "バルビート",
+      "イルミーゼ"
+    ],
+    "prefectureId": 31,
+    "municipality": "日南町",
+    "address": "鳥取県日南町生山354番地2",
+    "latitude": 35.170524,
+    "longitude": 133.31094,
+    "officialImageUrl": "/api/official-images/86.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/86/"
+  },
+  {
+    "officialRef": "85",
+    "name": "伯耆町｜サンド・アローラサンド・オニゴーリ",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド",
+      "オニゴーリ"
+    ],
+    "prefectureId": 31,
+    "municipality": "伯耆町",
+    "address": "鳥取県伯耆町大原997-12",
+    "latitude": 35.383395,
+    "longitude": 133.458512,
+    "officialImageUrl": "/api/official-images/85.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/85/"
+  },
+  {
+    "officialRef": "84",
+    "name": "南部町｜サンド・アローラサンド・ナックラー",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド",
+      "ナックラー"
+    ],
+    "prefectureId": 31,
+    "municipality": "南部町",
+    "address": "鳥取県南部町鶴田110",
+    "latitude": 35.347474,
+    "longitude": 133.423398,
+    "officialImageUrl": "/api/official-images/84.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/84/"
+  },
+  {
+    "officialRef": "83",
+    "name": "大山町｜アローラサンド・ヒトモシ",
+    "pokemonFeatured": [
+      "アローラサンド",
+      "ヒトモシ"
+    ],
+    "prefectureId": 31,
+    "municipality": "大山町",
+    "address": "鳥取県大山町名和951-6",
+    "latitude": 35.504584,
+    "longitude": 133.502093,
+    "officialImageUrl": "/api/official-images/83.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/83/"
+  },
+  {
+    "officialRef": "82",
+    "name": "琴浦町｜サンド・アローラサンド",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド"
+    ],
+    "prefectureId": 31,
+    "municipality": "琴浦町",
+    "address": "鳥取県琴浦町別所270-4",
+    "latitude": 35.506942,
+    "longitude": 133.661612,
+    "officialImageUrl": "/api/official-images/82.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/82/"
+  },
+  {
+    "officialRef": "81",
+    "name": "湯梨浜町｜サンド・シェルダー",
+    "pokemonFeatured": [
+      "サンド",
+      "シェルダー"
+    ],
+    "prefectureId": 31,
+    "municipality": "湯梨浜町",
+    "address": "鳥取県湯梨浜町はわい温泉3-13",
+    "latitude": 35.478166,
+    "longitude": 133.88401,
+    "officialImageUrl": "/api/official-images/81.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/81/"
+  },
+  {
+    "officialRef": "80",
+    "name": "三朝町｜サンド・アローラサンド・ケロマツ",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド",
+      "ケロマツ"
+    ],
+    "prefectureId": 31,
+    "municipality": "三朝町",
+    "address": "鳥取県三朝町三朝783",
+    "latitude": 35.409324,
+    "longitude": 133.894397,
+    "officialImageUrl": "/api/official-images/80.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/80/"
+  },
+  {
+    "officialRef": "79",
+    "name": "若桜町｜アローラサンド・ユキカブリ",
+    "pokemonFeatured": [
+      "アローラサンド",
+      "ユキカブリ"
+    ],
+    "prefectureId": 31,
+    "municipality": "若桜町",
+    "address": "鳥取県若桜町若桜983-2",
+    "latitude": 35.343951,
+    "longitude": 134.400345,
+    "officialImageUrl": "/api/official-images/79.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/79/"
+  },
+  {
+    "officialRef": "78",
+    "name": "岩美町｜サンド・ネイティオ",
+    "pokemonFeatured": [
+      "サンド",
+      "ネイティオ"
+    ],
+    "prefectureId": 31,
+    "municipality": "岩美町",
+    "address": "鳥取県岩美町浦富2475-17",
+    "latitude": 35.590938,
+    "longitude": 134.321556,
+    "officialImageUrl": "/api/official-images/78.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/78/"
+  },
+  {
+    "officialRef": "77",
+    "name": "境港市｜サンド・アローラサンド・クラブ",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド",
+      "クラブ"
+    ],
+    "prefectureId": 31,
+    "municipality": "境港市",
+    "address": "鳥取県境港市竹内団地252-2",
+    "latitude": 35.521481,
+    "longitude": 133.258356,
+    "officialImageUrl": "/api/official-images/77.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/77/"
+  },
+  {
+    "officialRef": "76",
+    "name": "倉吉市｜サンド・アローラサンド",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド"
+    ],
+    "prefectureId": 31,
+    "municipality": "倉吉市",
+    "address": "鳥取県倉吉市上井195",
+    "latitude": 35.454272,
+    "longitude": 133.850116,
+    "officialImageUrl": "/api/official-images/76.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/76/"
+  },
+  {
+    "officialRef": "75",
+    "name": "米子市｜サンド・カモネギ・スワンナ",
+    "pokemonFeatured": [
+      "サンド",
+      "カモネギ",
+      "スワンナ"
+    ],
+    "prefectureId": 31,
+    "municipality": "米子市",
+    "address": "鳥取県米子市皆生温泉3丁目1番1号",
+    "latitude": 35.456258,
+    "longitude": 133.361525,
+    "officialImageUrl": "/api/official-images/75.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/75/"
+  },
+  {
+    "officialRef": "74",
+    "name": "鳥取市｜サンド・アローラサンド・ミミロル",
+    "pokemonFeatured": [
+      "サンド",
+      "アローラサンド",
+      "ミミロル"
+    ],
+    "prefectureId": 31,
+    "municipality": "鳥取市",
+    "address": "鳥取県鳥取市福部町湯山2083-17地先",
+    "latitude": 35.539668,
+    "longitude": 134.237266,
+    "officialImageUrl": "/api/official-images/74.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/74/"
+  },
+  {
+    "officialRef": "381",
+    "name": "隠岐の島町｜デデンネ・ミミロップ",
+    "pokemonFeatured": [
+      "デデンネ",
+      "ミミロップ"
+    ],
+    "prefectureId": 32,
+    "municipality": "隠岐の島町",
+    "address": "島根県隠岐の島町岬町1889番地12",
+    "latitude": 36.17725248,
+    "longitude": 133.3302467,
+    "officialImageUrl": "/api/official-images/381.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/381/"
+  },
+  {
+    "officialRef": "380",
+    "name": "安来市｜ドジョッチ・バリヤード",
+    "pokemonFeatured": [
+      "ドジョッチ",
+      "バリヤード"
+    ],
+    "prefectureId": 32,
+    "municipality": "安来市",
+    "address": "島根県安来市安来町2093-3",
+    "latitude": 35.428407,
+    "longitude": 133.259012,
+    "officialImageUrl": "/api/official-images/380.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/380/"
+  },
+  {
+    "officialRef": "379",
+    "name": "大田市｜エルレイド・サザンドラ",
+    "pokemonFeatured": [
+      "エルレイド",
+      "サザンドラ"
+    ],
+    "prefectureId": 32,
+    "municipality": "大田市",
+    "address": "島根県大田市仁摩町大国42-1",
+    "latitude": 35.145782,
+    "longitude": 132.413128,
+    "officialImageUrl": "/api/official-images/379.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/379/"
+  },
+  {
+    "officialRef": "378",
+    "name": "出雲市｜ワッカネズミ・ラブカス",
+    "pokemonFeatured": [
+      "ワッカネズミ",
+      "ラブカス"
+    ],
+    "prefectureId": 32,
+    "municipality": "出雲市",
+    "address": "島根県出雲市大社町日御碕字秘台原山1481-2",
+    "latitude": 35.4330088,
+    "longitude": 132.629353,
+    "officialImageUrl": "/api/official-images/378.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/378/"
+  },
+  {
+    "officialRef": "377",
+    "name": "浜田市｜オムスター・マッギョ",
+    "pokemonFeatured": [
+      "オムスター",
+      "マッギョ"
+    ],
+    "prefectureId": 32,
+    "municipality": "浜田市",
+    "address": "島根県浜田市原井町1203-1",
+    "latitude": 34.88924,
+    "longitude": 132.07129,
+    "officialImageUrl": "/api/official-images/377.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/377/"
+  },
+  {
+    "officialRef": "197",
+    "name": "倉敷市｜ケンホロウ",
+    "pokemonFeatured": [
+      "ケンホロウ"
+    ],
+    "prefectureId": 33,
+    "municipality": "倉敷市",
+    "address": "岡山県倉敷市阿知2丁目17",
+    "latitude": 34.59829,
+    "longitude": 133.77029,
+    "officialImageUrl": "/api/official-images/197.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/197/"
+  },
+  {
+    "officialRef": "196",
+    "name": "倉敷市｜サルノリ・ワタシラガ",
+    "pokemonFeatured": [
+      "サルノリ",
+      "ワタシラガ"
+    ],
+    "prefectureId": 33,
+    "municipality": "倉敷市",
+    "address": "岡山県倉敷市中央1-18-1",
+    "latitude": 34.59274,
+    "longitude": 133.77046,
+    "officialImageUrl": "/api/official-images/196.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/196/"
+  },
+  {
+    "officialRef": "195",
+    "name": "倉敷市｜ポチエナ・アゲハント",
+    "pokemonFeatured": [
+      "ポチエナ",
+      "アゲハント"
+    ],
+    "prefectureId": 33,
+    "municipality": "倉敷市",
+    "address": "岡山県倉敷市中央2-6-1",
+    "latitude": 34.59556,
+    "longitude": 133.76888,
+    "officialImageUrl": "/api/official-images/195.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/195/"
+  },
+  {
+    "officialRef": "194",
+    "name": "倉敷市｜ルカリオ",
+    "pokemonFeatured": [
+      "ルカリオ"
+    ],
+    "prefectureId": 33,
+    "municipality": "倉敷市",
+    "address": "岡山県倉敷市下津井田之浦1-1",
+    "latitude": 34.43427,
+    "longitude": 133.81388,
+    "officialImageUrl": "/api/official-images/194.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/194/"
+  },
+  {
+    "officialRef": "291",
+    "name": "下関市｜ドガース",
+    "pokemonFeatured": [
+      "ドガース"
+    ],
+    "prefectureId": 35,
+    "municipality": "下関市",
+    "address": "山口県下関市大字彦島字船島648",
+    "latitude": 33.935457,
+    "longitude": 130.929705,
+    "officialImageUrl": "/api/official-images/291.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/291/"
+  },
+  {
+    "officialRef": "290",
+    "name": "下関市｜アーボ",
+    "pokemonFeatured": [
+      "アーボ"
+    ],
+    "prefectureId": 35,
+    "municipality": "下関市",
+    "address": "山口県下関市大字彦島字船島648",
+    "latitude": 33.934094,
+    "longitude": 130.930909,
+    "officialImageUrl": "/api/official-images/290.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/290/"
+  },
+  {
+    "officialRef": "289",
+    "name": "下関市｜チョンチー・ハリーセン",
+    "pokemonFeatured": [
+      "チョンチー",
+      "ハリーセン"
+    ],
+    "prefectureId": 35,
+    "municipality": "下関市",
+    "address": "山口県下関市あるかぽーと6",
+    "latitude": 33.954627,
+    "longitude": 130.9416769,
+    "officialImageUrl": "/api/official-images/289.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/289/"
+  },
+  {
+    "officialRef": "288",
+    "name": "下関市｜エンペルト・ホエルコ",
+    "pokemonFeatured": [
+      "エンペルト",
+      "ホエルコ"
+    ],
+    "prefectureId": 35,
+    "municipality": "下関市",
+    "address": "山口県下関市阿弥陀寺町6",
+    "latitude": 33.958211,
+    "longitude": 130.948691,
+    "officialImageUrl": "/api/official-images/288.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/288/"
+  },
+  {
+    "officialRef": "329",
+    "name": "鳴門市｜ニョロモ・ニョロゾ・ディグダ",
+    "pokemonFeatured": [
+      "ニョロモ",
+      "ニョロゾ",
+      "ディグダ"
+    ],
+    "prefectureId": 36,
+    "municipality": "鳴門市",
+    "address": "徳島県鳴門市撫養町立岩字四枚61",
+    "latitude": 34.168084,
+    "longitude": 134.616371,
+    "officialImageUrl": "/api/official-images/329.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/329/"
+  },
+  {
+    "officialRef": "328",
+    "name": "鳴門市｜シードラ・キングドラ",
+    "pokemonFeatured": [
+      "シードラ",
+      "キングドラ"
+    ],
+    "prefectureId": 36,
+    "municipality": "鳴門市",
+    "address": "徳島県鳴門市撫養町斎田字北浜157",
+    "latitude": 34.181955,
+    "longitude": 134.601709,
+    "officialImageUrl": "/api/official-images/328.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/328/"
+  },
+  {
+    "officialRef": "327",
+    "name": "鳴門市｜スイクン",
+    "pokemonFeatured": [
+      "スイクン"
+    ],
+    "prefectureId": 36,
+    "municipality": "鳴門市",
+    "address": "徳島県鳴門市鳴門町土佐泊浦字大毛82-100",
+    "latitude": 34.224106,
+    "longitude": 134.636196,
+    "officialImageUrl": "/api/official-images/327.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/327/"
+  },
+  {
+    "officialRef": "298",
+    "name": "綾川町｜ヤドン・ガラルヤドン・シェルダー",
+    "pokemonFeatured": [
+      "ヤドン",
+      "ガラルヤドン",
+      "シェルダー"
+    ],
+    "prefectureId": 37,
+    "municipality": "綾川町",
+    "address": "香川県綾川町萱原253-7",
+    "latitude": 34.247395,
+    "longitude": 133.9327735,
+    "officialImageUrl": "/api/official-images/298.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/298/"
+  },
+  {
+    "officialRef": "97",
+    "name": "宇多津町｜ガラルヤドン・ヌオー",
+    "pokemonFeatured": [
+      "ガラルヤドン",
+      "ヌオー"
+    ],
+    "prefectureId": 37,
+    "municipality": "宇多津町",
+    "address": "香川県宇多津町浜一番丁4番地",
+    "latitude": 34.3134259,
+    "longitude": 133.8075257,
+    "officialImageUrl": "/api/official-images/97.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/97/"
+  },
+  {
+    "officialRef": "43",
+    "name": "まんのう町｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "まんのう町",
+    "address": "香川県まんのう町吉野4314-1",
+    "latitude": 34.173339,
+    "longitude": 133.871387,
+    "officialImageUrl": "/api/official-images/43.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/43/"
+  },
+  {
+    "officialRef": "42",
+    "name": "多度津町｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "多度津町",
+    "address": "香川県多度津町栄町3-3",
+    "latitude": 34.272282,
+    "longitude": 133.757247,
+    "officialImageUrl": "/api/official-images/42.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/42/"
+  },
+  {
+    "officialRef": "41",
+    "name": "琴平町｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "琴平町",
+    "address": "香川県琴平町723-2",
+    "latitude": 34.187735,
+    "longitude": 133.819896,
+    "officialImageUrl": "/api/official-images/41.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/41/"
+  },
+  {
+    "officialRef": "40",
+    "name": "綾川町｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "綾川町",
+    "address": "香川県綾川町滝宮1589-2",
+    "latitude": 34.250399,
+    "longitude": 133.917073,
+    "officialImageUrl": "/api/official-images/40.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/40/"
+  },
+  {
+    "officialRef": "39",
+    "name": "直島町｜ヤドン・コイキング",
+    "pokemonFeatured": [
+      "ヤドン",
+      "コイキング"
+    ],
+    "prefectureId": 37,
+    "municipality": "直島町",
+    "address": "香川県直島町2249番地55",
+    "latitude": 34.455827,
+    "longitude": 133.975492,
+    "officialImageUrl": "/api/official-images/39.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/39/"
+  },
+  {
+    "officialRef": "38",
+    "name": "三木町｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "三木町",
+    "address": "香川県三木町大字氷上310",
+    "latitude": 34.268586,
+    "longitude": 134.134567,
+    "officialImageUrl": "/api/official-images/38.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/38/"
+  },
+  {
+    "officialRef": "37",
+    "name": "小豆島町｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "小豆島町",
+    "address": "香川県小豆島町室生2084-1",
+    "latitude": 34.4708542,
+    "longitude": 134.2358695,
+    "officialImageUrl": "/api/official-images/37.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/37/"
+  },
+  {
+    "officialRef": "36",
+    "name": "土庄町｜ヤドン・メタモン",
+    "pokemonFeatured": [
+      "ヤドン",
+      "メタモン"
+    ],
+    "prefectureId": 37,
+    "municipality": "土庄町",
+    "address": "香川県土庄町甲222-1",
+    "latitude": 34.482694,
+    "longitude": 134.187512,
+    "officialImageUrl": "/api/official-images/36.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/36/"
+  },
+  {
+    "officialRef": "35",
+    "name": "三豊市｜ヤドン・シェルダー",
+    "pokemonFeatured": [
+      "ヤドン",
+      "シェルダー"
+    ],
+    "prefectureId": 37,
+    "municipality": "三豊市",
+    "address": "香川県三豊市詫間町粟島1541地先",
+    "latitude": 34.2687992,
+    "longitude": 133.6322219,
+    "officialImageUrl": "/api/official-images/35.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/35/"
+  },
+  {
+    "officialRef": "34",
+    "name": "東かがわ市｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "東かがわ市",
+    "address": "香川県東かがわ市三本松1172-1",
+    "latitude": 34.251174,
+    "longitude": 134.333457,
+    "officialImageUrl": "/api/official-images/34.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/34/"
+  },
+  {
+    "officialRef": "33",
+    "name": "さぬき市｜ヤドン・ピッピ",
+    "pokemonFeatured": [
+      "ヤドン",
+      "ピッピ"
+    ],
+    "prefectureId": 37,
+    "municipality": "さぬき市",
+    "address": "香川県さぬき市志度670-10",
+    "latitude": 34.321305,
+    "longitude": 134.173241,
+    "officialImageUrl": "/api/official-images/33.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/33/"
+  },
+  {
+    "officialRef": "32",
+    "name": "観音寺市｜ヤドン・ヤドキング",
+    "pokemonFeatured": [
+      "ヤドン",
+      "ヤドキング"
+    ],
+    "prefectureId": 37,
+    "municipality": "観音寺市",
+    "address": "香川県観音寺市観音寺町甲1234-4",
+    "latitude": 34.125275,
+    "longitude": 133.655211,
+    "officialImageUrl": "/api/official-images/32.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/32/"
+  },
+  {
+    "officialRef": "31",
+    "name": "善通寺市｜ヤドン・ヤドラン",
+    "pokemonFeatured": [
+      "ヤドン",
+      "ヤドラン"
+    ],
+    "prefectureId": 37,
+    "municipality": "善通寺市",
+    "address": "香川県善通寺市善通寺町二丁目2",
+    "latitude": 34.22531,
+    "longitude": 133.7773,
+    "officialImageUrl": "/api/official-images/31.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/31/"
+  },
+  {
+    "officialRef": "30",
+    "name": "坂出市｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "坂出市",
+    "address": "香川県坂出市駒止町1丁目4",
+    "latitude": 34.312992,
+    "longitude": 133.856292,
+    "officialImageUrl": "/api/official-images/30.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/30/"
+  },
+  {
+    "officialRef": "29",
+    "name": "丸亀市｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "丸亀市",
+    "address": "香川県丸亀市浜町109-4",
+    "latitude": 34.292014,
+    "longitude": 133.793951,
+    "officialImageUrl": "/api/official-images/29.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/29/"
+  },
+  {
+    "officialRef": "28",
+    "name": "高松市｜ヤドン",
+    "pokemonFeatured": [
+      "ヤドン"
+    ],
+    "prefectureId": 37,
+    "municipality": "高松市",
+    "address": "香川県高松市南新町8-30地先",
+    "latitude": 34.338888,
+    "longitude": 134.049052,
+    "officialImageUrl": "/api/official-images/28.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/28/"
+  },
+  {
+    "officialRef": "326",
+    "name": "松山市｜シュバルゴ・ネギガナイト",
+    "pokemonFeatured": [
+      "シュバルゴ",
+      "ネギガナイト"
+    ],
+    "prefectureId": 38,
+    "municipality": "松山市",
+    "address": "愛媛県松山市朝日ヶ丘1丁目　松山総合公園展望広場",
+    "latitude": 33.84426,
+    "longitude": 132.74078,
+    "officialImageUrl": "/api/official-images/326.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/326/"
+  },
+  {
+    "officialRef": "325",
+    "name": "松山市｜アマージョ・アマカジ",
+    "pokemonFeatured": [
+      "アマージョ",
+      "アマカジ"
+    ],
+    "prefectureId": 38,
+    "municipality": "松山市",
+    "address": "愛媛県松山市大街道2丁目 大街道アーケード",
+    "latitude": 33.84106,
+    "longitude": 132.77024,
+    "officialImageUrl": "/api/official-images/325.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/325/"
+  },
+  {
+    "officialRef": "453",
+    "name": "仁淀川町｜ヌオー・メッソン",
+    "pokemonFeatured": [
+      "ヌオー",
+      "メッソン"
+    ],
+    "prefectureId": 39,
+    "municipality": "仁淀川町",
+    "address": "高知県仁淀川町名野川456",
+    "latitude": 33.561104,
+    "longitude": 133.129433,
+    "officialImageUrl": "/api/official-images/453.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/453/"
+  },
+  {
+    "officialRef": "452",
+    "name": "本山町｜ヌオー・アメタマ・アメモース",
+    "pokemonFeatured": [
+      "ヌオー",
+      "アメタマ",
+      "アメモース"
+    ],
+    "prefectureId": 39,
+    "municipality": "本山町",
+    "address": "高知県本山町本山2133-1",
+    "latitude": 33.75877,
+    "longitude": 133.59448,
+    "officialImageUrl": "/api/official-images/452.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/452/"
+  },
+  {
+    "officialRef": "451",
+    "name": "安田町｜ヌオー・メタモン",
+    "pokemonFeatured": [
+      "ヌオー",
+      "メタモン"
+    ],
+    "prefectureId": 39,
+    "municipality": "安田町",
+    "address": "高知県安田町大字正弘566番地",
+    "latitude": 33.47986,
+    "longitude": 133.99983,
+    "officialImageUrl": "/api/official-images/451.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/451/"
+  },
+  {
+    "officialRef": "450",
+    "name": "土佐清水市｜ヌオー・カラナクシ",
+    "pokemonFeatured": [
+      "ヌオー",
+      "カラナクシ"
+    ],
+    "prefectureId": 39,
+    "municipality": "土佐清水市",
+    "address": "高知県土佐清水市三崎4032",
+    "latitude": 32.791142,
+    "longitude": 132.862367,
+    "officialImageUrl": "/api/official-images/450.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/450/"
+  },
+  {
+    "officialRef": "449",
+    "name": "高知市｜ヌオー・トサキント",
+    "pokemonFeatured": [
+      "ヌオー",
+      "トサキント"
+    ],
+    "prefectureId": 39,
+    "municipality": "高知市",
+    "address": "高知県高知市北本町2-10-17",
+    "latitude": 33.56701662,
+    "longitude": 133.5431367,
+    "officialImageUrl": "/api/official-images/449.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/449/"
+  },
+  {
+    "officialRef": "437",
+    "name": "東洋町｜ヌオー・マンタイン",
+    "pokemonFeatured": [
+      "ヌオー",
+      "マンタイン"
+    ],
+    "prefectureId": 39,
+    "municipality": "東洋町",
+    "address": "高知県東洋町白浜８８−１",
+    "latitude": 33.543168839356774,
+    "longitude": 134.29495896722574,
+    "officialImageUrl": "/api/official-images/437.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/437/"
+  },
+  {
+    "officialRef": "436",
+    "name": "香南市｜ヌオー・シビシラス",
+    "pokemonFeatured": [
+      "ヌオー",
+      "シビシラス"
+    ],
+    "prefectureId": 39,
+    "municipality": "香南市",
+    "address": "高知県香南市夜須町坪井",
+    "latitude": 33.534367,
+    "longitude": 133.75346,
+    "officialImageUrl": "/api/official-images/436.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/436/"
+  },
+  {
+    "officialRef": "435",
+    "name": "宿毛市｜ヌオー・ウパー",
+    "pokemonFeatured": [
+      "ヌオー",
+      "ウパー"
+    ],
+    "prefectureId": 39,
+    "municipality": "宿毛市",
+    "address": "高知県宿毛市小筑紫町田ノ浦１２４４−１０",
+    "latitude": 32.915754,
+    "longitude": 132.712575,
+    "officialImageUrl": "/api/official-images/435.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/435/"
+  },
+  {
+    "officialRef": "434",
+    "name": "須崎市｜ヌオー・ブイゼル・フローゼル",
+    "pokemonFeatured": [
+      "ヌオー",
+      "ブイゼル",
+      "フローゼル"
+    ],
+    "prefectureId": 39,
+    "municipality": "須崎市",
+    "address": "高知県須崎市原町1丁目9-11",
+    "latitude": 33.39238098,
+    "longitude": 133.2926446,
+    "officialImageUrl": "/api/official-images/434.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/434/"
+  },
+  {
+    "officialRef": "433",
+    "name": "安芸市｜ヌオー・ホーホー",
+    "pokemonFeatured": [
+      "ヌオー",
+      "ホーホー"
+    ],
+    "prefectureId": 39,
+    "municipality": "安芸市",
+    "address": "高知県安芸市矢ノ丸4丁目2-30",
+    "latitude": 33.5043207,
+    "longitude": 133.9065445,
+    "officialImageUrl": "/api/official-images/433.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/433/"
+  },
+  {
+    "officialRef": "432",
+    "name": "室戸市｜ヌオー・コジオ",
+    "pokemonFeatured": [
+      "ヌオー",
+      "コジオ"
+    ],
+    "prefectureId": 39,
+    "municipality": "室戸市",
+    "address": "高知県室戸市室戸岬町533-2",
+    "latitude": 33.325698,
+    "longitude": 134.195181,
+    "officialImageUrl": "/api/official-images/432.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/432/"
+  },
+  {
+    "officialRef": "396",
+    "name": "三原村｜ヌオー・ドオー",
+    "pokemonFeatured": [
+      "ヌオー",
+      "ドオー"
+    ],
+    "prefectureId": 39,
+    "municipality": "三原村",
+    "address": "高知県三原村宮ノ川",
+    "latitude": 32.922536,
+    "longitude": 132.83982,
+    "officialImageUrl": "/api/official-images/396.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/396/"
+  },
+  {
+    "officialRef": "395",
+    "name": "大月町｜ヌオー・フィオネ・ケイコウオ",
+    "pokemonFeatured": [
+      "ヌオー",
+      "フィオネ",
+      "ケイコウオ"
+    ],
+    "prefectureId": 39,
+    "municipality": "大月町",
+    "address": "高知県大月町柏島600番地",
+    "latitude": 32.767739,
+    "longitude": 132.627259,
+    "officialImageUrl": "/api/official-images/395.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/395/"
+  },
+  {
+    "officialRef": "394",
+    "name": "津野町｜ヌオー・リリーラ・ピィ",
+    "pokemonFeatured": [
+      "ヌオー",
+      "リリーラ",
+      "ピィ"
+    ],
+    "prefectureId": 39,
+    "municipality": "津野町",
+    "address": "高知県津野町芳生野乙4921-22",
+    "latitude": 33.476856,
+    "longitude": 133.004184,
+    "officialImageUrl": "/api/official-images/394.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/394/"
+  },
+  {
+    "officialRef": "393",
+    "name": "日高村｜ヌオー・シズクモ・ヤンヤンマ",
+    "pokemonFeatured": [
+      "ヌオー",
+      "シズクモ",
+      "ヤンヤンマ"
+    ],
+    "prefectureId": 39,
+    "municipality": "日高村",
+    "address": "高知県日高村本郷284-2",
+    "latitude": 33.5335561,
+    "longitude": 133.3712561,
+    "officialImageUrl": "/api/official-images/393.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/393/"
+  },
+  {
+    "officialRef": "392",
+    "name": "大豊町｜ヌオー・チルタリス",
+    "pokemonFeatured": [
+      "ヌオー",
+      "チルタリス"
+    ],
+    "prefectureId": 39,
+    "municipality": "大豊町",
+    "address": "高知県大豊町中村大王4037-25",
+    "latitude": 33.749067,
+    "longitude": 133.684166,
+    "officialImageUrl": "/api/official-images/392.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/392/"
+  },
+  {
+    "officialRef": "391",
+    "name": "奈半利町｜ヌオー・ノクタス・サニーゴ",
+    "pokemonFeatured": [
+      "ヌオー",
+      "ノクタス",
+      "サニーゴ"
+    ],
+    "prefectureId": 39,
+    "municipality": "奈半利町",
+    "address": "高知県奈半利町乙4779-3",
+    "latitude": 33.425249,
+    "longitude": 134.017781,
+    "officialImageUrl": "/api/official-images/391.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/391/"
+  },
+  {
+    "officialRef": "390",
+    "name": "香美市｜ヌオー・コマタナ・モノズ",
+    "pokemonFeatured": [
+      "ヌオー",
+      "コマタナ",
+      "モノズ"
+    ],
+    "prefectureId": 39,
+    "municipality": "香美市",
+    "address": "高知県香美市物部町大栃872番地2",
+    "latitude": 33.695608,
+    "longitude": 133.874784,
+    "officialImageUrl": "/api/official-images/390.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/390/"
+  },
+  {
+    "officialRef": "317",
+    "name": "太宰府市｜ギルガルド",
+    "pokemonFeatured": [
+      "ギルガルド"
+    ],
+    "prefectureId": 40,
+    "municipality": "太宰府市",
+    "address": "福岡県太宰府市朱雀３丁目１３",
+    "latitude": 33.505199,
+    "longitude": 130.516571,
+    "officialImageUrl": "/api/official-images/317.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/317/"
+  },
+  {
+    "officialRef": "316",
+    "name": "太宰府市｜フーディン・ヤドキング・ヤレユータン",
+    "pokemonFeatured": [
+      "フーディン",
+      "ヤドキング",
+      "ヤレユータン"
+    ],
+    "prefectureId": 40,
+    "municipality": "太宰府市",
+    "address": "福岡県太宰府市宰府２丁目５",
+    "latitude": 33.519356,
+    "longitude": 130.531372,
+    "officialImageUrl": "/api/official-images/316.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/316/"
+  },
+  {
+    "officialRef": "315",
+    "name": "太宰府市｜キルリア・メブキジカ・ヤヤコマ",
+    "pokemonFeatured": [
+      "キルリア",
+      "メブキジカ",
+      "ヤヤコマ"
+    ],
+    "prefectureId": 40,
+    "municipality": "太宰府市",
+    "address": "福岡県太宰府市観世音寺4-6",
+    "latitude": 33.513335,
+    "longitude": 130.515174,
+    "officialImageUrl": "/api/official-images/315.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/315/"
+  },
+  {
+    "officialRef": "202",
+    "name": "北九州市｜トロピウス",
+    "pokemonFeatured": [
+      "トロピウス"
+    ],
+    "prefectureId": 40,
+    "municipality": "北九州市",
+    "address": "福岡県北九州市門司区旧門司二丁目5　ノーフォーク広場",
+    "latitude": 33.957206,
+    "longitude": 130.96161,
+    "officialImageUrl": "/api/official-images/202.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/202/"
+  },
+  {
+    "officialRef": "201",
+    "name": "北九州市｜サーナイト・ルナトーン",
+    "pokemonFeatured": [
+      "サーナイト",
+      "ルナトーン"
+    ],
+    "prefectureId": 40,
+    "municipality": "北九州市",
+    "address": "福岡県北九州市門司区港町5　門司港レトロ地区",
+    "latitude": 33.946285,
+    "longitude": 130.964119,
+    "officialImageUrl": "/api/official-images/201.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/201/"
+  },
+  {
+    "officialRef": "200",
+    "name": "北九州市｜ヤミラミ・ジュラルドン",
+    "pokemonFeatured": [
+      "ヤミラミ",
+      "ジュラルドン"
+    ],
+    "prefectureId": 40,
+    "municipality": "北九州市",
+    "address": "福岡県北九州市八幡東区東田４丁目１１",
+    "latitude": 33.87192,
+    "longitude": 130.807892,
+    "officialImageUrl": "/api/official-images/200.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/200/"
+  },
+  {
+    "officialRef": "199",
+    "name": "北九州市｜アローラダグトリオ・トロッゴン",
+    "pokemonFeatured": [
+      "アローラダグトリオ",
+      "トロッゴン"
+    ],
+    "prefectureId": 40,
+    "municipality": "北九州市",
+    "address": "福岡県北九州市小倉北区浅野三丁目5　あさの汐風公園",
+    "latitude": 33.890528,
+    "longitude": 130.884609,
+    "officialImageUrl": "/api/official-images/199.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/199/"
+  },
+  {
+    "officialRef": "198",
+    "name": "北九州市｜ボスゴドラ",
+    "pokemonFeatured": [
+      "ボスゴドラ"
+    ],
+    "prefectureId": 40,
+    "municipality": "北九州市",
+    "address": "福岡県北九州市小倉北区室町一丁目1　リバーウォーク北九州",
+    "latitude": 33.884982,
+    "longitude": 130.876213,
+    "officialImageUrl": "/api/official-images/198.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/198/"
+  },
+  {
+    "officialRef": "257",
+    "name": "佐賀市｜ガラルニャース",
+    "pokemonFeatured": [
+      "ガラルニャース"
+    ],
+    "prefectureId": 41,
+    "municipality": "佐賀市",
+    "address": "佐賀県佐賀市城内1丁目1-59",
+    "latitude": 33.24900974,
+    "longitude": 130.3003128,
+    "officialImageUrl": "/api/official-images/257.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/257/"
+  },
+  {
+    "officialRef": "256",
+    "name": "佐賀市｜アローラニャース",
+    "pokemonFeatured": [
+      "アローラニャース"
+    ],
+    "prefectureId": 41,
+    "municipality": "佐賀市",
+    "address": "佐賀県佐賀市水ヶ江2丁目11-11",
+    "latitude": 33.24833583,
+    "longitude": 130.3089011,
+    "officialImageUrl": "/api/official-images/256.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/256/"
+  },
+  {
+    "officialRef": "255",
+    "name": "佐賀市｜ニャース",
+    "pokemonFeatured": [
+      "ニャース"
+    ],
+    "prefectureId": 41,
+    "municipality": "佐賀市",
+    "address": "佐賀県佐賀市松原1丁目1-1",
+    "latitude": 33.25075645,
+    "longitude": 130.2989299,
+    "officialImageUrl": "/api/official-images/255.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/255/"
+  },
+  {
+    "officialRef": "480",
+    "name": "波佐見町｜デンリュウ・カイロス・ハッサム",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "カイロス",
+      "ハッサム"
+    ],
+    "prefectureId": 42,
+    "municipality": "波佐見町",
+    "address": "長崎県波佐見町井石郷2255-2",
+    "latitude": 33.141048,
+    "longitude": 129.910858,
+    "officialImageUrl": "/api/official-images/480.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/480/"
+  },
+  {
+    "officialRef": "479",
+    "name": "西海市｜デンリュウ・タイカイデン・トリトドン",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "タイカイデン",
+      "トリトドン"
+    ],
+    "prefectureId": 42,
+    "municipality": "西海市",
+    "address": "長崎県西海市大島町1374-4",
+    "latitude": 33.036768,
+    "longitude": 129.637485,
+    "officialImageUrl": "/api/official-images/479.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/479/"
+  },
+  {
+    "officialRef": "478",
+    "name": "五島市｜デンリュウ・モココ・メリープ",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "モココ",
+      "メリープ"
+    ],
+    "prefectureId": 42,
+    "municipality": "五島市",
+    "address": "長崎県五島市野々切町1333-3",
+    "latitude": 32.641898,
+    "longitude": 128.847861,
+    "officialImageUrl": "/api/official-images/478.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/478/"
+  },
+  {
+    "officialRef": "477",
+    "name": "対馬市｜デンリュウ・レパルダス・キノガッサ",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "レパルダス",
+      "キノガッサ"
+    ],
+    "prefectureId": 42,
+    "municipality": "対馬市",
+    "address": "長崎県対馬市厳原町今屋敷672-1",
+    "latitude": 34.202685,
+    "longitude": 129.289139,
+    "officialImageUrl": "/api/official-images/477.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/477/"
+  },
+  {
+    "officialRef": "476",
+    "name": "諫早市｜デンリュウ・メタグロス",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "メタグロス"
+    ],
+    "prefectureId": 42,
+    "municipality": "諫早市",
+    "address": "長崎県諫早市永昌東町2",
+    "latitude": 32.851951,
+    "longitude": 130.042015,
+    "officialImageUrl": "/api/official-images/476.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/476/"
+  },
+  {
+    "officialRef": "431",
+    "name": "佐々町｜デンリュウ・シビシラス・シビビール",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "シビシラス",
+      "シビビール"
+    ],
+    "prefectureId": 42,
+    "municipality": "佐々町",
+    "address": "長崎県佐々町鴨川免189-1",
+    "latitude": 33.254897,
+    "longitude": 129.6589353,
+    "officialImageUrl": "/api/official-images/431.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/431/"
+  },
+  {
+    "officialRef": "430",
+    "name": "東彼杵町｜デンリュウ・ジュペッタ・ワタッコ",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "ジュペッタ",
+      "ワタッコ"
+    ],
+    "prefectureId": 42,
+    "municipality": "東彼杵町",
+    "address": "長崎県東彼杵町彼杵宿郷４７２",
+    "latitude": 33.0357304,
+    "longitude": 129.9194868,
+    "officialImageUrl": "/api/official-images/430.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/430/"
+  },
+  {
+    "officialRef": "429",
+    "name": "時津町｜デンリュウ・ホーホー・ゴローン・オタチ",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "ホーホー",
+      "ゴローン",
+      "オタチ"
+    ],
+    "prefectureId": 42,
+    "municipality": "時津町",
+    "address": "長崎県時津町浦郷436-8",
+    "latitude": 32.831977,
+    "longitude": 129.849052,
+    "officialImageUrl": "/api/official-images/429.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/429/"
+  },
+  {
+    "officialRef": "428",
+    "name": "壱岐市｜デンリュウ・イキリンコ・ノズパス",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "イキリンコ",
+      "ノズパス"
+    ],
+    "prefectureId": 42,
+    "municipality": "壱岐市",
+    "address": "長崎県壱岐市郷ノ浦町新田触870-3",
+    "latitude": 33.81196878,
+    "longitude": 129.6557033,
+    "officialImageUrl": "/api/official-images/428.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/428/"
+  },
+  {
+    "officialRef": "427",
+    "name": "島原市｜デンリュウ・ヒラヒナ・タマザラシ",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "ヒラヒナ",
+      "タマザラシ"
+    ],
+    "prefectureId": 42,
+    "municipality": "島原市",
+    "address": "長崎県島原市片町577-1",
+    "latitude": 32.790222,
+    "longitude": 130.370593,
+    "officialImageUrl": "/api/official-images/427.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/427/"
+  },
+  {
+    "officialRef": "358",
+    "name": "新上五島町｜デンリュウ・イルカマン",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "イルカマン"
+    ],
+    "prefectureId": 42,
+    "municipality": "新上五島町",
+    "address": "長崎県新上五島町有川郷578-36",
+    "latitude": 32.986402,
+    "longitude": 129.112745,
+    "officialImageUrl": "/api/official-images/358.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/358/"
+  },
+  {
+    "officialRef": "357",
+    "name": "雲仙市｜デンリュウ・コータス・バクーダ",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "コータス",
+      "バクーダ"
+    ],
+    "prefectureId": 42,
+    "municipality": "雲仙市",
+    "address": "長崎県雲仙市小浜町雲仙320-18",
+    "latitude": 32.74085,
+    "longitude": 130.261106,
+    "officialImageUrl": "/api/official-images/357.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/357/"
+  },
+  {
+    "officialRef": "356",
+    "name": "大村市｜デンリュウ・チェリム",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "チェリム"
+    ],
+    "prefectureId": 42,
+    "municipality": "大村市",
+    "address": "長崎県大村市植松3丁目135-5",
+    "latitude": 32.933111,
+    "longitude": 129.958278,
+    "officialImageUrl": "/api/official-images/356.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/356/"
+  },
+  {
+    "officialRef": "355",
+    "name": "佐世保市｜デンリュウ・キモリ・ドレディア",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "キモリ",
+      "ドレディア"
+    ],
+    "prefectureId": 42,
+    "municipality": "佐世保市",
+    "address": "長崎県佐世保市新港町3",
+    "latitude": 33.163987,
+    "longitude": 129.724169,
+    "officialImageUrl": "/api/official-images/355.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/355/"
+  },
+  {
+    "officialRef": "354",
+    "name": "長崎市｜デンリュウ・トゲピー・キャモメ",
+    "pokemonFeatured": [
+      "デンリュウ",
+      "トゲピー",
+      "キャモメ"
+    ],
+    "prefectureId": 42,
+    "municipality": "長崎市",
+    "address": "長崎県長崎市尾上町5-6",
+    "latitude": 32.753712,
+    "longitude": 129.86735,
+    "officialImageUrl": "/api/official-images/354.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/354/"
+  },
+  {
+    "officialRef": "186",
+    "name": "五ヶ瀬町｜ナッシー・レジアイス",
+    "pokemonFeatured": [
+      "ナッシー",
+      "レジアイス"
+    ],
+    "prefectureId": 45,
+    "municipality": "五ヶ瀬町",
+    "address": "宮崎県五ヶ瀬町三ヶ所9400 Gパーク五ヶ瀬町総合公園内",
+    "latitude": 32.679051,
+    "longitude": 131.210041,
+    "officialImageUrl": "/api/official-images/186.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/186/"
+  },
+  {
+    "officialRef": "185",
+    "name": "日之影町｜ナッシー・レジスチル",
+    "pokemonFeatured": [
+      "ナッシー",
+      "レジスチル"
+    ],
+    "prefectureId": 45,
+    "municipality": "日之影町",
+    "address": "宮崎県日之影町大字七折8705-12",
+    "latitude": 32.660643,
+    "longitude": 131.388639,
+    "officialImageUrl": "/api/official-images/185.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/185/"
+  },
+  {
+    "officialRef": "184",
+    "name": "高千穂町｜ナッシー・レジギガス",
+    "pokemonFeatured": [
+      "ナッシー",
+      "レジギガス"
+    ],
+    "prefectureId": 45,
+    "municipality": "高千穂町",
+    "address": "宮崎県高千穂町大字三田井1099-1",
+    "latitude": 32.707748,
+    "longitude": 131.305889,
+    "officialImageUrl": "/api/official-images/184.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/184/"
+  },
+  {
+    "officialRef": "183",
+    "name": "椎葉村｜ナッシー・シンボラー",
+    "pokemonFeatured": [
+      "ナッシー",
+      "シンボラー"
+    ],
+    "prefectureId": 45,
+    "municipality": "椎葉村",
+    "address": "宮崎県椎葉村大字下福良1829番地57",
+    "latitude": 32.458153,
+    "longitude": 131.153831,
+    "officialImageUrl": "/api/official-images/183.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/183/"
+  },
+  {
+    "officialRef": "182",
+    "name": "諸塚村｜ナッシー・レジロック",
+    "pokemonFeatured": [
+      "ナッシー",
+      "レジロック"
+    ],
+    "prefectureId": 45,
+    "municipality": "諸塚村",
+    "address": "宮崎県諸塚村大字家代2640-18",
+    "latitude": 32.509811,
+    "longitude": 131.331498,
+    "officialImageUrl": "/api/official-images/182.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/182/"
+  },
+  {
+    "officialRef": "181",
+    "name": "西米良村｜アローラナッシー・ゴルーグ",
+    "pokemonFeatured": [
+      "アローラナッシー",
+      "ゴルーグ"
+    ],
+    "prefectureId": 45,
+    "municipality": "西米良村",
+    "address": "宮崎県西米良村大字村所260-6",
+    "latitude": 32.223238,
+    "longitude": 131.16329,
+    "officialImageUrl": "/api/official-images/181.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/181/"
+  },
+  {
+    "officialRef": "180",
+    "name": "綾町｜ナッシー・ナマケロ",
+    "pokemonFeatured": [
+      "ナッシー",
+      "ナマケロ"
+    ],
+    "prefectureId": 45,
+    "municipality": "綾町",
+    "address": "宮崎県綾町大字南俣515番地",
+    "latitude": 31.9989753,
+    "longitude": 131.2537536,
+    "officialImageUrl": "/api/official-images/180.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/180/"
+  },
+  {
+    "officialRef": "179",
+    "name": "国富町｜アローラナッシー・ゴクリン",
+    "pokemonFeatured": [
+      "アローラナッシー",
+      "ゴクリン"
+    ],
+    "prefectureId": 45,
+    "municipality": "国富町",
+    "address": "宮崎県国富町大字本庄4043-5",
+    "latitude": 31.988591,
+    "longitude": 131.321916,
+    "officialImageUrl": "/api/official-images/179.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/179/"
+  },
+  {
+    "officialRef": "178",
+    "name": "高原町｜ナッシー・ムチュール",
+    "pokemonFeatured": [
+      "ナッシー",
+      "ムチュール"
+    ],
+    "prefectureId": 45,
+    "municipality": "高原町",
+    "address": "宮崎県高原町大字蒲牟田3-251",
+    "latitude": 31.907234,
+    "longitude": 130.960187,
+    "officialImageUrl": "/api/official-images/178.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/178/"
+  },
+  {
+    "officialRef": "171",
+    "name": "美郷町｜ナッシー・タマタマ",
+    "pokemonFeatured": [
+      "ナッシー",
+      "タマタマ"
+    ],
+    "prefectureId": 45,
+    "municipality": "美郷町",
+    "address": "宮崎県美郷町西郷田代5812-1",
+    "latitude": 32.431976,
+    "longitude": 131.467551,
+    "officialImageUrl": "/api/official-images/171.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/171/"
+  },
+  {
+    "officialRef": "170",
+    "name": "門川町｜アローラナッシー・マケンカニ",
+    "pokemonFeatured": [
+      "アローラナッシー",
+      "マケンカニ"
+    ],
+    "prefectureId": 45,
+    "municipality": "門川町",
+    "address": "宮崎県門川町大字庵川2822番地",
+    "latitude": 32.487021,
+    "longitude": 131.676733,
+    "officialImageUrl": "/api/official-images/170.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/170/"
+  },
+  {
+    "officialRef": "169",
+    "name": "都農町｜アローラナッシー・ブイゼル",
+    "pokemonFeatured": [
+      "アローラナッシー",
+      "ブイゼル"
+    ],
+    "prefectureId": 45,
+    "municipality": "都農町",
+    "address": "宮崎県都農町大字川北5129",
+    "latitude": 32.2609016,
+    "longitude": 131.5575768,
+    "officialImageUrl": "/api/official-images/169.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/169/"
+  },
+  {
+    "officialRef": "168",
+    "name": "川南町｜ナッシー・ヌマクロー",
+    "pokemonFeatured": [
+      "ナッシー",
+      "ヌマクロー"
+    ],
+    "prefectureId": 45,
+    "municipality": "川南町",
+    "address": "宮崎県川南町大字平田2386番地3",
+    "latitude": 32.191491,
+    "longitude": 131.528984,
+    "officialImageUrl": "/api/official-images/168.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/168/"
+  },
+  {
+    "officialRef": "167",
+    "name": "木城町｜ナッシー・メタモン",
+    "pokemonFeatured": [
+      "ナッシー",
+      "メタモン"
+    ],
+    "prefectureId": 45,
+    "municipality": "木城町",
+    "address": "宮崎県木城町高城1403-1",
+    "latitude": 32.168382,
+    "longitude": 131.478378,
+    "officialImageUrl": "/api/official-images/167.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/167/"
+  },
+  {
+    "officialRef": "166",
+    "name": "新富町｜アローラナッシー・マクノシタ",
+    "pokemonFeatured": [
+      "アローラナッシー",
+      "マクノシタ"
+    ],
+    "prefectureId": 45,
+    "municipality": "新富町",
+    "address": "宮崎県新富町大字三納代1839（三納代広場）",
+    "latitude": 32.073902,
+    "longitude": 131.495719,
+    "officialImageUrl": "/api/official-images/166.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/166/"
+  },
+  {
+    "officialRef": "165",
+    "name": "高鍋町｜アローラナッシー・アローラライチュウ",
+    "pokemonFeatured": [
+      "アローラナッシー",
+      "アローラライチュウ"
+    ],
+    "prefectureId": 45,
+    "municipality": "高鍋町",
+    "address": "宮崎県高鍋町大字蚊口浦字蚊口6259-1",
+    "latitude": 32.115956,
+    "longitude": 131.532841,
+    "officialImageUrl": "/api/official-images/165.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/165/"
+  },
+  {
+    "officialRef": "164",
+    "name": "三股町｜ナッシー・コロモリ",
+    "pokemonFeatured": [
+      "ナッシー",
+      "コロモリ"
+    ],
+    "prefectureId": 45,
+    "municipality": "三股町",
+    "address": "宮崎県三股町大字樺山4421-22",
+    "latitude": 31.73375,
+    "longitude": 131.120309,
+    "officialImageUrl": "/api/official-images/164.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/164/"
+  },
+  {
+    "officialRef": "119",
+    "name": "えびの市｜ナッシー・コータス",
+    "pokemonFeatured": [
+      "ナッシー",
+      "コータス"
+    ],
+    "prefectureId": 45,
+    "municipality": "えびの市",
+    "address": "宮崎県えびの市大字永山1006番地1",
+    "latitude": 32.050305,
+    "longitude": 130.80595,
+    "officialImageUrl": "/api/official-images/119.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/119/"
+  },
+  {
+    "officialRef": "118",
+    "name": "西都市｜ナッシー・キマワリ",
+    "pokemonFeatured": [
+      "ナッシー",
+      "キマワリ"
+    ],
+    "prefectureId": 45,
+    "municipality": "西都市",
+    "address": "宮崎県西都市小野崎1丁目77番地",
+    "latitude": 32.106625,
+    "longitude": 131.404508,
+    "officialImageUrl": "/api/official-images/118.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/118/"
+  },
+  {
+    "officialRef": "117",
+    "name": "串間市｜ナッシー・ガラルポニータ",
+    "pokemonFeatured": [
+      "ナッシー",
+      "ガラルポニータ"
+    ],
+    "prefectureId": 45,
+    "municipality": "串間市",
+    "address": "宮崎県串間市大字大納42-3",
+    "latitude": 31.36627,
+    "longitude": 131.332809,
+    "officialImageUrl": "/api/official-images/117.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/117/"
+  },
+  {
+    "officialRef": "116",
+    "name": "日向市｜ナッシー・オドリドリ",
+    "pokemonFeatured": [
+      "ナッシー",
+      "オドリドリ"
+    ],
+    "prefectureId": 45,
+    "municipality": "日向市",
+    "address": "宮崎県日向市上町10736番15",
+    "latitude": 32.4253924,
+    "longitude": 131.6277364,
+    "officialImageUrl": "/api/official-images/116.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/116/"
+  },
+  {
+    "officialRef": "115",
+    "name": "小林市｜ナッシー・モクロー",
+    "pokemonFeatured": [
+      "ナッシー",
+      "モクロー"
+    ],
+    "prefectureId": 45,
+    "municipality": "小林市",
+    "address": "宮崎県小林市野尻町東麓5160番地",
+    "latitude": 31.95742,
+    "longitude": 131.12641,
+    "officialImageUrl": "/api/official-images/115.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/115/"
+  },
+  {
+    "officialRef": "114",
+    "name": "日南市｜アローラナッシー・ダイノーズ",
+    "pokemonFeatured": [
+      "アローラナッシー",
+      "ダイノーズ"
+    ],
+    "prefectureId": 45,
+    "municipality": "日南市",
+    "address": "宮崎県日南市材木町1-10",
+    "latitude": 31.58793,
+    "longitude": 131.4017058,
+    "officialImageUrl": "/api/official-images/114.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/114/"
+  },
+  {
+    "officialRef": "113",
+    "name": "延岡市｜ナッシー・アローラナッシー",
+    "pokemonFeatured": [
+      "ナッシー",
+      "アローラナッシー"
+    ],
+    "prefectureId": 45,
+    "municipality": "延岡市",
+    "address": "宮崎県延岡市北浦町古江3337-1",
+    "latitude": 32.684711,
+    "longitude": 131.801103,
+    "officialImageUrl": "/api/official-images/113.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/113/"
+  },
+  {
+    "officialRef": "112",
+    "name": "都城市｜アローラナッシー・メテノ",
+    "pokemonFeatured": [
+      "アローラナッシー",
+      "メテノ"
+    ],
+    "prefectureId": 45,
+    "municipality": "都城市",
+    "address": "宮崎県都城市天神町3",
+    "latitude": 31.725213,
+    "longitude": 131.0661894,
+    "officialImageUrl": "/api/official-images/112.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/112/"
+  },
+  {
+    "officialRef": "111",
+    "name": "宮崎市｜ナッシー・ポワルン",
+    "pokemonFeatured": [
+      "ナッシー",
+      "ポワルン"
+    ],
+    "prefectureId": 45,
+    "municipality": "宮崎市",
+    "address": "宮崎県宮崎市大字加江田7275-1",
+    "latitude": 31.807505,
+    "longitude": 131.457839,
+    "officialImageUrl": "/api/official-images/111.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/111/"
+  },
+  {
+    "officialRef": "9",
+    "name": "指宿市｜ニンフィア",
+    "pokemonFeatured": [
+      "ニンフィア"
+    ],
+    "prefectureId": 46,
+    "municipality": "指宿市",
+    "address": "鹿児島県指宿市十二町2190",
+    "latitude": 31.235444,
+    "longitude": 130.641389,
+    "officialImageUrl": "/api/official-images/9.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/9/"
+  },
+  {
+    "officialRef": "8",
+    "name": "指宿市｜グレイシア",
+    "pokemonFeatured": [
+      "グレイシア"
+    ],
+    "prefectureId": 46,
+    "municipality": "指宿市",
+    "address": "鹿児島県指宿市十二町2290",
+    "latitude": 31.231056,
+    "longitude": 130.644611,
+    "officialImageUrl": "/api/official-images/8.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/8/"
+  },
+  {
+    "officialRef": "7",
+    "name": "指宿市｜リーフィア",
+    "pokemonFeatured": [
+      "リーフィア"
+    ],
+    "prefectureId": 46,
+    "municipality": "指宿市",
+    "address": "鹿児島県指宿市東方11915-5",
+    "latitude": 31.263889,
+    "longitude": 130.662917,
+    "officialImageUrl": "/api/official-images/7.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/7/"
+  },
+  {
+    "officialRef": "6",
+    "name": "指宿市｜ブラッキー",
+    "pokemonFeatured": [
+      "ブラッキー"
+    ],
+    "prefectureId": 46,
+    "municipality": "指宿市",
+    "address": "鹿児島県指宿市十二町指宿駅",
+    "latitude": 31.236833,
+    "longitude": 130.642188,
+    "officialImageUrl": "/api/official-images/6.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/6/"
+  },
+  {
+    "officialRef": "5",
+    "name": "指宿市｜エーフィ",
+    "pokemonFeatured": [
+      "エーフィ"
+    ],
+    "prefectureId": 46,
+    "municipality": "指宿市",
+    "address": "鹿児島県指宿市湊2丁目5-33",
+    "latitude": 31.238278,
+    "longitude": 130.645,
+    "officialImageUrl": "/api/official-images/5.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/5/"
+  },
+  {
+    "officialRef": "4",
+    "name": "指宿市｜ブースター",
+    "pokemonFeatured": [
+      "ブースター"
+    ],
+    "prefectureId": 46,
+    "municipality": "指宿市",
+    "address": "鹿児島県指宿市湯の浜5丁目25-18",
+    "latitude": 31.229417,
+    "longitude": 130.651972,
+    "officialImageUrl": "/api/official-images/4.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/4/"
+  },
+  {
+    "officialRef": "3",
+    "name": "指宿市｜サンダース",
+    "pokemonFeatured": [
+      "サンダース"
+    ],
+    "prefectureId": 46,
+    "municipality": "指宿市",
+    "address": "鹿児島県指宿市東方9300−1",
+    "latitude": 31.255278,
+    "longitude": 130.647639,
+    "officialImageUrl": "/api/official-images/3.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/3/"
+  },
+  {
+    "officialRef": "2",
+    "name": "指宿市｜シャワーズ",
+    "pokemonFeatured": [
+      "シャワーズ"
+    ],
+    "prefectureId": 46,
+    "municipality": "指宿市",
+    "address": "鹿児島県指宿市湯の浜5丁目26-29",
+    "latitude": 31.228,
+    "longitude": 130.653028,
+    "officialImageUrl": "/api/official-images/2.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/2/"
+  },
+  {
+    "officialRef": "1",
+    "name": "指宿市｜イーブイ",
+    "pokemonFeatured": [
+      "イーブイ"
+    ],
+    "prefectureId": 46,
+    "municipality": "指宿市",
+    "address": "鹿児島県指宿市湊1丁目1-1",
+    "latitude": 31.237194,
+    "longitude": 130.642861,
+    "officialImageUrl": "/api/official-images/1.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/1/"
+  },
+  {
+    "officialRef": "446",
+    "name": "那覇市｜ガーディ",
+    "pokemonFeatured": [
+      "ガーディ"
+    ],
+    "prefectureId": 47,
+    "municipality": "那覇市",
+    "address": "沖縄県那覇市首里池端町18",
+    "latitude": 26.22005,
+    "longitude": 127.71657,
+    "officialImageUrl": "/api/official-images/446.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/446/"
+  },
+  {
+    "officialRef": "425",
+    "name": "久米島町｜ガーディ・ウデッポウ",
+    "pokemonFeatured": [
+      "ガーディ",
+      "ウデッポウ"
+    ],
+    "prefectureId": 47,
+    "municipality": "久米島町",
+    "address": "沖縄県久米島町阿嘉530-41",
+    "latitude": 26.373985,
+    "longitude": 126.788928,
+    "officialImageUrl": "/api/official-images/425.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/425/"
+  },
+  {
+    "officialRef": "424",
+    "name": "座間味村｜ガーディ・ホエルコ",
+    "pokemonFeatured": [
+      "ガーディ",
+      "ホエルコ"
+    ],
+    "prefectureId": 47,
+    "municipality": "座間味村",
+    "address": "沖縄県座間味村座間味165番地",
+    "latitude": 26.227878,
+    "longitude": 127.301424,
+    "officialImageUrl": "/api/official-images/424.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/424/"
+  },
+  {
+    "officialRef": "423",
+    "name": "渡嘉敷村｜ガーディ・ルリリ・ヤトウモリ",
+    "pokemonFeatured": [
+      "ガーディ",
+      "ルリリ",
+      "ヤトウモリ"
+    ],
+    "prefectureId": 47,
+    "municipality": "渡嘉敷村",
+    "address": "沖縄県渡嘉敷村阿波連1393－1",
+    "latitude": 26.14914,
+    "longitude": 127.34735,
+    "officialImageUrl": "/api/official-images/423.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/423/"
+  },
+  {
+    "officialRef": "422",
+    "name": "北谷町｜ガーディ",
+    "pokemonFeatured": [
+      "ガーディ"
+    ],
+    "prefectureId": 47,
+    "municipality": "北谷町",
+    "address": "沖縄県北谷町美浜20番",
+    "latitude": 26.315733,
+    "longitude": 127.753613,
+    "officialImageUrl": "/api/official-images/422.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/422/"
+  },
+  {
+    "officialRef": "236",
+    "name": "宮古島市｜カイオーガ",
+    "pokemonFeatured": [
+      "カイオーガ"
+    ],
+    "prefectureId": 47,
+    "municipality": "宮古島市",
+    "address": "沖縄県宮古島市下地与那覇1199-1",
+    "latitude": 24.734962,
+    "longitude": 125.263088,
+    "officialImageUrl": "/api/official-images/236.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/236/"
+  },
+  {
+    "officialRef": "235",
+    "name": "石垣市｜マンタイン・テッポウオ",
+    "pokemonFeatured": [
+      "マンタイン",
+      "テッポウオ"
+    ],
+    "prefectureId": 47,
+    "municipality": "石垣市",
+    "address": "沖縄県石垣市美崎町1",
+    "latitude": 24.337418,
+    "longitude": 124.156947,
+    "officialImageUrl": "/api/official-images/235.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/235/"
+  },
+  {
+    "officialRef": "234",
+    "name": "南城市｜ハブネーク・ザングース",
+    "pokemonFeatured": [
+      "ハブネーク",
+      "ザングース"
+    ],
+    "prefectureId": 47,
+    "municipality": "南城市",
+    "address": "沖縄県南城市知念久手堅541",
+    "latitude": 26.169111,
+    "longitude": 127.827083,
+    "officialImageUrl": "/api/official-images/234.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/234/"
+  },
+  {
+    "officialRef": "233",
+    "name": "豊見城市｜キバゴ・ジャラコ",
+    "pokemonFeatured": [
+      "キバゴ",
+      "ジャラコ"
+    ],
+    "prefectureId": 47,
+    "municipality": "豊見城市",
+    "address": "沖縄県豊見城市字豊崎1-1162",
+    "latitude": 26.15755646,
+    "longitude": 127.656121,
+    "officialImageUrl": "/api/official-images/233.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/233/"
+  },
+  {
+    "officialRef": "232",
+    "name": "本部町｜ホエルオー",
+    "pokemonFeatured": [
+      "ホエルオー"
+    ],
+    "prefectureId": 47,
+    "municipality": "本部町",
+    "address": "沖縄県本部町字石川　海洋博公園地内",
+    "latitude": 26.691694,
+    "longitude": 127.877972,
+    "officialImageUrl": "/api/official-images/232.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/232/"
+  },
+  {
+    "officialRef": "231",
+    "name": "糸満市｜カメール・スナバァ",
+    "pokemonFeatured": [
+      "カメール",
+      "スナバァ"
+    ],
+    "prefectureId": 47,
+    "municipality": "糸満市",
+    "address": "沖縄県糸満市西崎町4丁目19-1",
+    "latitude": 26.13828,
+    "longitude": 127.661336,
+    "officialImageUrl": "/api/official-images/231.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/231/"
+  },
+  {
+    "officialRef": "230",
+    "name": "名護市｜エモンガ・ツツケラ",
+    "pokemonFeatured": [
+      "エモンガ",
+      "ツツケラ"
+    ],
+    "prefectureId": 47,
+    "municipality": "名護市",
+    "address": "沖縄県名護市城二丁目321番3",
+    "latitude": 26.587352,
+    "longitude": 127.985744,
+    "officialImageUrl": "/api/official-images/230.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/230/"
+  },
+  {
+    "officialRef": "229",
+    "name": "浦添市｜ソルロック・ポポッコ",
+    "pokemonFeatured": [
+      "ソルロック",
+      "ポポッコ"
+    ],
+    "prefectureId": 47,
+    "municipality": "浦添市",
+    "address": "沖縄県浦添市勢理客4-14-1",
+    "latitude": 26.245559,
+    "longitude": 127.687899,
+    "officialImageUrl": "/api/official-images/229.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/229/"
+  },
+  {
+    "officialRef": "177",
+    "name": "うるま市｜ケンタロス",
+    "pokemonFeatured": [
+      "ケンタロス"
+    ],
+    "prefectureId": 47,
+    "municipality": "うるま市",
+    "address": "沖縄県うるま市石川2316",
+    "latitude": 26.436181,
+    "longitude": 127.826113,
+    "officialImageUrl": "/api/official-images/177.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/177/"
+  },
+  {
+    "officialRef": "176",
+    "name": "沖縄市｜バチンキー・ラランテス",
+    "pokemonFeatured": [
+      "バチンキー",
+      "ラランテス"
+    ],
+    "prefectureId": 47,
+    "municipality": "沖縄市",
+    "address": "沖縄県沖縄市胡屋5-7-1",
+    "latitude": 26.32766,
+    "longitude": 127.803001,
+    "officialImageUrl": "/api/official-images/176.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/176/"
+  },
+  {
+    "officialRef": "175",
+    "name": "宜野湾市｜サニーゴ・ラブカス",
+    "pokemonFeatured": [
+      "サニーゴ",
+      "ラブカス"
+    ],
+    "prefectureId": 47,
+    "municipality": "宜野湾市",
+    "address": "沖縄県宜野湾市真志喜4-2-1",
+    "latitude": 26.28139,
+    "longitude": 127.732215,
+    "officialImageUrl": "/api/official-images/175.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/175/"
+  },
+  {
+    "officialRef": "174",
+    "name": "那覇市｜ウインディ",
+    "pokemonFeatured": [
+      "ウインディ"
+    ],
+    "prefectureId": 47,
+    "municipality": "那覇市",
+    "address": "沖縄県那覇市牧志3丁目2",
+    "latitude": 26.21641,
+    "longitude": 127.68942,
+    "officialImageUrl": "/api/official-images/174.png",
+    "officialSourceUrl": "https://local.pokemon.jp/manhole/desc/174/"
+  }
+]

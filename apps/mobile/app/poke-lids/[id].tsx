@@ -1,14 +1,22 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { useEffect, useState } from 'react';
 import { Alert, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { PhotoMedal, PokeLidDto } from '@pokelids/shared';
 import { Button } from '../../src/components/Button';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { TextField } from '../../src/components/TextField';
-import { fetchMyCollections, fetchPokeLid, photoUrl, uploadCollection } from '../../src/lib/api';
+import {
+  deleteCollection,
+  fetchMyCollections,
+  fetchPokeLid,
+  photoUrl,
+  uploadCollection,
+} from '../../src/lib/api';
 import type { CollectionSummary } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
+import { confirmAsync } from '../../src/lib/confirm';
 import {
   getGuestCollection,
   removeGuestCollected,
@@ -28,6 +36,7 @@ export default function PokeLidDetailScreen() {
   const [notes, setNotes] = useState('');
   const [uploading, setUploading] = useState(false);
   const [savingGuest, setSavingGuest] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -47,9 +56,10 @@ export default function PokeLidDetailScreen() {
   }, [id, authLoading, user]);
 
   async function onMarkGuestVisited() {
+    if (!lid) return;
     setSavingGuest(true);
     try {
-      await setGuestCollected(id, notes || null);
+      await setGuestCollected(id, lid.prefectureId, notes || null);
       setGuestCollectionState(await getGuestCollection(id));
     } finally {
       setSavingGuest(false);
@@ -66,14 +76,30 @@ export default function PokeLidDetailScreen() {
     }
   }
 
-  async function onPickAndUpload() {
-    const permission = await ImagePicker.requestCameraPermissionsAsync();
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ['images'],
-      quality: 0.8,
-      allowsEditing: false,
-    });
-    if (result.canceled || !permission.granted) return;
+  async function onPickAndUpload(source: 'camera' | 'library') {
+    if (source === 'camera') {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert('権限が必要です', 'カメラへのアクセス許可が必要です');
+        return;
+      }
+    } else {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert('権限が必要です', '写真ライブラリへのアクセス許可が必要です');
+        return;
+      }
+    }
+
+    const result =
+      source === 'camera'
+        ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 0.8, allowsEditing: false })
+        : await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            quality: 0.8,
+            allowsEditing: false,
+          });
+    if (result.canceled) return;
 
     const asset = result.assets[0];
     setUploading(true);
@@ -100,10 +126,44 @@ export default function PokeLidDetailScreen() {
     }
   }
 
-  if (!lid) return <ScreenContainer />;
+  async function onDeleteCollection() {
+    if (!collection) return;
+    const confirmed = await confirmAsync(
+      '収集記録を削除',
+      '写真を含め、この収集記録を削除します。よろしいですか？',
+      '削除する',
+    );
+    if (!confirmed) return;
+    setDeleting(true);
+    try {
+      await deleteCollection(collection.id);
+      setCollection(null);
+    } catch {
+      Alert.alert('エラー', '削除に失敗しました');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  if (!lid) {
+    return (
+      <ScreenContainer>
+        <Head>
+          <title>ポケふた収集</title>
+        </Head>
+      </ScreenContainer>
+    );
+  }
 
   return (
     <ScreenContainer>
+      <Head>
+        <title>{`${lid.municipality}｜${lid.pokemonFeatured.join('・')} - ポケふた収集`}</title>
+        <meta
+          name="description"
+          content={`${lid.address}にあるポケふた。${lid.pokemonFeatured.join('・')}が描かれています。`}
+        />
+      </Head>
       <ScrollView contentContainerStyle={styles.container}>
         {lid.officialImageUrl && <Image source={{ uri: lid.officialImageUrl }} style={styles.image} />}
         <View style={styles.card}>
@@ -126,13 +186,19 @@ export default function PokeLidDetailScreen() {
               <ScrollView horizontal style={styles.photoRow}>
                 {collection.photos.map((p) => (
                   <View key={p.id} style={styles.photoThumbWrapper}>
-                    <Image source={{ uri: photoUrl(p.id) }} style={styles.photoThumb} />
+                    <Image source={{ uri: photoUrl(p.thumbUrl) }} style={styles.photoThumb} />
                     <View style={[styles.geoBadge, { backgroundColor: MEDAL_BADGE_COLOR[p.medal] }]}>
                       <Text style={styles.geoBadgeText}>{MEDAL_LABEL[p.medal]}</Text>
                     </View>
                   </View>
                 ))}
               </ScrollView>
+              <Button
+                title={deleting ? '削除中…' : 'この記録を削除する'}
+                onPress={onDeleteCollection}
+                loading={deleting}
+                variant="secondary"
+              />
             </View>
           ) : !user && guestCollection ? (
             <Text style={styles.collectedLabel}>
@@ -142,14 +208,28 @@ export default function PokeLidDetailScreen() {
             <Text style={styles.notCollectedLabel}>まだ収集していません</Text>
           )}
 
-          <TextField placeholder="メモ（任意）" value={notes} onChangeText={setNotes} multiline style={styles.notesInput} />
+          <TextField
+            placeholder="メモ（任意）"
+            value={notes}
+            onChangeText={setNotes}
+            multiline
+            style={styles.notesInput}
+          />
 
           {user ? (
-            <Button
-              title={uploading ? 'アップロード中…' : '写真を撮って記録する'}
-              onPress={onPickAndUpload}
-              loading={uploading}
-            />
+            <>
+              <Button
+                title={uploading ? 'アップロード中…' : '写真を撮って記録する'}
+                onPress={() => onPickAndUpload('camera')}
+                loading={uploading}
+              />
+              <Button
+                title="ライブラリから選ぶ"
+                onPress={() => onPickAndUpload('library')}
+                loading={uploading}
+                variant="secondary"
+              />
+            </>
           ) : (
             <>
               {guestCollection ? (
@@ -160,7 +240,11 @@ export default function PokeLidDetailScreen() {
                   variant="secondary"
                 />
               ) : (
-                <Button title="訪問済みにする（端末に保存）" onPress={onMarkGuestVisited} loading={savingGuest} />
+                <Button
+                  title="訪問済みにする（端末に保存）"
+                  onPress={onMarkGuestVisited}
+                  loading={savingGuest}
+                />
               )}
               <Text style={styles.guestHint}>写真の追加やアカウントへの保存にはログインが必要です</Text>
               <Button title="ログインする" onPress={() => router.push('/login')} variant="secondary" />

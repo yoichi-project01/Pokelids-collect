@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { ScreenContainer } from '../src/components/ScreenContainer';
@@ -26,9 +27,16 @@ export default function MapScreen() {
     return () => window.removeEventListener('message', onMessage);
   }, [router]);
 
+  const head = (
+    <Head>
+      <title>地図 - ポケふた収集</title>
+    </Head>
+  );
+
   if (!markers) {
     return (
       <ScreenContainer style={{ alignItems: 'center', justifyContent: 'center' }}>
+        {head}
         <ActivityIndicator size="large" color={colors.black} />
       </ScreenContainer>
     );
@@ -36,6 +44,7 @@ export default function MapScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      {head}
       <iframe
         title="poke-lids-map"
         srcDoc={buildMapHtml(markers)}

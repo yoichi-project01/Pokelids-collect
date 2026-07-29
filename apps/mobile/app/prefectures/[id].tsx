@@ -1,10 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text } from 'react-native';
 import type { PokeLidDto } from '@pokelids/shared';
 import { ListRow } from '../../src/components/ListRow';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
-import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
+import { fetchMyCollections, fetchPokeLids, fetchPrefectureProgress } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { getGuestCollectedIds } from '../../src/lib/guestStorage';
 import { colors, typography } from '../../src/theme';
@@ -15,19 +16,24 @@ export default function PrefecturePokeLidsScreen() {
   const { user, isLoading: authLoading } = useAuth();
   const [lids, setLids] = useState<PokeLidDto[]>([]);
   const [collectedIds, setCollectedIds] = useState<Set<string>>(new Set());
+  const [prefectureName, setPrefectureName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (authLoading) return;
     let cancelled = false;
-    Promise.all([fetchPokeLids(Number(id)), fetchMyCollections(), getGuestCollectedIds()]).then(
-      ([lidsRes, collectionsRes, guestIds]) => {
-        if (cancelled) return;
-        setLids(lidsRes);
-        setCollectedIds(new Set([...collectionsRes.map((c) => c.pokeLidId), ...guestIds]));
-        setLoading(false);
-      },
-    );
+    Promise.all([
+      fetchPokeLids(Number(id)),
+      fetchMyCollections(),
+      getGuestCollectedIds(),
+      fetchPrefectureProgress(),
+    ]).then(([lidsRes, collectionsRes, guestIds, progress]) => {
+      if (cancelled) return;
+      setLids(lidsRes);
+      setCollectedIds(new Set([...collectionsRes.map((c) => c.pokeLidId), ...guestIds]));
+      setPrefectureName(progress.byPrefecture.find((p) => p.prefectureId === Number(id))?.nameJa ?? null);
+      setLoading(false);
+    });
     return () => {
       cancelled = true;
     };
@@ -35,6 +41,9 @@ export default function PrefecturePokeLidsScreen() {
 
   return (
     <ScreenContainer>
+      <Head>
+        <title>{prefectureName ? `${prefectureName} - ポケふた収集` : 'ポケふた収集'}</title>
+      </Head>
       <FlatList
         data={lids}
         keyExtractor={(item) => item.id}

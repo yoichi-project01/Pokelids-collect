@@ -34,6 +34,7 @@ export type PhotoMedal = 'GOLD' | 'SILVER' | 'NONE';
 export interface PhotoDto {
   id: string;
   url: string;
+  thumbUrl: string;
   isPrimary: boolean;
   medal: PhotoMedal;
   createdAt: string;
@@ -47,7 +48,17 @@ export interface ProgressDto {
     nameJa: string;
     total: number;
     collected: number;
+    imageUrl: string | null;
   }>;
+}
+
+export interface NearbyPokeLidDto {
+  id: string;
+  municipality: string;
+  prefectureId: number;
+  officialImageUrl: string | null;
+  latitude: number;
+  longitude: number;
 }
 
 export interface AuthTokensDto {
@@ -61,18 +72,11 @@ export interface UserDto {
   displayName: string;
 }
 
-export function haversineDistanceMeters(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-): number {
+export function haversineDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const earthRadiusMeters = 6371000;
   const toRad = (deg: number) => (deg * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
   return earthRadiusMeters * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }

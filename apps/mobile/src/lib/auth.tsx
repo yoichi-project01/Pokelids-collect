@@ -1,9 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { UserDto } from '@pokelids/shared';
-import { fetchMe, login as apiLogin, register as apiRegister, setTokens } from './api';
+import { fetchMe, login as apiLogin, logout as apiLogout, register as apiRegister, setTokens } from './api';
 import { confirmAsync } from './confirm';
 import { getGuestCollections, syncGuestCollectionsToAccount } from './guestStorage';
+import { getStoredTokens, removeStoredTokens, setStoredTokens } from './tokenStorage';
 
 const STORAGE_KEY = 'pokelids_auth_tokens';
 
@@ -24,14 +24,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const raw = await AsyncStorage.getItem(STORAGE_KEY);
+        const raw = await getStoredTokens(STORAGE_KEY);
         if (raw) {
           setTokens(JSON.parse(raw));
           const me = await fetchMe();
           setUser(me);
         }
       } catch {
-        await AsyncStorage.removeItem(STORAGE_KEY);
+        await removeStoredTokens(STORAGE_KEY);
         setTokens(null);
       } finally {
         setIsLoading(false);
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(email: string, password: string) {
     const result = await apiLogin(email, password);
     setTokens({ accessToken: result.accessToken, refreshToken: result.refreshToken });
-    await AsyncStorage.setItem(
+    await setStoredTokens(
       STORAGE_KEY,
       JSON.stringify({ accessToken: result.accessToken, refreshToken: result.refreshToken }),
     );
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function register(email: string, password: string, displayName: string) {
     const result = await apiRegister(email, password, displayName);
     setTokens({ accessToken: result.accessToken, refreshToken: result.refreshToken });
-    await AsyncStorage.setItem(
+    await setStoredTokens(
       STORAGE_KEY,
       JSON.stringify({ accessToken: result.accessToken, refreshToken: result.refreshToken }),
     );
@@ -81,8 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
+    await apiLogout();
     setTokens(null);
-    await AsyncStorage.removeItem(STORAGE_KEY);
+    await removeStoredTokens(STORAGE_KEY);
     setUser(null);
   }
 

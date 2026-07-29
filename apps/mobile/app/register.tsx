@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../src/components/Button';
@@ -35,6 +36,9 @@ export default function RegisterScreen() {
 
   return (
     <ScreenContainer padded style={styles.center}>
+      <Head>
+        <title>新規登録 - ポケふた収集</title>
+      </Head>
       <Text style={styles.title}>新規登録</Text>
       <View style={styles.form}>
         <TextField placeholder="表示名" value={displayName} onChangeText={setDisplayName} />

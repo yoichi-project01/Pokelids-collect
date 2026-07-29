@@ -1,11 +1,15 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { signAccessToken, generateRefreshToken, hashRefreshToken } from '../lib/auth';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
 
 export const authRouter = Router();
+
+const PHOTO_STORAGE_PATH = process.env.PHOTO_STORAGE_PATH ?? '/data/photos';
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -104,12 +108,52 @@ authRouter.post('/refresh', async (req, res) => {
     return res.status(401).json({ error: 'Invalid or expired refresh token' });
   }
 
+  // Rotate: the old refresh token is single-use. If it's replayed after this
+  // point (e.g. because it was stolen), it's already revoked and rejected.
+  const { token: refreshToken, hash: newHash, expiresAt } = generateRefreshToken();
+  await prisma.$transaction([
+    prisma.refreshToken.update({ where: { id: stored.id }, data: { revokedAt: new Date() } }),
+    prisma.refreshToken.create({
+      data: {
+        userId: stored.user.id,
+        tokenHash: newHash,
+        expiresAt,
+        deviceInfo: stored.deviceInfo,
+      },
+    }),
+  ]);
+
   const accessToken = signAccessToken({ sub: stored.user.id, email: stored.user.email });
-  res.json({ accessToken });
+  res.json({ accessToken, refreshToken });
+});
+
+authRouter.post('/logout', async (req, res) => {
+  const parsed = refreshSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  const hash = hashRefreshToken(parsed.data.refreshToken);
+  await prisma.refreshToken.updateMany({
+    where: { tokenHash: hash, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+
+  res.status(204).end();
 });
 
 authRouter.get('/me', requireAuth, async (req: AuthedRequest, res) => {
   const user = await prisma.user.findUnique({ where: { id: req.userId } });
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json({ id: user.id, email: user.email, displayName: user.displayName });
+});
+
+authRouter.delete('/me', requireAuth, async (req: AuthedRequest, res) => {
+  const userId = req.userId!;
+  // Cascades to refresh_tokens, collections, and photos at the DB level
+  // (onDelete: Cascade in the schema); the photo files themselves aren't
+  // tracked by Postgres, so they're removed separately below.
+  await prisma.user.delete({ where: { id: userId } });
+  await fs.rm(path.join(PHOTO_STORAGE_PATH, userId), { recursive: true, force: true });
+  res.status(204).end();
 });

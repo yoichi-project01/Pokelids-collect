@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../src/components/Button';
@@ -30,6 +31,9 @@ export default function LoginScreen() {
 
   return (
     <ScreenContainer padded style={styles.center}>
+      <Head>
+        <title>ログイン - ポケふた収集</title>
+      </Head>
       <Text style={styles.title}>ポケふた収集</Text>
       <View style={styles.form}>
         <TextField
@@ -44,6 +48,14 @@ export default function LoginScreen() {
         <Button title="ログイン" onPress={onSubmit} loading={submitting} />
         <Button title="新規登録はこちら" onPress={() => router.push('/register')} variant="ghost" />
       </View>
+      <View style={styles.legalLinks}>
+        <Text style={styles.legalLink} onPress={() => router.push('/terms')}>
+          利用規約
+        </Text>
+        <Text style={styles.legalLink} onPress={() => router.push('/privacy')}>
+          プライバシーポリシー
+        </Text>
+      </View>
     </ScreenContainer>
   );
 }
@@ -53,4 +65,6 @@ const styles = StyleSheet.create({
   title: { ...typography.largeTitle, textAlign: 'center', marginBottom: spacing.xxl },
   form: { gap: spacing.md },
   error: { color: colors.danger, fontSize: 13 },
+  legalLinks: { flexDirection: 'row', justifyContent: 'center', gap: spacing.lg, marginTop: spacing.xl },
+  legalLink: { ...typography.footnote, color: colors.textTertiary, textDecorationLine: 'underline' },
 });

@@ -1,4 +1,11 @@
-import type { AuthTokensDto, PhotoMedal, PokeLidDto, ProgressDto, UserDto } from '@pokelids/shared';
+import type {
+  AuthTokensDto,
+  NearbyPokeLidDto,
+  PhotoMedal,
+  PokeLidDto,
+  ProgressDto,
+  UserDto,
+} from '@pokelids/shared';
 
 export function getApiBaseUrl(): string {
   const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
@@ -61,6 +68,20 @@ export async function fetchMe() {
   return request<UserDto>('/api/auth/me');
 }
 
+export async function deleteAccount(): Promise<void> {
+  await request<void>('/api/auth/me', { method: 'DELETE' });
+}
+
+export async function logout(): Promise<void> {
+  if (!refreshToken) return;
+  // Best-effort: the local session is cleared regardless of whether this
+  // call succeeds, so a network failure here shouldn't block logging out.
+  await request<void>('/api/auth/logout', {
+    method: 'POST',
+    body: JSON.stringify({ refreshToken }),
+  }).catch(() => {});
+}
+
 export async function fetchPrefectureProgress() {
   return request<ProgressDto>(accessToken ? '/api/progress/me' : '/api/progress');
 }
@@ -74,12 +95,31 @@ export async function fetchPokeLid(id: string) {
   return request<PokeLidDto>(`/api/poke-lids/${id}`);
 }
 
+export async function fetchNearbyPokeLids(
+  coordinates: { latitude: number; longitude: number } | null,
+  limit: number,
+) {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (coordinates) {
+    params.set('lat', String(coordinates.latitude));
+    params.set('lng', String(coordinates.longitude));
+  }
+  return request<NearbyPokeLidDto[]>(`/api/poke-lids/nearby?${params.toString()}`);
+}
+
 export interface CollectionSummary {
   id: string;
   pokeLidId: string;
   visitedAt: string;
   notes: string | null;
-  photos: { id: string; url: string; isPrimary: boolean; medal: PhotoMedal; createdAt: string }[];
+  photos: {
+    id: string;
+    url: string;
+    thumbUrl: string;
+    isPrimary: boolean;
+    medal: PhotoMedal;
+    createdAt: string;
+  }[];
 }
 
 export async function fetchMyCollections() {
@@ -107,17 +147,24 @@ export async function uploadCollection(params: {
     } as unknown as Blob);
   }
 
-  return request<{ collectionId: string; photoId: string | null; visitedAt: string; medal: PhotoMedal | null }>(
-    '/api/collections',
-    {
-      method: 'POST',
-      body: form,
-    },
-  );
+  return request<{
+    collectionId: string;
+    photoId: string | null;
+    visitedAt: string;
+    medal: PhotoMedal | null;
+  }>('/api/collections', {
+    method: 'POST',
+    body: form,
+  });
 }
 
-export function photoUrl(photoId: string): string {
-  const url = `${getApiBaseUrl()}/api/photos/${photoId}`;
-  // <Image> can't set an Authorization header, so pass the token via query string.
-  return accessToken ? `${url}?token=${encodeURIComponent(accessToken)}` : url;
+export async function deleteCollection(collectionId: string): Promise<void> {
+  await request<void>(`/api/collections/${collectionId}`, { method: 'DELETE' });
+}
+
+// `path` is a server-provided relative URL that already embeds a short-lived,
+// photo-scoped access token (see PhotoDto.url / .thumbUrl) — this just makes
+// it absolute.
+export function photoUrl(path: string): string {
+  return `${getApiBaseUrl()}${path}`;
 }

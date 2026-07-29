@@ -7,14 +7,14 @@ import { PREFECTURES } from '../src/data/prefectures';
 
 const BASE = 'https://local.pokemon.jp';
 const REQUEST_DELAY_MS = 200;
-const USER_AGENT =
-  'pokelids-collect.jp personal ETL (family use, non-commercial; contact: setoyama.yoichi@gmail.com)';
+const CONTACT_EMAIL = process.env.ETL_CONTACT_EMAIL ?? 'admin@example.com';
+const USER_AGENT = `pokelids-collect.jp personal ETL (family use, non-commercial; contact: ${CONTACT_EMAIL})`;
+const PHOTO_STORAGE_PATH = process.env.PHOTO_STORAGE_PATH ?? '/data/photos';
+const OFFICIAL_IMAGES_DIR = path.join(PHOTO_STORAGE_PATH, 'official');
 
 const prefByNameJa = new Map(PREFECTURES.map((p) => [p.nameJa, p]));
 // Hokkaido has no 都/道/府/県 stripped variant issue, but build a lenient lookup too.
-const prefByNameJaLenient = new Map(
-  PREFECTURES.map((p) => [p.nameJa.replace(/[都道府県]$/, ''), p]),
-);
+const prefByNameJaLenient = new Map(PREFECTURES.map((p) => [p.nameJa.replace(/[都道府県]$/, ''), p]));
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -24,6 +24,27 @@ async function fetchText(url: string): Promise<string> {
   const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
   if (!res.ok) throw new Error(`GET ${url} -> ${res.status}`);
   return res.text();
+}
+
+// Downloads the official artwork once at scrape time and stores it under our
+// own storage, so the running app serves it from our origin instead of
+// hotlinking local.pokemon.jp on every page view. Falls back to the remote
+// URL if the download fails, so a transient error here doesn't drop the
+// image entirely.
+async function downloadOfficialImage(remoteUrl: string, officialRef: string): Promise<string> {
+  try {
+    const res = await fetch(remoteUrl, { headers: { 'User-Agent': USER_AGENT } });
+    if (!res.ok) throw new Error(`GET ${remoteUrl} -> ${res.status}`);
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const ext = path.extname(new URL(remoteUrl).pathname) || '.jpg';
+    const filename = `${officialRef}${ext}`;
+    await fs.mkdir(OFFICIAL_IMAGES_DIR, { recursive: true });
+    await fs.writeFile(path.join(OFFICIAL_IMAGES_DIR, filename), buffer);
+    return `/api/official-images/${filename}`;
+  } catch (err) {
+    console.warn(`Failed to download official image for ${officialRef}: ${(err as Error).message}`);
+    return remoteUrl;
+  }
 }
 
 interface ListEntry {
@@ -49,7 +70,9 @@ async function collectListEntries(): Promise<ListEntry[]> {
       const match = href.match(/\/manhole\/desc\/(\d+)\//);
       if (match) entries.push({ descId: match[1], prefSlug: pref.slug });
     });
-    console.log(`${pref.slug}: found ${entries.filter((e) => e.prefSlug === pref.slug).length} entries so far`);
+    console.log(
+      `${pref.slug}: found ${entries.filter((e) => e.prefSlug === pref.slug).length} entries so far`,
+    );
     await sleep(REQUEST_DELAY_MS);
   }
   // de-dupe by descId, keep first occurrence
@@ -92,7 +115,8 @@ async function fetchDetail(descId: string): Promise<ScrapedLid | null> {
   }
 
   const imgSrc = $('.detail-manhole .heading img').first().attr('src');
-  const officialImageUrl = imgSrc ? new URL(imgSrc, BASE).toString() : null;
+  const remoteImageUrl = imgSrc ? new URL(imgSrc, BASE).toString() : null;
+  const officialImageUrl = remoteImageUrl ? await downloadOfficialImage(remoteImageUrl, descId) : null;
 
   const pokemonFeatured: string[] = [];
   $('.zukan li a span').each((i, el) => {
@@ -105,7 +129,7 @@ async function fetchDetail(descId: string): Promise<ScrapedLid | null> {
   const address = $('.block.map p').first().text().trim();
 
   const mapHref = $('.googlemap-link a').first().attr('href') ?? '';
-  const qMatch = mapHref.match(/[?&]q=([\-0-9.]+),([\-0-9.]+)/);
+  const qMatch = mapHref.match(/[?&]q=([-0-9.]+),([-0-9.]+)/);
   if (!qMatch) {
     console.warn(`No coordinates found for desc/${descId}, skipping`);
     return null;

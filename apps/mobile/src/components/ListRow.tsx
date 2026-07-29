@@ -18,10 +18,7 @@ export function ListRow({
   showChevron?: boolean;
 }) {
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
-    >
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
       {imageUri && <Image source={{ uri: imageUri }} style={styles.thumb} />}
       <View style={styles.textBlock}>
         <Text style={styles.title} numberOfLines={1}>

@@ -2,7 +2,9 @@ import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
 import { colors, radius, spacing } from '../theme';
 
 export function TextField(props: TextInputProps) {
-  return <TextInput placeholderTextColor={colors.textTertiary} {...props} style={[styles.field, props.style]} />;
+  return (
+    <TextInput placeholderTextColor={colors.textTertiary} {...props} style={[styles.field, props.style]} />
+  );
 }
 
 const styles = StyleSheet.create({

@@ -1,46 +1,50 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { haversineDistanceMeters, type PokeLidDto, type ProgressDto } from '@pokelids/shared';
+import Head from 'expo-router/head';
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import type { NearbyPokeLidDto, ProgressDto } from '@pokelids/shared';
 import { Button } from '../../src/components/Button';
 import { ListRow } from '../../src/components/ListRow';
 import { ProgressBar } from '../../src/components/ProgressBar';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
-import { fetchMyCollections, fetchPokeLids, fetchPrefectureProgress } from '../../src/lib/api';
+import {
+  deleteAccount,
+  fetchMyCollections,
+  fetchNearbyPokeLids,
+  fetchPrefectureProgress,
+} from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
-import { getGuestCollectedIds, mergeGuestProgress } from '../../src/lib/guestStorage';
+import { confirmAsync } from '../../src/lib/confirm';
+import { getGuestCollections, mergeGuestProgress } from '../../src/lib/guestStorage';
 import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
 const NEXT_TO_COLLECT_COUNT = 12;
+// Over-fetch nearby candidates since some of the nearest ones may already be
+// collected and get filtered out below.
+const NEARBY_FETCH_COUNT = NEXT_TO_COLLECT_COUNT * 3;
 
 interface HomeData {
   progress: ProgressDto;
-  imageByPrefecture: Map<number, string>;
-  uncollected: PokeLidDto[];
+  uncollected: NearbyPokeLidDto[];
 }
 
-async function loadHomeData(): Promise<HomeData> {
-  const [progressRes, guestIds, lids, collections] = await Promise.all([
+async function loadHomeData(location: Coordinates | null): Promise<HomeData> {
+  const [progressRes, guestItems, collections, nearby] = await Promise.all([
     fetchPrefectureProgress(),
-    getGuestCollectedIds(),
-    fetchPokeLids(),
+    getGuestCollections(),
     fetchMyCollections(),
+    fetchNearbyPokeLids(location, NEARBY_FETCH_COUNT),
   ]);
 
-  const collectedIds = new Set([...collections.map((c) => c.pokeLidId), ...guestIds]);
-  const progress = guestIds.size > 0 ? mergeGuestProgress(progressRes, lids, guestIds) : progressRes;
+  const collectedIds = new Set([
+    ...collections.map((c) => c.pokeLidId),
+    ...guestItems.map((g) => g.pokeLidId),
+  ]);
+  const progress = guestItems.length > 0 ? mergeGuestProgress(progressRes, guestItems) : progressRes;
+  const uncollected = nearby.filter((l) => !collectedIds.has(l.id)).slice(0, NEXT_TO_COLLECT_COUNT);
 
-  const imageByPrefecture = new Map<number, string>();
-  for (const lid of lids) {
-    if (lid.officialImageUrl && !imageByPrefecture.has(lid.prefectureId)) {
-      imageByPrefecture.set(lid.prefectureId, lid.officialImageUrl);
-    }
-  }
-
-  const uncollected = lids.filter((l) => l.officialImageUrl && !collectedIds.has(l.id));
-
-  return { progress, imageByPrefecture, uncollected };
+  return { progress, uncollected };
 }
 
 export default function PrefecturesScreen() {
@@ -49,17 +53,36 @@ export default function PrefecturesScreen() {
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState<Coordinates | null>(null);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     getCurrentLocation().then(setLocation);
   }, []);
+
+  async function onDeleteAccount() {
+    const confirmed = await confirmAsync(
+      'アカウントを削除',
+      'アカウントと収集記録・写真をすべて削除します。この操作は取り消せません。よろしいですか？',
+      '削除する',
+    );
+    if (!confirmed) return;
+    setDeletingAccount(true);
+    try {
+      await deleteAccount();
+      await logout();
+    } catch {
+      Alert.alert('エラー', 'アカウントの削除に失敗しました');
+    } finally {
+      setDeletingAccount(false);
+    }
+  }
 
   useFocusEffect(
     useCallback(() => {
       if (authLoading) return;
       let cancelled = false;
       setLoading(true);
-      loadHomeData()
+      loadHomeData(location)
         .then((result) => {
           if (!cancelled) setData(result);
         })
@@ -69,31 +92,30 @@ export default function PrefecturesScreen() {
       return () => {
         cancelled = true;
       };
-    }, [authLoading, user]),
+      // `user` isn't read in the body, but its identity changes on
+      // login/logout and that's exactly when collections/guest-merge data
+      // needs to be refetched.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [authLoading, user, location]),
   );
 
   const progress = data?.progress ?? null;
-  const percent = progress && progress.totalPokeLids > 0 ? Math.round((progress.collectedCount / progress.totalPokeLids) * 100) : 0;
-
-  const nextToCollect = useMemo(() => {
-    const uncollected = data?.uncollected ?? [];
-    if (!location) return uncollected.slice(0, NEXT_TO_COLLECT_COUNT);
-    return [...uncollected]
-      .sort(
-        (a, b) =>
-          haversineDistanceMeters(location.latitude, location.longitude, a.latitude, a.longitude) -
-          haversineDistanceMeters(location.latitude, location.longitude, b.latitude, b.longitude),
-      )
-      .slice(0, NEXT_TO_COLLECT_COUNT);
-  }, [data, location]);
+  const percent =
+    progress && progress.totalPokeLids > 0
+      ? Math.round((progress.collectedCount / progress.totalPokeLids) * 100)
+      : 0;
+  const nextToCollect = data?.uncollected ?? [];
 
   return (
     <ScreenContainer>
+      <Head>
+        <title>ポケふた収集</title>
+      </Head>
       <FlatList
         data={progress?.byPrefecture ?? []}
         keyExtractor={(item) => String(item.prefectureId)}
         refreshing={loading}
-        onRefresh={() => loadHomeData().then(setData)}
+        onRefresh={() => loadHomeData(location).then(setData)}
         style={styles.list}
         ListHeaderComponent={
           <View>
@@ -111,7 +133,12 @@ export default function PrefecturesScreen() {
                 <Text style={styles.guestNotice}>ログインすると収集記録を保存できます</Text>
               )}
               <View style={styles.headerButtons}>
-                <Button title="地図で見る" onPress={() => router.push('/map')} variant="secondary" style={styles.headerButton} />
+                <Button
+                  title="地図で見る"
+                  onPress={() => router.push('/map')}
+                  variant="secondary"
+                  style={styles.headerButton}
+                />
                 {user ? (
                   <>
                     <Button
@@ -120,12 +147,29 @@ export default function PrefecturesScreen() {
                       variant="secondary"
                       style={styles.headerButton}
                     />
-                    <Button title="ログアウト" onPress={() => logout()} variant="ghost" style={styles.headerButton} />
+                    <Button
+                      title="ログアウト"
+                      onPress={() => logout()}
+                      variant="ghost"
+                      style={styles.headerButton}
+                    />
                   </>
                 ) : (
-                  <Button title="ログイン" onPress={() => router.push('/login')} variant="primary" style={styles.headerButton} />
+                  <Button
+                    title="ログイン"
+                    onPress={() => router.push('/login')}
+                    variant="primary"
+                    style={styles.headerButton}
+                  />
                 )}
               </View>
+              {user && (
+                <TouchableOpacity onPress={onDeleteAccount} disabled={deletingAccount}>
+                  <Text style={styles.deleteAccountLink}>
+                    {deletingAccount ? '削除中…' : 'アカウントを削除する'}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {nextToCollect.length > 0 && (
@@ -134,7 +178,11 @@ export default function PrefecturesScreen() {
                   <Text style={styles.nextTitleText}>次に集めよう</Text>
                   {location && <Text style={styles.nextSortedLabel}>📍現在地から近い順</Text>}
                 </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.nextRow}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.nextRow}
+                >
                   {nextToCollect.map((lid) => (
                     <TouchableOpacity
                       key={lid.id}
@@ -157,7 +205,7 @@ export default function PrefecturesScreen() {
         renderItem={({ item }) => (
           <ListRow
             title={item.nameJa}
-            imageUri={data?.imageByPrefecture.get(item.prefectureId)}
+            imageUri={item.imageUrl}
             onPress={() => router.push(`/prefectures/${item.prefectureId}`)}
             right={
               <View style={styles.rowProgress}>
@@ -193,6 +241,12 @@ const styles = StyleSheet.create({
   },
   percentBadgeText: { color: colors.white, fontWeight: '700', fontSize: 13 },
   guestNotice: { ...typography.footnote, color: colors.danger },
+  deleteAccountLink: {
+    ...typography.footnote,
+    color: colors.textTertiary,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+  },
   headerButtons: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
   headerButton: { flex: 1, minHeight: 40 },
   rowProgress: { width: 110 },
@@ -203,7 +257,11 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
   },
-  nextSection: { backgroundColor: colors.surface, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+  nextSection: {
+    backgroundColor: colors.surface,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
   nextTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',

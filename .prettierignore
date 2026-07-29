@@ -1,0 +1,6 @@
+dist
+node_modules
+.expo
+apps/api/etl/raw
+apps/mobile/public
+package-lock.json

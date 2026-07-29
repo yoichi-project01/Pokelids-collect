@@ -1,11 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { PokeLidDto, ProgressDto } from '@pokelids/shared';
+import type { ProgressDto } from '@pokelids/shared';
 import { uploadCollection } from './api';
 
 const STORAGE_KEY = 'pokelids_guest_collections';
 
 export interface GuestCollection {
   pokeLidId: string;
+  prefectureId: number;
   visitedAt: string;
   notes: string | null;
 }
@@ -33,12 +34,16 @@ export async function getGuestCollectedIds(): Promise<Set<string>> {
   return new Set(items.map((i) => i.pokeLidId));
 }
 
-export async function setGuestCollected(pokeLidId: string, notes: string | null): Promise<void> {
+export async function setGuestCollected(
+  pokeLidId: string,
+  prefectureId: number,
+  notes: string | null,
+): Promise<void> {
   const items = await readAll();
   const existing = items.find((i) => i.pokeLidId === pokeLidId);
   const visitedAt = existing?.visitedAt ?? new Date().toISOString();
   const next = items.filter((i) => i.pokeLidId !== pokeLidId);
-  next.push({ pokeLidId, visitedAt, notes });
+  next.push({ pokeLidId, prefectureId, visitedAt, notes });
   await writeAll(next);
 }
 
@@ -52,39 +57,41 @@ export async function clearGuestCollections(): Promise<void> {
 }
 
 // Called once after login/register succeeds. Uploads each locally-recorded
-// visit (no photo) and clears local storage on success.
+// visit (no photo) in parallel; uploadCollection is an upsert, so retrying a
+// partially-failed sync is safe. Only the items that failed are kept in
+// local storage for the next attempt.
 export async function syncGuestCollectionsToAccount(): Promise<number> {
   const items = await getGuestCollections();
-  for (const item of items) {
-    await uploadCollection({
-      pokeLidId: item.pokeLidId,
-      notes: item.notes ?? undefined,
-      visitedAt: item.visitedAt,
-    });
-  }
-  await clearGuestCollections();
-  return items.length;
+  const results = await Promise.allSettled(
+    items.map((item) =>
+      uploadCollection({
+        pokeLidId: item.pokeLidId,
+        notes: item.notes ?? undefined,
+        visitedAt: item.visitedAt,
+      }),
+    ),
+  );
+
+  const failed = items.filter((_, i) => results[i].status === 'rejected');
+  await writeAll(failed);
+  return items.length - failed.length;
 }
 
 // Server-side progress totals don't know about guest-local marks, so we add
-// them in on the client for the (logged-out) browsing view.
-export function mergeGuestProgress(
-  progress: ProgressDto,
-  pokeLids: PokeLidDto[],
-  guestIds: Set<string>,
-): ProgressDto {
-  if (guestIds.size === 0) return progress;
+// them in on the client for the (logged-out) browsing view. Each guest
+// record already carries its own prefectureId (recorded at save time), so
+// this doesn't need the full poke-lid list to do the mapping.
+export function mergeGuestProgress(progress: ProgressDto, guestCollections: GuestCollection[]): ProgressDto {
+  if (guestCollections.length === 0) return progress;
 
   const countByPrefecture = new Map<number, number>();
-  for (const lid of pokeLids) {
-    if (guestIds.has(lid.id)) {
-      countByPrefecture.set(lid.prefectureId, (countByPrefecture.get(lid.prefectureId) ?? 0) + 1);
-    }
+  for (const item of guestCollections) {
+    countByPrefecture.set(item.prefectureId, (countByPrefecture.get(item.prefectureId) ?? 0) + 1);
   }
 
   return {
     totalPokeLids: progress.totalPokeLids,
-    collectedCount: progress.collectedCount + guestIds.size,
+    collectedCount: progress.collectedCount + guestCollections.length,
     byPrefecture: progress.byPrefecture.map((p) => ({
       ...p,
       collected: p.collected + (countByPrefecture.get(p.prefectureId) ?? 0),

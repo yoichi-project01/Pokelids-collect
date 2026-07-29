@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text } from 'react-native';
 import type { PokeLidDto } from '@pokelids/shared';
@@ -24,6 +25,9 @@ export default function CollectionScreen() {
 
   return (
     <ScreenContainer>
+      <Head>
+        <title>収集記録 - ポケふた収集</title>
+      </Head>
       <FlatList
         data={collections}
         keyExtractor={(item) => item.id}
@@ -37,7 +41,7 @@ export default function CollectionScreen() {
             <ListRow
               title={lid?.municipality ?? '（不明）'}
               subtitle={subtitle}
-              imageUri={primaryPhoto ? photoUrl(primaryPhoto.id) : null}
+              imageUri={primaryPhoto ? photoUrl(primaryPhoto.thumbUrl) : null}
               onPress={() => lid && router.push(`/poke-lids/${lid.id}`)}
               right={
                 primaryPhoto && primaryPhoto.medal !== 'NONE' ? (

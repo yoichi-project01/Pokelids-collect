@@ -18,6 +18,11 @@ jobs:
 
       - run: npm ci
 
+      # @prisma/client's generated types live outside of what `npm ci` alone
+      # produces for this schema location, so tsc sees an untyped stub client
+      # (missing enums, `any` query results) without this.
+      - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+
       - run: npm run typecheck
 
       - run: npm run lint

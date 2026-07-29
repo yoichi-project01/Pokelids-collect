@@ -72,6 +72,7 @@ app.get('/sitemap.xml', async (_req, res) => {
   ];
   res
     .type('application/xml')
+    .set('Cache-Control', 'public, max-age=3600')
     .send(
       `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urlEntries.join('')}</urlset>`,
     );

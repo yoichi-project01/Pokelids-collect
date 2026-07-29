@@ -35,6 +35,7 @@ export default function PrefecturesScreen() {
         <Text style={styles.overallLabel}>全国合計</Text>
         {progress && <ProgressBar total={progress.totalPokeLids} collected={progress.collectedCount} />}
         <View style={styles.headerButtons}>
+          <Button title="地図で見る" onPress={() => router.push('/map')} />
           <Button title="自分の収集記録" onPress={() => router.push('/collection')} />
           <Button title="ログアウト" onPress={() => logout()} color="#999" />
         </View>

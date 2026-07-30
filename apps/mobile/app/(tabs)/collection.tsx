@@ -98,52 +98,52 @@ export default function CollectionScreen() {
       {error && collections.length === 0 ? (
         <ErrorState onRetry={() => setReloadKey((k) => k + 1)} />
       ) : (
-      <FlatList
-        data={collections}
-        key={GRID_COLUMNS}
-        numColumns={GRID_COLUMNS}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={<Text style={styles.empty}>まだ収集記録がありません</Text>}
-        ListHeaderComponent={
-          stats && (
-            <View style={styles.statsCard}>
-              <View style={styles.statsRow}>
-                <Stat label="訪問した都道府県" value={`${stats.prefectureCount} / 47`} />
-                <Stat label="🥇獲得数" value={String(stats.goldCount)} />
+        <FlatList
+          data={collections}
+          key={GRID_COLUMNS}
+          numColumns={GRID_COLUMNS}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={<Text style={styles.empty}>まだ収集記録がありません</Text>}
+          ListHeaderComponent={
+            stats && (
+              <View style={styles.statsCard}>
+                <View style={styles.statsRow}>
+                  <Stat label="訪問した都道府県" value={`${stats.prefectureCount} / 47`} />
+                  <Stat label="🥇獲得数" value={String(stats.goldCount)} />
+                </View>
+                <View style={styles.statsRow}>
+                  <Stat label="最初の記録" value={stats.firstDate.toLocaleDateString('ja-JP')} />
+                  <Stat label="最新の記録" value={stats.latestDate.toLocaleDateString('ja-JP')} />
+                </View>
+                {stats.farthest && (
+                  <Stat
+                    label="一番遠くまで行った記録"
+                    value={`${stats.farthest.municipality}（${stats.farthest.distanceKm.toFixed(1)}km）`}
+                  />
+                )}
               </View>
-              <View style={styles.statsRow}>
-                <Stat label="最初の記録" value={stats.firstDate.toLocaleDateString('ja-JP')} />
-                <Stat label="最新の記録" value={stats.latestDate.toLocaleDateString('ja-JP')} />
-              </View>
-              {stats.farthest && (
-                <Stat
-                  label="一番遠くまで行った記録"
-                  value={`${stats.farthest.municipality}（${stats.farthest.distanceKm.toFixed(1)}km）`}
-                />
-              )}
-            </View>
-          )
-        }
-        renderItem={({ item }) => {
-          const lid = lidsById.get(item.pokeLidId);
-          const primaryPhoto = item.photos.find((p) => p.isPrimary) ?? item.photos[0];
-          return (
-            <PokeLidCard
-              title={lid?.municipality ?? '（不明）'}
-              subtitle={new Date(item.visitedAt).toLocaleDateString('ja-JP')}
-              imageUri={primaryPhoto ? photoUrl(primaryPhoto.thumbUrl) : lid?.officialImageUrl}
-              collected
-              badge={
-                primaryPhoto && primaryPhoto.medal !== 'NONE' ? (
-                  <Text style={styles.medal}>{MEDAL_EMOJI[primaryPhoto.medal]}</Text>
-                ) : undefined
-              }
-              onPress={() => lid && router.push(`/poke-lids/${lid.id}`)}
-            />
-          );
-        }}
-      />
+            )
+          }
+          renderItem={({ item }) => {
+            const lid = lidsById.get(item.pokeLidId);
+            const primaryPhoto = item.photos.find((p) => p.isPrimary) ?? item.photos[0];
+            return (
+              <PokeLidCard
+                title={lid?.municipality ?? '（不明）'}
+                subtitle={new Date(item.visitedAt).toLocaleDateString('ja-JP')}
+                imageUri={primaryPhoto ? photoUrl(primaryPhoto.thumbUrl) : lid?.officialImageUrl}
+                collected
+                badge={
+                  primaryPhoto && primaryPhoto.medal !== 'NONE' ? (
+                    <Text style={styles.medal}>{MEDAL_EMOJI[primaryPhoto.medal]}</Text>
+                  ) : undefined
+                }
+                onPress={() => lid && router.push(`/poke-lids/${lid.id}`)}
+              />
+            );
+          }}
+        />
       )}
     </ScreenContainer>
   );

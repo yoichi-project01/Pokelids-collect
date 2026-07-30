@@ -77,42 +77,42 @@ export default function PrefecturePokeLidsScreen() {
           }}
         />
       ) : (
-      <FlatList
-        data={visibleLids}
-        key={GRID_COLUMNS}
-        numColumns={GRID_COLUMNS}
-        keyExtractor={(item) => item.id}
-        refreshing={loading}
-        contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
-          <View style={styles.filterRow}>
-            <Text
-              style={[styles.filterOption, !uncollectedOnly && styles.filterOptionActive]}
-              onPress={() => setUncollectedOnly(false)}
-            >
-              すべて
-            </Text>
-            <Text
-              style={[styles.filterOption, uncollectedOnly && styles.filterOptionActive]}
-              onPress={() => setUncollectedOnly(true)}
-            >
-              未収集のみ
-            </Text>
-          </View>
-        }
-        renderItem={({ item }) => {
-          const collected = collectedIds.has(item.id);
-          return (
-            <PokeLidCard
-              title={item.municipality}
-              subtitle={item.pokemonFeatured.join('・')}
-              imageUri={item.officialImageUrl}
-              collected={collected}
-              onPress={() => router.push(`/poke-lids/${item.id}`)}
-            />
-          );
-        }}
-      />
+        <FlatList
+          data={visibleLids}
+          key={GRID_COLUMNS}
+          numColumns={GRID_COLUMNS}
+          keyExtractor={(item) => item.id}
+          refreshing={loading}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            <View style={styles.filterRow}>
+              <Text
+                style={[styles.filterOption, !uncollectedOnly && styles.filterOptionActive]}
+                onPress={() => setUncollectedOnly(false)}
+              >
+                すべて
+              </Text>
+              <Text
+                style={[styles.filterOption, uncollectedOnly && styles.filterOptionActive]}
+                onPress={() => setUncollectedOnly(true)}
+              >
+                未収集のみ
+              </Text>
+            </View>
+          }
+          renderItem={({ item }) => {
+            const collected = collectedIds.has(item.id);
+            return (
+              <PokeLidCard
+                title={item.municipality}
+                subtitle={item.pokemonFeatured.join('・')}
+                imageUri={item.officialImageUrl}
+                collected={collected}
+                onPress={() => router.push(`/poke-lids/${item.id}`)}
+              />
+            );
+          }}
+        />
       )}
     </ScreenContainer>
   );

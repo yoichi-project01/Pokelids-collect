@@ -124,93 +124,95 @@ export default function PrefecturesScreen() {
       {error && !data ? (
         <ErrorState onRetry={onRefresh} />
       ) : (
-      <SectionList
-        sections={sections}
-        keyExtractor={(item) => String(item.prefectureId)}
-        refreshing={loading}
-        onRefresh={onRefresh}
-        style={styles.list}
-        stickySectionHeadersEnabled={false}
-        ListHeaderComponent={
-          <View>
-            <View style={styles.hero}>
-              <Text style={styles.heroLabel}>ポケふたコレクション</Text>
-              <View style={styles.heroStatRow}>
-                <Text style={styles.heroCount}>{progress?.collectedCount ?? 0}</Text>
-                <Text style={styles.heroTotal}>/ {progress?.totalPokeLids ?? '—'} 箇所</Text>
-                <View style={styles.percentBadge}>
-                  <Text style={styles.percentBadgeText}>{percent}%</Text>
+        <SectionList
+          sections={sections}
+          keyExtractor={(item) => String(item.prefectureId)}
+          refreshing={loading}
+          onRefresh={onRefresh}
+          style={styles.list}
+          stickySectionHeadersEnabled={false}
+          ListHeaderComponent={
+            <View>
+              <View style={styles.hero}>
+                <Text style={styles.heroLabel}>ポケふたコレクション</Text>
+                <View style={styles.heroStatRow}>
+                  <Text style={styles.heroCount}>{progress?.collectedCount ?? 0}</Text>
+                  <Text style={styles.heroTotal}>/ {progress?.totalPokeLids ?? '—'} 箇所</Text>
+                  <View style={styles.percentBadge}>
+                    <Text style={styles.percentBadgeText}>{percent}%</Text>
+                  </View>
                 </View>
-              </View>
-              {progress && <ProgressBar total={progress.totalPokeLids} collected={progress.collectedCount} />}
-              {!user && !authLoading && (
-                <Text style={styles.guestNotice}>ログインすると収集記録を保存できます</Text>
-              )}
-            </View>
-
-            {nextToCollect.length > 0 && (
-              <View style={styles.nextSection}>
-                <View style={styles.nextTitleRow}>
-                  <Text style={styles.nextTitleText}>{location ? '次に集めよう' : 'ポケふたを探す'}</Text>
-                  {location && <Text style={styles.nextSortedLabel}>📍現在地から近い順</Text>}
-                </View>
-                {!location && (
-                  <TouchableOpacity
-                    style={styles.locationCta}
-                    onPress={() => getCurrentLocation().then(setLocation)}
-                  >
-                    <Text style={styles.locationCtaText}>
-                      📍近くのポケふたを表示するには位置情報を許可してください
-                    </Text>
-                  </TouchableOpacity>
+                {progress && (
+                  <ProgressBar total={progress.totalPokeLids} collected={progress.collectedCount} />
                 )}
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.nextRow}
-                >
-                  {nextToCollect.map((lid) => (
+                {!user && !authLoading && (
+                  <Text style={styles.guestNotice}>ログインすると収集記録を保存できます</Text>
+                )}
+              </View>
+
+              {nextToCollect.length > 0 && (
+                <View style={styles.nextSection}>
+                  <View style={styles.nextTitleRow}>
+                    <Text style={styles.nextTitleText}>{location ? '次に集めよう' : 'ポケふたを探す'}</Text>
+                    {location && <Text style={styles.nextSortedLabel}>📍現在地から近い順</Text>}
+                  </View>
+                  {!location && (
                     <TouchableOpacity
-                      key={lid.id}
-                      style={styles.nextCard}
-                      onPress={() => router.push(`/poke-lids/${lid.id}`)}
+                      style={styles.locationCta}
+                      onPress={() => getCurrentLocation().then(setLocation)}
                     >
-                      <Image
-                        source={{ uri: lid.officialImageUrl! }}
-                        style={styles.nextImage}
-                        accessibilityLabel={lid.municipality}
-                      />
-                      <Text style={styles.nextCaption} numberOfLines={1}>
-                        {lid.municipality}
+                      <Text style={styles.locationCtaText}>
+                        📍近くのポケふたを表示するには位置情報を許可してください
                       </Text>
                     </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-          </View>
-        }
-        renderSectionHeader={({ section }) => (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            <Text style={styles.sectionPercent}>
-              {section.total > 0 ? Math.round((section.collected / section.total) * 100) : 0}%
-            </Text>
-          </View>
-        )}
-        renderItem={({ item }) => (
-          <ListRow
-            title={item.nameJa}
-            imageUri={item.imageUrl}
-            onPress={() => router.push(`/prefectures/${item.prefectureId}`)}
-            right={
-              <View style={styles.rowProgress}>
-                <ProgressBar total={item.total} collected={item.collected} />
-              </View>
-            }
-          />
-        )}
-      />
+                  )}
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.nextRow}
+                  >
+                    {nextToCollect.map((lid) => (
+                      <TouchableOpacity
+                        key={lid.id}
+                        style={styles.nextCard}
+                        onPress={() => router.push(`/poke-lids/${lid.id}`)}
+                      >
+                        <Image
+                          source={{ uri: lid.officialImageUrl! }}
+                          style={styles.nextImage}
+                          accessibilityLabel={lid.municipality}
+                        />
+                        <Text style={styles.nextCaption} numberOfLines={1}>
+                          {lid.municipality}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+            </View>
+          }
+          renderSectionHeader={({ section }) => (
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>{section.title}</Text>
+              <Text style={styles.sectionPercent}>
+                {section.total > 0 ? Math.round((section.collected / section.total) * 100) : 0}%
+              </Text>
+            </View>
+          )}
+          renderItem={({ item }) => (
+            <ListRow
+              title={item.nameJa}
+              imageUri={item.imageUrl}
+              onPress={() => router.push(`/prefectures/${item.prefectureId}`)}
+              right={
+                <View style={styles.rowProgress}>
+                  <ProgressBar total={item.total} collected={item.collected} />
+                </View>
+              }
+            />
+          )}
+        />
       )}
     </ScreenContainer>
   );

@@ -49,7 +49,12 @@ class ApiError extends Error {
 // body (no Bearer header involved), so a 401 from them is never "the access
 // token expired" — retrying with a refreshed token makes no sense there and
 // risks a loop.
-const NO_REFRESH_RETRY_PATHS = ['/api/auth/login', '/api/auth/register', '/api/auth/refresh', '/api/auth/logout'];
+const NO_REFRESH_RETRY_PATHS = [
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/refresh',
+  '/api/auth/logout',
+];
 
 // Only one refresh should ever be in flight — screens like the home tab fire
 // several requests in parallel, and if all of them 401 at once, rotating the

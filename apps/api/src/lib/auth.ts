@@ -6,6 +6,10 @@ const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 const PHOTO_TOKEN_SECRET = process.env.PHOTO_TOKEN_SECRET ?? REFRESH_SECRET;
 const ACCESS_TTL = process.env.JWT_ACCESS_TTL ?? '1h';
 const REFRESH_TTL_DAYS = Number(process.env.JWT_REFRESH_TTL_DAYS ?? '30');
+// Short enough that a leaked/intercepted reset email is only exploitable for
+// a narrow window; long enough that a user reading their inbox doesn't race
+// against it.
+const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000;
 // The token is embedded once into a page's collections response and reused
 // by <Image> for as long as that page stays open, so it needs to outlast a
 // normal viewing session, not just the initial page load. It's still scoped
@@ -33,6 +37,20 @@ export function generateRefreshToken(): { token: string; hash: string; expiresAt
 }
 
 export function hashRefreshToken(token: string): string {
+  return crypto.createHmac('sha256', REFRESH_SECRET).update(token).digest('hex');
+}
+
+// Same shape as generateRefreshToken/hashRefreshToken: a random token whose
+// HMAC is stored in the DB, so a database leak alone can't be used to reset
+// anyone's password.
+export function generatePasswordResetToken(): { token: string; hash: string; expiresAt: Date } {
+  const token = crypto.randomBytes(32).toString('hex');
+  const hash = hashPasswordResetToken(token);
+  const expiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS);
+  return { token, hash, expiresAt };
+}
+
+export function hashPasswordResetToken(token: string): string {
   return crypto.createHmac('sha256', REFRESH_SECRET).update(token).digest('hex');
 }
 

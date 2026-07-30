@@ -9,6 +9,7 @@ import { CelebrationModal } from '../../src/components/CelebrationModal';
 import { ErrorState } from '../../src/components/ErrorState';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { TextField } from '../../src/components/TextField';
+import POKE_LIDS from '../../src/data/poke-lids.json';
 import {
   deleteCollection,
   fetchMyCollections,
@@ -41,31 +42,28 @@ const MILESTONE_COUNTS = [10, 50, 100, 150, 200, 250, 300, 350, 400, 450];
 // `web.output: "static"` only ever generates one literal
 // `poke-lids/[id].html` file, so every real request for e.g.
 // `/poke-lids/<uuid>` falls through to the SPA fallback (the *home* page's
-// prerendered HTML) instead of this route's — which is what was causing the
-// React hydration mismatch on this route. See
+// prerendered HTML) instead of this route's. See
 // https://docs.expo.dev/router/web/static-rendering/#dynamic-routes.
 //
-// Requires the production API to be reachable at build time; falls back to
-// generating just the one generic template file (today's behavior) if it
-// isn't, rather than failing the whole build over a transient network issue.
+// Reads from the bundled JSON snapshot (src/data/poke-lids.json) rather than
+// fetching from the API: `expo export` can run in environments (CI, a plain
+// Docker build) where the API isn't reachable, and poke lid data is static
+// enough that a checked-in snapshot — regenerated via
+// `npm run dump-poke-lids --workspace=@pokelids/api` after each ETL re-scrape
+// — is an acceptable staleness trade-off. This also lets the component below
+// use the same data as its synchronous initial state, so the per-lid
+// <title>/<meta description> are baked into the static HTML instead of only
+// appearing after the client-side fetch resolves.
 export async function generateStaticParams(): Promise<{ id: string }[]> {
-  const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://pokelids-collect.jp';
-  try {
-    const res = await fetch(`${apiBaseUrl}/api/poke-lids`);
-    if (!res.ok) throw new Error(`GET /api/poke-lids -> ${res.status}`);
-    const lids: { id: string }[] = await res.json();
-    return lids.map((l) => ({ id: l.id }));
-  } catch (err) {
-    console.warn(`generateStaticParams: failed to fetch poke lid IDs, skipping prerendering: ${err}`);
-    return [];
-  }
+  return POKE_LIDS.map((l) => ({ id: l.id }));
 }
 
 export default function PokeLidDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const [lid, setLid] = useState<PokeLidDto | null>(null);
+  const staticLid = (POKE_LIDS as PokeLidDto[]).find((l) => l.id === id) ?? null;
+  const [lid, setLid] = useState<PokeLidDto | null>(staticLid);
   const [collection, setCollection] = useState<CollectionSummary | null>(null);
   const [guestCollection, setGuestCollectionState] = useState<GuestCollection | null>(null);
   const [notes, setNotes] = useState('');

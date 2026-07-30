@@ -8,7 +8,7 @@ import {
   setTokens,
   setTokensChangedListener,
 } from './api';
-import { confirmAsync } from './confirm';
+import { alertAsync, confirmAsync } from './confirm';
 import { getGuestCollections, syncGuestCollectionsToAccount } from './guestStorage';
 import { getStoredTokens, removeStoredTokens, setStoredTokens } from './tokenStorage';
 
@@ -105,7 +105,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!confirmed) return;
 
     try {
-      await syncGuestCollectionsToAccount();
+      const synced = await syncGuestCollectionsToAccount();
+      if (synced < guestItems.length) {
+        alertAsync(
+          '一部を保存できませんでした',
+          `${synced}/${guestItems.length}件を保存しました。残りは次回ログイン時に再試行します。`,
+        );
+      }
     } catch {
       // Login/register already succeeded at this point; a sync failure here
       // must not surface as a login error. The records stay in local

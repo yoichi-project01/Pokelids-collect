@@ -74,6 +74,11 @@ export default function LoginScreen() {
             />
             {error && <Text style={styles.error}>{error}</Text>}
             <Button title="ログイン" onPress={onSubmit} loading={submitting} />
+            <Button
+              title="パスワードをお忘れの方"
+              onPress={() => router.push('/forgot-password')}
+              variant="ghost"
+            />
             <Button title="新規登録はこちら" onPress={() => router.push('/register')} variant="ghost" />
           </View>
           <View style={styles.legalLinks}>

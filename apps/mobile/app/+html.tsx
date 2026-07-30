@@ -7,7 +7,14 @@ const DESCRIPTION =
 
 // This file only ever runs in Node during static rendering (no DOM access),
 // and controls the document shell shared by every route. Per-page <title>
-// is set separately via `expo-router/head` in each screen.
+// AND <meta name="description"> are set separately via `expo-router/head` —
+// the description used to be hardcoded here too, but a plain JSX tag in this
+// file isn't managed by react-helmet-async (the library backing
+// `expo-router/head`'s <Head>), so it couldn't be overridden by a page's own
+// description and every route's static HTML got this generic text instead.
+// The default now lives in the root layout's <Head> instead, where a page
+// that renders its own <meta name="description"> further down the tree
+// correctly wins.
 export default function Root({ children }: PropsWithChildren) {
   return (
     <html lang="ja">
@@ -16,7 +23,6 @@ export default function Root({ children }: PropsWithChildren) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="theme-color" content="#000000" />
-        <meta name="description" content={DESCRIPTION} />
 
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="ポケふた収集" />

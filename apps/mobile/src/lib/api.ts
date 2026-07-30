@@ -54,6 +54,8 @@ const NO_REFRESH_RETRY_PATHS = [
   '/api/auth/register',
   '/api/auth/refresh',
   '/api/auth/logout',
+  '/api/auth/password-reset/request',
+  '/api/auth/password-reset/confirm',
 ];
 
 // Only one refresh should ever be in flight — screens like the home tab fire
@@ -164,6 +166,20 @@ export async function register(email: string, password: string, displayName: str
 
 export async function fetchMe() {
   return request<UserDto>('/api/auth/me');
+}
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  await request<{ ok: true }>('/api/auth/password-reset/request', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function confirmPasswordReset(token: string, newPassword: string): Promise<void> {
+  await request<void>('/api/auth/password-reset/confirm', {
+    method: 'POST',
+    body: JSON.stringify({ token, newPassword }),
+  });
 }
 
 export async function deleteAccount(): Promise<void> {

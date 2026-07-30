@@ -68,6 +68,12 @@ export default function PrefecturePokeLidsScreen() {
     <ScreenContainer>
       <Head>
         <title>{prefectureName ? `${prefectureName} - ポケふた収集` : 'ポケふた収集'}</title>
+        {prefectureName && (
+          <meta
+            name="description"
+            content={`${prefectureName}にあるポケふた(ご当地ポケモンマンホール)の一覧。訪問して収集記録を残そう。`}
+          />
+        )}
       </Head>
       {error && lids.length === 0 ? (
         <ErrorState

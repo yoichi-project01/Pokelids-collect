@@ -4,13 +4,24 @@ import rateLimit from 'express-rate-limit';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
+import { sendPasswordResetEmail } from '../lib/email';
 import { prisma } from '../lib/prisma';
-import { signAccessToken, generateRefreshToken, hashRefreshToken } from '../lib/auth';
+import {
+  signAccessToken,
+  generateRefreshToken,
+  hashRefreshToken,
+  generatePasswordResetToken,
+  hashPasswordResetToken,
+} from '../lib/auth';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
 
 export const authRouter = Router();
 
 const PHOTO_STORAGE_PATH = process.env.PHOTO_STORAGE_PATH ?? '/data/photos';
+// Matches the constant of the same name in index.ts (used for the
+// sitemap) — the site only has the one production origin, so this is kept as
+// a plain literal there too rather than introducing a shared config module.
+const SITE_URL = 'https://pokelids-collect.jp';
 
 // Only /register and /login are brute-forceable (a guessable password); /me
 // and /refresh are called on every app launch / token expiry and shouldn't
@@ -19,6 +30,17 @@ const PHOTO_STORAGE_PATH = process.env.PHOTO_STORAGE_PATH ?? '/data/photos';
 const credentialRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// A separate, tighter instance (rather than reusing credentialRateLimit) so
+// a burst of login attempts from one IP can't also block that IP's own
+// password-reset requests, and vice versa. Also guards against using this
+// endpoint to mail-bomb an arbitrary address.
+const passwordResetRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -150,6 +172,71 @@ authRouter.post('/logout', async (req, res) => {
     where: { tokenHash: hash, revokedAt: null },
     data: { revokedAt: new Date() },
   });
+
+  res.status(204).end();
+});
+
+const passwordResetRequestSchema = z.object({
+  email: z.string().email(),
+});
+
+authRouter.post('/password-reset/request', passwordResetRateLimit, async (req, res) => {
+  const parsed = passwordResetRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
+  if (user) {
+    const { token, hash, expiresAt } = generatePasswordResetToken();
+    await prisma.passwordResetToken.create({
+      data: { userId: user.id, tokenHash: hash, expiresAt },
+    });
+    const resetUrl = `${SITE_URL}/reset-password?token=${token}`;
+    // A send failure shouldn't turn into a 500 that hints the account
+    // exists; log it and still return the same response as the success
+    // path below.
+    await sendPasswordResetEmail(user.email, resetUrl).catch((err) => {
+      console.error('Failed to send password reset email', err);
+    });
+  }
+
+  // Always the same response whether or not the account exists — otherwise
+  // this endpoint could be used to enumerate registered emails.
+  res.json({ ok: true });
+});
+
+const passwordResetConfirmSchema = z.object({
+  token: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
+authRouter.post('/password-reset/confirm', async (req, res) => {
+  const parsed = passwordResetConfirmSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  const hash = hashPasswordResetToken(parsed.data.token);
+  const stored = await prisma.passwordResetToken.findFirst({
+    where: { tokenHash: hash, usedAt: null, expiresAt: { gt: new Date() } },
+  });
+  if (!stored) {
+    return res.status(400).json({ error: 'Invalid or expired reset token' });
+  }
+
+  const passwordHash = await bcrypt.hash(parsed.data.newPassword, 12);
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: stored.userId }, data: { passwordHash } }),
+    prisma.passwordResetToken.update({ where: { id: stored.id }, data: { usedAt: new Date() } }),
+    // Whoever holds a stolen session shouldn't survive a password reset —
+    // the same reasoning as refresh token rotation, just applied to every
+    // session at once instead of a single token.
+    prisma.refreshToken.updateMany({
+      where: { userId: stored.userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    }),
+  ]);
 
   res.status(204).end();
 });

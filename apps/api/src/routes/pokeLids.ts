@@ -63,7 +63,7 @@ pokeLidsRouter.get('/:id', async (req, res) => {
   res.json(serializePokeLid(lid));
 });
 
-function serializePokeLid(lid: {
+export function serializePokeLid(lid: {
   id: string;
   officialRef: string | null;
   name: string;

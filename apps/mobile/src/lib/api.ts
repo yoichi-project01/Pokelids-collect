@@ -88,6 +88,44 @@ function tryRefresh(): Promise<boolean> {
   return refreshingPromise;
 }
 
+// Returns the token's `exp` claim in epoch milliseconds, or null if the token
+// can't be parsed. Uses the classic atob-based UTF-8 decode idiom rather than
+// TextDecoder so this only depends on atob, which both the browser and
+// Hermes provide as a global.
+function decodeAccessTokenExpiry(token: string): number | null {
+  try {
+    const payload = token.split('.')[1];
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized + '='.repeat((4 - (normalized.length % 4)) % 4);
+    const json = decodeURIComponent(
+      atob(padded)
+        .split('')
+        .map((c) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
+        .join(''),
+    );
+    const exp = JSON.parse(json).exp;
+    return typeof exp === 'number' ? exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+const PROACTIVE_REFRESH_MARGIN_MS = 60_000;
+
+// request()'s retry-on-401 reuses the same RequestInit, which is fine for a
+// JSON string body but risky for a photo upload's FormData — some
+// environments can't re-serialize a FormData body once fetch has already
+// consumed it. Call this before building a request whose body can't safely
+// be resent (photo uploads, chiefly) so the token is refreshed ahead of time
+// instead of relying on the retry path.
+export async function ensureFreshToken(): Promise<void> {
+  if (!accessToken || !refreshToken) return;
+  const expiresAtMs = decodeAccessTokenExpiry(accessToken);
+  if (expiresAtMs !== null && expiresAtMs - Date.now() < PROACTIVE_REFRESH_MARGIN_MS) {
+    await tryRefresh();
+  }
+}
+
 async function request<T>(path: string, options: RequestInit = {}, retry = true): Promise<T> {
   const headers = new Headers(options.headers);
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
@@ -195,6 +233,8 @@ export async function uploadCollection(params: {
   photoName?: string;
   photoType?: string;
 }) {
+  await ensureFreshToken();
+
   const form = new FormData();
   form.append('pokeLidId', params.pokeLidId);
   if (params.notes) form.append('notes', params.notes);

@@ -17,6 +17,13 @@ const STORAGE_KEY = 'pokelids_auth_tokens';
 interface AuthContextValue {
   user: UserDto | null;
   isLoading: boolean;
+  // True after the user was logged out involuntarily, because the refresh
+  // token itself was rejected (30 days elapsed, or revoked by a logout
+  // elsewhere) rather than by them tapping "logout". Lets the login screen
+  // explain why they're suddenly looking at it instead of leaving them to
+  // wonder.
+  sessionExpired: boolean;
+  clearSessionExpired: () => void;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -27,6 +34,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   useEffect(() => {
     // Registered before the initial fetchMe() call below so that if the
@@ -39,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         void removeStoredTokens(STORAGE_KEY);
         setUser(null);
+        setSessionExpired(true);
       }
     });
 
@@ -69,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       JSON.stringify({ accessToken: result.accessToken, refreshToken: result.refreshToken }),
     );
     setUser(result.user);
+    setSessionExpired(false);
     await maybeSyncGuestCollections();
   }
 
@@ -80,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       JSON.stringify({ accessToken: result.accessToken, refreshToken: result.refreshToken }),
     );
     setUser(result.user);
+    setSessionExpired(false);
     await maybeSyncGuestCollections();
   }
 
@@ -107,10 +118,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTokens(null);
     await removeStoredTokens(STORAGE_KEY);
     setUser(null);
+    setSessionExpired(false);
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        sessionExpired,
+        clearSessionExpired: () => setSessionExpired(false),
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

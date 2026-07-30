@@ -2,15 +2,28 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import type { PokeLidDto } from '@pokelids/shared';
+import { PREFECTURES, type PokeLidDto } from '@pokelids/shared';
+import { ErrorState } from '../../src/components/ErrorState';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
-import { fetchMyCollections, fetchPokeLids, fetchPrefectureProgress } from '../../src/lib/api';
+import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { getGuestCollectedIds } from '../../src/lib/guestStorage';
 import { colors, spacing, typography } from '../../src/theme';
 
 const GRID_COLUMNS = 3;
+const PREFECTURE_COUNT = 47;
+
+// Evaluated in Node.js at build time (see
+// https://docs.expo.dev/router/web/static-rendering/#dynamic-routes). Without
+// this, `web.output: "static"` only ever generates one literal
+// `prefectures/[id].html` file, so every real request for e.g.
+// `/prefectures/13` falls through to the SPA fallback (the *home* page's
+// prerendered HTML) instead of this route's — which is what was causing the
+// React hydration mismatch on this route.
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  return Array.from({ length: PREFECTURE_COUNT }, (_, i) => ({ id: String(i + 1) }));
+}
 
 export default function PrefecturePokeLidsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,29 +31,33 @@ export default function PrefecturePokeLidsScreen() {
   const { user, isLoading: authLoading } = useAuth();
   const [lids, setLids] = useState<PokeLidDto[]>([]);
   const [collectedIds, setCollectedIds] = useState<Set<string>>(new Set());
-  const [prefectureName, setPrefectureName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
+
+  const prefectureName = PREFECTURES.find((p) => p.id === Number(id))?.nameJa ?? null;
 
   useEffect(() => {
     if (authLoading) return;
     let cancelled = false;
-    Promise.all([
-      fetchPokeLids(Number(id)),
-      fetchMyCollections(),
-      getGuestCollectedIds(),
-      fetchPrefectureProgress(),
-    ]).then(([lidsRes, collectionsRes, guestIds, progress]) => {
-      if (cancelled) return;
-      setLids(lidsRes);
-      setCollectedIds(new Set([...collectionsRes.map((c) => c.pokeLidId), ...guestIds]));
-      setPrefectureName(progress.byPrefecture.find((p) => p.prefectureId === Number(id))?.nameJa ?? null);
-      setLoading(false);
-    });
+    Promise.all([fetchPokeLids(Number(id)), fetchMyCollections(), getGuestCollectedIds()])
+      .then(([lidsRes, collectionsRes, guestIds]) => {
+        if (cancelled) return;
+        setLids(lidsRes);
+        setCollectedIds(new Set([...collectionsRes.map((c) => c.pokeLidId), ...guestIds]));
+        setError(false);
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [id, authLoading, user]);
+  }, [id, authLoading, user, reloadKey]);
 
   const visibleLids = useMemo(
     () => (uncollectedOnly ? lids.filter((l) => !collectedIds.has(l.id)) : lids),
@@ -52,6 +69,14 @@ export default function PrefecturePokeLidsScreen() {
       <Head>
         <title>{prefectureName ? `${prefectureName} - ポケふた収集` : 'ポケふた収集'}</title>
       </Head>
+      {error && lids.length === 0 ? (
+        <ErrorState
+          onRetry={() => {
+            setLoading(true);
+            setReloadKey((k) => k + 1);
+          }}
+        />
+      ) : (
       <FlatList
         data={visibleLids}
         key={GRID_COLUMNS}
@@ -88,6 +113,7 @@ export default function PrefecturePokeLidsScreen() {
           );
         }}
       />
+      )}
     </ScreenContainer>
   );
 }

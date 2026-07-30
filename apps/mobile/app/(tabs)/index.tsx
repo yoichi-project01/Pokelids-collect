@@ -3,6 +3,7 @@ import Head from 'expo-router/head';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, SectionList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { NearbyPokeLidDto, ProgressDto } from '@pokelids/shared';
+import { ErrorState } from '../../src/components/ErrorState';
 import { ListRow } from '../../src/components/ListRow';
 import { ProgressBar } from '../../src/components/ProgressBar';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
@@ -62,6 +63,7 @@ export default function PrefecturesScreen() {
   const { user, isLoading: authLoading } = useAuth();
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [location, setLocation] = useState<Coordinates | null>(null);
 
   useEffect(() => {
@@ -75,7 +77,12 @@ export default function PrefecturesScreen() {
       setLoading(true);
       loadHomeData(location)
         .then((result) => {
-          if (!cancelled) setData(result);
+          if (cancelled) return;
+          setData(result);
+          setError(false);
+        })
+        .catch(() => {
+          if (!cancelled) setError(true);
         })
         .finally(() => {
           if (!cancelled) setLoading(false);
@@ -90,6 +97,17 @@ export default function PrefecturesScreen() {
     }, [authLoading, user, location]),
   );
 
+  function onRefresh() {
+    setLoading(true);
+    loadHomeData(location)
+      .then((result) => {
+        setData(result);
+        setError(false);
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }
+
   const progress = data?.progress ?? null;
   const percent =
     progress && progress.totalPokeLids > 0
@@ -103,11 +121,14 @@ export default function PrefecturesScreen() {
       <Head>
         <title>ポケふた収集</title>
       </Head>
+      {error && !data ? (
+        <ErrorState onRetry={onRefresh} />
+      ) : (
       <SectionList
         sections={sections}
         keyExtractor={(item) => String(item.prefectureId)}
         refreshing={loading}
-        onRefresh={() => loadHomeData(location).then(setData)}
+        onRefresh={onRefresh}
         style={styles.list}
         stickySectionHeadersEnabled={false}
         ListHeaderComponent={
@@ -190,6 +211,7 @@ export default function PrefecturesScreen() {
           />
         )}
       />
+      )}
     </ScreenContainer>
   );
 }

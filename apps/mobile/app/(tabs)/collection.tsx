@@ -1,8 +1,9 @@
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { haversineDistanceMeters, type PokeLidDto } from '@pokelids/shared';
+import { ErrorState } from '../../src/components/ErrorState';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchPokeLids, photoUrl } from '../../src/lib/api';
@@ -18,14 +19,39 @@ export default function CollectionScreen() {
   const [collections, setCollections] = useState<CollectionSummary[]>([]);
   const [lidsById, setLidsById] = useState<Map<string, PokeLidDto>>(new Map());
   const [location, setLocation] = useState<Coordinates | null>(null);
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    Promise.all([fetchMyCollections(), fetchPokeLids()]).then(([collectionsRes, lidsRes]) => {
-      setCollections(collectionsRes);
-      setLidsById(new Map(lidsRes.map((l) => [l.id, l])));
-    });
     getCurrentLocation().then(setLocation);
   }, []);
+
+  // Refetch on every focus, not just on mount: this screen lives in a
+  // persistent tab and never unmounts, so without this it would keep
+  // showing whatever was loaded the first time the tab was opened — missing
+  // records added from the map tab, and eventually serving photo thumbnail
+  // URLs whose signed access tokens have expired.
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      Promise.all([fetchMyCollections(), fetchPokeLids()])
+        .then(([collectionsRes, lidsRes]) => {
+          if (cancelled) return;
+          setCollections(collectionsRes);
+          setLidsById(new Map(lidsRes.map((l) => [l.id, l])));
+          setError(false);
+        })
+        .catch(() => {
+          if (!cancelled) setError(true);
+        });
+      return () => {
+        cancelled = true;
+      };
+      // `reloadKey` isn't read in the body; it exists purely to force this
+      // effect to re-run when the retry button is pressed.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [reloadKey]),
+  );
 
   const stats = useMemo(() => {
     if (collections.length === 0) return null;
@@ -69,6 +95,9 @@ export default function CollectionScreen() {
       <Head>
         <title>収集記録 - ポケふた収集</title>
       </Head>
+      {error && collections.length === 0 ? (
+        <ErrorState onRetry={() => setReloadKey((k) => k + 1)} />
+      ) : (
       <FlatList
         data={collections}
         key={GRID_COLUMNS}
@@ -115,6 +144,7 @@ export default function CollectionScreen() {
           );
         }}
       />
+      )}
     </ScreenContainer>
   );
 }

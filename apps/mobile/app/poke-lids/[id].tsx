@@ -6,6 +6,7 @@ import { Alert, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react
 import { haversineDistanceMeters, type PhotoMedal, type PokeLidDto } from '@pokelids/shared';
 import { Button } from '../../src/components/Button';
 import { CelebrationModal } from '../../src/components/CelebrationModal';
+import { ErrorState } from '../../src/components/ErrorState';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { TextField } from '../../src/components/TextField';
 import {
@@ -36,6 +37,30 @@ import { colors, radius, spacing, typography } from '../../src/theme';
 // feels in use.
 const MILESTONE_COUNTS = [10, 50, 100, 150, 200, 250, 300, 350, 400, 450];
 
+// Evaluated in Node.js at build time, once per `expo export`. Without this,
+// `web.output: "static"` only ever generates one literal
+// `poke-lids/[id].html` file, so every real request for e.g.
+// `/poke-lids/<uuid>` falls through to the SPA fallback (the *home* page's
+// prerendered HTML) instead of this route's — which is what was causing the
+// React hydration mismatch on this route. See
+// https://docs.expo.dev/router/web/static-rendering/#dynamic-routes.
+//
+// Requires the production API to be reachable at build time; falls back to
+// generating just the one generic template file (today's behavior) if it
+// isn't, rather than failing the whole build over a transient network issue.
+export async function generateStaticParams(): Promise<{ id: string }[]> {
+  const apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'https://pokelids-collect.jp';
+  try {
+    const res = await fetch(`${apiBaseUrl}/api/poke-lids`);
+    if (!res.ok) throw new Error(`GET /api/poke-lids -> ${res.status}`);
+    const lids: { id: string }[] = await res.json();
+    return lids.map((l) => ({ id: l.id }));
+  } catch (err) {
+    console.warn(`generateStaticParams: failed to fetch poke lid IDs, skipping prerendering: ${err}`);
+    return [];
+  }
+}
+
 export default function PokeLidDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -52,6 +77,8 @@ export default function PokeLidDetailScreen() {
   const [celebration, setCelebration] = useState<{ medal: PhotoMedal; milestone: string | null } | null>(
     null,
   );
+  const [error, setError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     getCurrentLocation().then(setLocation);
@@ -60,8 +87,8 @@ export default function PokeLidDetailScreen() {
   useEffect(() => {
     if (authLoading) return;
     let cancelled = false;
-    Promise.all([fetchPokeLid(id), fetchMyCollections(), getGuestCollection(id)]).then(
-      ([lidRes, collectionsRes, guestRes]) => {
+    Promise.all([fetchPokeLid(id), fetchMyCollections(), getGuestCollection(id)])
+      .then(([lidRes, collectionsRes, guestRes]) => {
         if (cancelled) return;
         setLid(lidRes);
         const existingCollection = collectionsRes.find((c) => c.pokeLidId === id) ?? null;
@@ -71,12 +98,15 @@ export default function PokeLidDetailScreen() {
         // any) is only relevant before the record has synced to an account.
         const existingNotes = existingCollection?.notes ?? guestRes?.notes;
         if (existingNotes) setNotes(existingNotes);
-      },
-    );
+        setError(false);
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      });
     return () => {
       cancelled = true;
     };
-  }, [id, authLoading, user]);
+  }, [id, authLoading, user, reloadKey]);
 
   async function onMarkGuestVisited() {
     if (!lid) return;
@@ -191,10 +221,11 @@ export default function PokeLidDetailScreen() {
 
   if (!lid) {
     return (
-      <ScreenContainer>
+      <ScreenContainer style={error ? { alignItems: 'center', justifyContent: 'center' } : undefined}>
         <Head>
           <title>ポケふた収集</title>
         </Head>
+        {error && <ErrorState onRetry={() => setReloadKey((k) => k + 1)} />}
       </ScreenContainer>
     );
   }

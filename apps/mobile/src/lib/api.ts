@@ -25,6 +25,17 @@ export function getRefreshToken(): string | null {
   return refreshToken;
 }
 
+// Fired whenever request() refreshes the access token in the background, or
+// gives up because the refresh token itself was rejected. AuthProvider uses
+// this to keep persisted storage (and its `user` state, on failure) in sync
+// without every call site having to know about token refresh.
+type TokensChangedListener = (tokens: { accessToken: string; refreshToken: string } | null) => void;
+let onTokensChanged: TokensChangedListener | null = null;
+
+export function setTokensChangedListener(fn: TokensChangedListener | null) {
+  onTokensChanged = fn;
+}
+
 class ApiError extends Error {
   constructor(
     public status: number,
@@ -34,7 +45,45 @@ class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+// These endpoints either issue tokens or take a refresh token directly in the
+// body (no Bearer header involved), so a 401 from them is never "the access
+// token expired" — retrying with a refreshed token makes no sense there and
+// risks a loop.
+const NO_REFRESH_RETRY_PATHS = ['/api/auth/login', '/api/auth/register', '/api/auth/refresh', '/api/auth/logout'];
+
+// Only one refresh should ever be in flight — screens like the home tab fire
+// several requests in parallel, and if all of them 401 at once, rotating the
+// refresh token once and sharing the result (rather than racing four
+// rotations, where only the first would succeed) is what keeps the other
+// three from failing.
+let refreshingPromise: Promise<boolean> | null = null;
+
+async function doRefresh(): Promise<boolean> {
+  if (!refreshToken) return false;
+  try {
+    const result = await request<AuthTokensDto>(
+      '/api/auth/refresh',
+      { method: 'POST', body: JSON.stringify({ refreshToken }) },
+      false,
+    );
+    setTokens(result);
+    onTokensChanged?.(result);
+    return true;
+  } catch {
+    setTokens(null);
+    onTokensChanged?.(null);
+    return false;
+  }
+}
+
+function tryRefresh(): Promise<boolean> {
+  refreshingPromise ??= doRefresh().finally(() => {
+    refreshingPromise = null;
+  });
+  return refreshingPromise;
+}
+
+async function request<T>(path: string, options: RequestInit = {}, retry = true): Promise<T> {
   const headers = new Headers(options.headers);
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
   if (!(options.body instanceof FormData) && options.body) {
@@ -42,6 +91,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   const res = await fetch(`${getApiBaseUrl()}${path}`, { ...options, headers });
+
+  if (res.status === 401 && retry && refreshToken && !NO_REFRESH_RETRY_PATHS.includes(path)) {
+    const refreshed = await tryRefresh();
+    if (refreshed) return request<T>(path, options, false);
+  }
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new ApiError(res.status, body.error ?? `Request failed with ${res.status}`);

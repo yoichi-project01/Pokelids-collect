@@ -1,6 +1,13 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { UserDto } from '@pokelids/shared';
-import { fetchMe, login as apiLogin, logout as apiLogout, register as apiRegister, setTokens } from './api';
+import {
+  fetchMe,
+  login as apiLogin,
+  logout as apiLogout,
+  register as apiRegister,
+  setTokens,
+  setTokensChangedListener,
+} from './api';
 import { confirmAsync } from './confirm';
 import { getGuestCollections, syncGuestCollectionsToAccount } from './guestStorage';
 import { getStoredTokens, removeStoredTokens, setStoredTokens } from './tokenStorage';
@@ -22,6 +29,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Registered before the initial fetchMe() call below so that if the
+    // stored access token is already expired, the transparent refresh-retry
+    // in api.ts's request() has somewhere to persist the rotated tokens (or
+    // clear them, if the refresh token itself is no longer valid).
+    setTokensChangedListener((tokens) => {
+      if (tokens) {
+        void setStoredTokens(STORAGE_KEY, JSON.stringify(tokens));
+      } else {
+        void removeStoredTokens(STORAGE_KEY);
+        setUser(null);
+      }
+    });
+
     (async () => {
       try {
         const raw = await getStoredTokens(STORAGE_KEY);
@@ -37,6 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     })();
+
+    return () => setTokensChangedListener(null);
   }, []);
 
   async function login(email: string, password: string) {

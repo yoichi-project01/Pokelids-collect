@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
+import { ErrorState } from '../../src/components/ErrorState';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { getApiBaseUrl } from '../../src/lib/api';
 import { buildMapHtml } from '../../src/lib/mapHtml';
@@ -10,7 +11,7 @@ import { colors, spacing, typography } from '../../src/theme';
 
 export default function MapScreen() {
   const router = useRouter();
-  const { markers, location } = useMapMarkers();
+  const { markers, location, error, reload } = useMapMarkers();
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
 
   function onMessage(event: WebViewMessageEvent) {
@@ -29,6 +30,14 @@ export default function MapScreen() {
     () => (markers && uncollectedOnly ? markers.filter((m) => !m.collected) : markers),
     [markers, uncollectedOnly],
   );
+
+  if (error && !visibleMarkers) {
+    return (
+      <ScreenContainer style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <ErrorState message="地図データを取得できませんでした" onRetry={reload} />
+      </ScreenContainer>
+    );
+  }
 
   if (!visibleMarkers) {
     return (

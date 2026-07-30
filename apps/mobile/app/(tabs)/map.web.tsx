@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ErrorState } from '../../src/components/ErrorState';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { getApiBaseUrl } from '../../src/lib/api';
 import { buildMapHtml } from '../../src/lib/mapHtml';
@@ -10,7 +11,7 @@ import { colors, spacing, typography } from '../../src/theme';
 
 export default function MapScreen() {
   const router = useRouter();
-  const { markers, location } = useMapMarkers();
+  const { markers, location, error, reload } = useMapMarkers();
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
 
   useEffect(() => {
@@ -39,6 +40,15 @@ export default function MapScreen() {
       <title>地図 - ポケふた収集</title>
     </Head>
   );
+
+  if (error && !visibleMarkers) {
+    return (
+      <ScreenContainer style={{ alignItems: 'center', justifyContent: 'center' }}>
+        {head}
+        <ErrorState message="地図データを取得できませんでした" onRetry={reload} />
+      </ScreenContainer>
+    );
+  }
 
   if (!visibleMarkers) {
     return (

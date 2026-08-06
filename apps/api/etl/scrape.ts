@@ -12,6 +12,11 @@ const USER_AGENT = `pokelids-collect.jp personal ETL (family use, non-commercial
 const PHOTO_STORAGE_PATH = process.env.PHOTO_STORAGE_PATH ?? '/data/photos';
 const OFFICIAL_IMAGES_DIR = path.join(PHOTO_STORAGE_PATH, 'official');
 
+// 公式サイトのリニューアルでセレクタが壊れると、パース件数が0件になっても
+// warn+continue するだけで正常終了してしまう。DB が上書きされる前に食い止める。
+const MIN_COUNT_RATIO = 0.9;
+const FORCE = process.argv.includes('--force');
+
 const prefByNameJa = new Map(PREFECTURES.map((p) => [p.nameJa, p]));
 // Hokkaido has no 都/道/府/県 stripped variant issue, but build a lenient lookup too.
 const prefByNameJaLenient = new Map(PREFECTURES.map((p) => [p.nameJa.replace(/[都道府県]$/, ''), p]));
@@ -52,8 +57,14 @@ interface ListEntry {
   prefSlug: string;
 }
 
-async function collectListEntries(): Promise<ListEntry[]> {
+interface ListEntriesResult {
+  entries: ListEntry[];
+  zeroCountPrefs: string[];
+}
+
+async function collectListEntries(): Promise<ListEntriesResult> {
   const entries: ListEntry[] = [];
+  const zeroCountPrefs: string[] = [];
   for (const pref of PREFECTURES) {
     const url = `${BASE}/manhole/${pref.slug}.html`;
     let html: string;
@@ -61,27 +72,30 @@ async function collectListEntries(): Promise<ListEntry[]> {
       html = await fetchText(url);
     } catch (err) {
       console.warn(`Skipping ${pref.slug}: ${(err as Error).message}`);
+      zeroCountPrefs.push(pref.slug);
       await sleep(REQUEST_DELAY_MS);
       continue;
     }
     const $ = cheerio.load(html);
+    const countBefore = entries.length;
     $('a.manhole-detail[href]').each((_, el) => {
       const href = $(el).attr('href') ?? '';
       const match = href.match(/\/manhole\/desc\/(\d+)\//);
       if (match) entries.push({ descId: match[1], prefSlug: pref.slug });
     });
-    console.log(
-      `${pref.slug}: found ${entries.filter((e) => e.prefSlug === pref.slug).length} entries so far`,
-    );
+    const foundCount = entries.length - countBefore;
+    if (foundCount === 0) zeroCountPrefs.push(pref.slug);
+    console.log(`${pref.slug}: found ${foundCount} entries`);
     await sleep(REQUEST_DELAY_MS);
   }
   // de-dupe by descId, keep first occurrence
   const seen = new Set<string>();
-  return entries.filter((e) => {
+  const deduped = entries.filter((e) => {
     if (seen.has(e.descId)) return false;
     seen.add(e.descId);
     return true;
   });
+  return { entries: deduped, zeroCountPrefs };
 }
 
 interface ScrapedLid {
@@ -153,8 +167,11 @@ async function fetchDetail(descId: string): Promise<ScrapedLid | null> {
 
 async function main() {
   console.log('Step 1: collecting manhole list entries from prefecture pages...');
-  const listEntries = await collectListEntries();
+  const { entries: listEntries, zeroCountPrefs } = await collectListEntries();
   console.log(`Found ${listEntries.length} unique manhole IDs`);
+  if (zeroCountPrefs.length > 0) {
+    console.warn(`0件だった都道府県 (${zeroCountPrefs.length}件): ${zeroCountPrefs.join(', ')}`);
+  }
 
   console.log('Step 2: fetching detail pages...');
   const results: ScrapedLid[] = [];
@@ -169,6 +186,18 @@ async function main() {
     await sleep(REQUEST_DELAY_MS);
   }
   console.log(`Successfully scraped ${results.length} poke lids`);
+
+  // セレクタ崩壊などで件数が急減した場合、DB 更新・スナップショット書き込みの
+  // どちらも行わずに止める。ここで止めないと 2-1（論理削除）実装後は
+  // 全ポケふたが「撤去済み」として上書きされてしまう。
+  const previousCount = await prisma.pokeLid.count();
+  if (previousCount > 0 && results.length < previousCount * MIN_COUNT_RATIO) {
+    const message = `スクレイプ件数が前回比${Math.round(MIN_COUNT_RATIO * 100)}%を下回りました（前回 ${previousCount} 件 → 今回 ${results.length} 件）。公式サイトのリニューアルでセレクタが変わった可能性があります。意図的に実行する場合は --force を付けてください。`;
+    if (!FORCE) {
+      throw new Error(message);
+    }
+    console.warn(`${message} --force が指定されているため続行します。`);
+  }
 
   const rawDir = path.join(__dirname, 'raw');
   await fs.mkdir(rawDir, { recursive: true });

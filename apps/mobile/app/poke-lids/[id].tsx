@@ -11,6 +11,7 @@ import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { TextField } from '../../src/components/TextField';
 import POKE_LIDS from '../../src/data/poke-lids.json';
 import {
+  ApiError,
   deleteCollection,
   fetchMyCollections,
   fetchPokeLid,
@@ -192,8 +193,11 @@ export default function PokeLidDetailScreen() {
         }
         setCelebration({ medal: uploaded.medal, milestone });
       }
-    } catch {
-      showToast('エラー', 'アップロードに失敗しました');
+    } catch (err) {
+      // Upload-limit rejections (400/413) carry a specific Japanese message
+      // from the server; anything else (network failure, etc.) falls back
+      // to a generic one.
+      showToast('エラー', err instanceof ApiError ? err.message : 'アップロードに失敗しました');
     } finally {
       setUploading(false);
     }

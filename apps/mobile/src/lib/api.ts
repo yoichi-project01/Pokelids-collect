@@ -36,7 +36,7 @@ export function setTokensChangedListener(fn: TokensChangedListener | null) {
   onTokensChanged = fn;
 }
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,

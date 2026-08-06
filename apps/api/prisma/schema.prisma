@@ -136,5 +136,8 @@ model Photo {
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([collectionId])
+  // 1-2 のアップロード容量チェック（userId で fileSizeBytes を集計）用。
+  // TASKS.md 2-4 で予定されていたインデックスだが、このタスクで先に追加する。
+  @@index([userId])
   @@map("photos")
 }

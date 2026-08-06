@@ -1,5 +1,6 @@
 import { Router, type NextFunction, type Response } from 'express';
 import multer from 'multer';
+import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import crypto from 'node:crypto';
@@ -13,6 +14,22 @@ import { signPhotoAccessToken } from '../lib/auth';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
 
 export const collectionsRouter = Router();
+
+// Disk holding Postgres's data directory is shared with photo storage (see
+// docker-compose.yml), so an unbounded upload path can take the whole
+// service down, not just fill user quota. Three independent limits, each
+// env-overridable with a code default:
+const MAX_PHOTOS_PER_COLLECTION = Number(process.env.MAX_PHOTOS_PER_COLLECTION ?? '5');
+const MAX_USER_STORAGE_BYTES = Number(process.env.MAX_USER_STORAGE_MB ?? '500') * 1024 * 1024;
+
+// Same flavor as auth.ts's credentialRateLimit — trust proxy is already
+// configured once, in index.ts, so the default IP-based keying just works.
+const uploadRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: Number(process.env.UPLOAD_RATE_LIMIT_PER_HOUR ?? '60'),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Client-reported filenames/extensions are attacker-controlled; only trust
 // the multer-detected MIME type, and only for a fixed whitelist. Anything
@@ -126,7 +143,7 @@ const createCollectionSchema = z.object({
   notes: z.string().optional(),
 });
 
-collectionsRouter.post('/', requireAuth, handleUpload, async (req: AuthedRequest, res) => {
+collectionsRouter.post('/', requireAuth, uploadRateLimit, handleUpload, async (req: AuthedRequest, res) => {
   const parsed = createCollectionSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
@@ -155,6 +172,23 @@ collectionsRouter.post('/', requireAuth, handleUpload, async (req: AuthedRequest
   }
 
   const existingPhotoCount = await prisma.photo.count({ where: { collectionId: collection.id } });
+  if (existingPhotoCount >= MAX_PHOTOS_PER_COLLECTION) {
+    return res.status(400).json({
+      error: `1件の収集記録に登録できる写真は${MAX_PHOTOS_PER_COLLECTION}枚までです。`,
+    });
+  }
+
+  // Single aggregate query rather than summing fetched rows, so this stays
+  // O(1) regardless of how many photos the user already has.
+  const { _sum } = await prisma.photo.aggregate({
+    where: { userId },
+    _sum: { fileSizeBytes: true },
+  });
+  if ((_sum.fileSizeBytes ?? 0) + req.file.size > MAX_USER_STORAGE_BYTES) {
+    return res.status(413).json({
+      error: '写真の保存容量が上限に達しました。不要な写真を削除してから再度お試しください。',
+    });
+  }
 
   const exif = await extractPhotoExif(req.file.buffer);
   const hasLocation = exif.latitude !== null && exif.longitude !== null;

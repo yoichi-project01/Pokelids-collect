@@ -34,15 +34,18 @@ cp .env.example .env
 
 主な変数:
 
-| 変数                                       | 説明                                       |
-| ------------------------------------------ | ------------------------------------------ |
-| `DATABASE_URL`                             | PostgreSQL接続文字列                       |
-| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | JWT署名用シークレット                      |
-| `PHOTO_TOKEN_SECRET`                       | 写真URLの短命署名トークン用シークレット    |
-| `CORS_ORIGIN`                              | 許可するオリジン（本番は自ドメインに限定） |
-| `PHOTO_STORAGE_PATH`                       | 写真の保存先パス                           |
-| `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD` | `npm run seed` で作成する管理者アカウント  |
-| `ETL_CONTACT_EMAIL`                        | `etl/scrape.ts` のUser-Agentに含める連絡先 |
+| 変数                                       | 説明                                                  |
+| ------------------------------------------ | ----------------------------------------------------- |
+| `DATABASE_URL`                             | PostgreSQL接続文字列                                  |
+| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | JWT署名用シークレット                                 |
+| `PHOTO_TOKEN_SECRET`                       | 写真URLの短命署名トークン用シークレット               |
+| `CORS_ORIGIN`                              | 許可するオリジン（本番は自ドメインに限定）            |
+| `PHOTO_STORAGE_PATH`                       | 写真の保存先パス                                      |
+| `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD` | `npm run seed` で作成する管理者アカウント             |
+| `ETL_CONTACT_EMAIL`                        | `etl/scrape.ts` のUser-Agentに含める連絡先            |
+| `UPLOAD_RATE_LIMIT_PER_HOUR`               | `POST /api/collections` のIPごとの回数上限（既定60）  |
+| `MAX_PHOTOS_PER_COLLECTION`                | 1件の収集記録に登録できる写真枚数の上限（既定5）      |
+| `MAX_USER_STORAGE_MB`                      | ユーザーあたりの写真保存容量の上限、MB単位（既定500） |
 
 ### 依存パッケージのインストール
 

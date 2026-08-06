@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { GRID_CELL_PADDING } from '../lib/useGridData';
 import { colors, radius, spacing, typography } from '../theme';
 
 // Grayscale + dimmed for uncollected, full color once collected — same
@@ -56,7 +57,7 @@ export function PokeLidCard({
 }
 
 const styles = StyleSheet.create({
-  card: { flex: 1, gap: spacing.xs, padding: spacing.xs },
+  card: { flex: 1, gap: spacing.xs, padding: GRID_CELL_PADDING },
   pressed: { opacity: 0.7 },
   imageWrapper: { position: 'relative' },
   image: { width: '100%', aspectRatio: 1, borderRadius: radius.md, backgroundColor: colors.border },

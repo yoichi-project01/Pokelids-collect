@@ -9,10 +9,14 @@ import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchPokeLids, photoUrl } from '../../src/lib/api';
 import type { CollectionSummary } from '../../src/lib/api';
 import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
-import { gridKeyExtractor, useGridData } from '../../src/lib/useGridData';
+import {
+  GRID_CELL_PADDING,
+  gridKeyExtractor,
+  useGridData,
+  useResponsiveColumns,
+} from '../../src/lib/useGridData';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
-const GRID_COLUMNS = 3;
 const MEDAL_EMOJI: Record<'GOLD' | 'SILVER', string> = { GOLD: '🥇', SILVER: '🥈' };
 
 export default function CollectionScreen() {
@@ -22,6 +26,7 @@ export default function CollectionScreen() {
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [error, setError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const columns = useResponsiveColumns();
 
   useEffect(() => {
     getCurrentLocation().then(setLocation);
@@ -91,7 +96,7 @@ export default function CollectionScreen() {
     };
   }, [collections, lidsById, location]);
 
-  const gridData = useGridData(collections, GRID_COLUMNS);
+  const gridData = useGridData(collections, columns);
 
   return (
     <ScreenContainer>
@@ -103,8 +108,8 @@ export default function CollectionScreen() {
       ) : (
         <FlatList
           data={gridData}
-          key={GRID_COLUMNS}
-          numColumns={GRID_COLUMNS}
+          key={columns}
+          numColumns={columns}
           keyExtractor={gridKeyExtractor((item) => item.id)}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={<Text style={styles.empty}>まだ収集記録がありません</Text>}
@@ -172,7 +177,7 @@ const styles = StyleSheet.create({
   empty: { ...typography.caption, textAlign: 'center', color: colors.textTertiary, marginTop: 40 },
   // Matches PokeLidCard's own outer flex/padding so a trailing placeholder
   // cell takes up exactly as much row width as a real card would.
-  placeholder: { flex: 1, padding: spacing.xs },
+  placeholder: { flex: 1, padding: GRID_CELL_PADDING },
   medal: { fontSize: 20 },
   retiredBadge: {
     backgroundColor: colors.textSecondary,

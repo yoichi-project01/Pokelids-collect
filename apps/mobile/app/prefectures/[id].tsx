@@ -9,10 +9,14 @@ import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { getGuestCollectedIds } from '../../src/lib/guestStorage';
-import { gridKeyExtractor, useGridData } from '../../src/lib/useGridData';
+import {
+  GRID_CELL_PADDING,
+  gridKeyExtractor,
+  useGridData,
+  useResponsiveColumns,
+} from '../../src/lib/useGridData';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
-const GRID_COLUMNS = 3;
 const PREFECTURE_COUNT = 47;
 
 // Evaluated in Node.js at build time (see
@@ -36,6 +40,7 @@ export default function PrefecturePokeLidsScreen() {
   const [error, setError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
+  const columns = useResponsiveColumns();
 
   const prefectureName = PREFECTURES.find((p) => p.id === Number(id))?.nameJa ?? null;
 
@@ -71,7 +76,7 @@ export default function PrefecturePokeLidsScreen() {
       : notRetiredOrCollected;
   }, [lids, collectedIds, uncollectedOnly]);
 
-  const gridData = useGridData(visibleLids, GRID_COLUMNS);
+  const gridData = useGridData(visibleLids, columns);
 
   return (
     <ScreenContainer>
@@ -94,8 +99,8 @@ export default function PrefecturePokeLidsScreen() {
       ) : (
         <FlatList
           data={gridData}
-          key={GRID_COLUMNS}
-          numColumns={GRID_COLUMNS}
+          key={columns}
+          numColumns={columns}
           keyExtractor={gridKeyExtractor((item) => item.id)}
           refreshing={loading}
           contentContainerStyle={styles.listContent}
@@ -146,7 +151,7 @@ const styles = StyleSheet.create({
   listContent: { padding: spacing.sm },
   // Matches PokeLidCard's own outer flex/padding so a trailing placeholder
   // cell takes up exactly as much row width as a real card would.
-  placeholder: { flex: 1, padding: spacing.xs },
+  placeholder: { flex: 1, padding: GRID_CELL_PADDING },
   filterRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.sm },
   filterOption: {
     ...typography.footnote,

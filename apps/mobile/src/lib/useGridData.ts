@@ -1,4 +1,23 @@
 import { useMemo } from 'react';
+import { useWindowDimensions } from 'react-native';
+import { spacing } from '../theme';
+
+// Shared by PokeLidCard's own card padding and this module's placeholder
+// cells, so the two can't drift apart from each other independently.
+export const GRID_CELL_PADDING = spacing.xs;
+
+// Breakpoints are on window width, not the (up to 720px) content width
+// ScreenContainer caps the grid at on web — a wide window still means a wide
+// content area, so this still lands on 5 columns there.
+const FIVE_COLUMN_MIN_WIDTH = 600;
+const THREE_COLUMN_MIN_WIDTH = 380;
+
+export function useResponsiveColumns(): number {
+  const { width } = useWindowDimensions();
+  if (width >= FIVE_COLUMN_MIN_WIDTH) return 5;
+  if (width >= THREE_COLUMN_MIN_WIDTH) return 3;
+  return 2;
+}
 
 // FlatList's numColumns wraps each row in a bare View and gives every cell
 // flex: 1; when the last row has fewer items than `columns`, those flex: 1
@@ -9,7 +28,7 @@ import { useMemo } from 'react';
 // every row the same width, no matter how many trailing items there are.
 //
 // Takes `columns` as an argument rather than a hardcoded constant so it
-// keeps working once the column count becomes responsive (3-2).
+// works with useResponsiveColumns' dynamic column count above.
 export function useGridData<T>(data: T[], columns: number): (T | null)[] {
   return useMemo(() => {
     const remainder = data.length % columns;

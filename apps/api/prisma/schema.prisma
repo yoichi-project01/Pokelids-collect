@@ -86,6 +86,12 @@ model PokeLid {
   officialSourceUrl  String    @map("official_source_url")
   notes              String?
   lastSyncedAt       DateTime? @map("last_synced_at")
+  // Set by the ETL when a previously-seen officialRef is missing from a scrape
+  // (physically removed/closed), cleared again if it later reappears (a
+  // renewal-triggered false positive recovering). Never deleted outright:
+  // Collection has onDelete: Cascade on pokeLidId, so removing the row would
+  // also delete every user's record and photos of having collected it.
+  retiredAt          DateTime? @map("retired_at")
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
 
@@ -93,6 +99,7 @@ model PokeLid {
   collections Collection[]
 
   @@index([prefectureId])
+  @@index([retiredAt])
   @@map("poke_lids")
 }
 

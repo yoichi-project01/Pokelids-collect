@@ -2,14 +2,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { PREFECTURES, type PokeLidDto } from '@pokelids/shared';
+import { isPokeLidVisible, PREFECTURES, type PokeLidDto } from '@pokelids/shared';
 import { ErrorState } from '../../src/components/ErrorState';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { getGuestCollectedIds } from '../../src/lib/guestStorage';
-import { colors, spacing, typography } from '../../src/theme';
+import { colors, radius, spacing, typography } from '../../src/theme';
 
 const GRID_COLUMNS = 3;
 const PREFECTURE_COUNT = 47;
@@ -59,10 +59,16 @@ export default function PrefecturePokeLidsScreen() {
     };
   }, [id, authLoading, user, reloadKey]);
 
-  const visibleLids = useMemo(
-    () => (uncollectedOnly ? lids.filter((l) => !collectedIds.has(l.id)) : lids),
-    [lids, collectedIds, uncollectedOnly],
-  );
+  const visibleLids = useMemo(() => {
+    // A retired lid only stays in the list if it's already been collected
+    // (see isPokeLidVisible) — and "未収集のみ" excludes collected items by
+    // definition, so the two filters together mean a retired lid never shows
+    // up there.
+    const notRetiredOrCollected = lids.filter((l) => isPokeLidVisible(l.retiredAt, collectedIds.has(l.id)));
+    return uncollectedOnly
+      ? notRetiredOrCollected.filter((l) => !collectedIds.has(l.id))
+      : notRetiredOrCollected;
+  }, [lids, collectedIds, uncollectedOnly]);
 
   return (
     <ScreenContainer>
@@ -108,12 +114,20 @@ export default function PrefecturePokeLidsScreen() {
           }
           renderItem={({ item }) => {
             const collected = collectedIds.has(item.id);
+            const retired = item.retiredAt != null;
             return (
               <PokeLidCard
                 title={item.municipality}
                 subtitle={item.pokemonFeatured.join('・')}
                 imageUri={item.officialImageUrl}
                 collected={collected}
+                badge={
+                  retired ? (
+                    <View style={styles.retiredBadge}>
+                      <Text style={styles.retiredBadgeText}>撤去済み</Text>
+                    </View>
+                  ) : undefined
+                }
                 onPress={() => router.push(`/poke-lids/${item.id}`)}
               />
             );
@@ -140,4 +154,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   filterOptionActive: { color: colors.white, backgroundColor: colors.accent, borderColor: colors.accent },
+  retiredBadge: {
+    backgroundColor: colors.textSecondary,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+  },
+  retiredBadgeText: { color: colors.white, fontSize: 10, fontWeight: '600' },
 });

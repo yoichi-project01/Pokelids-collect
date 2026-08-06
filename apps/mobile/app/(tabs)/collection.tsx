@@ -128,6 +128,7 @@ export default function CollectionScreen() {
           renderItem={({ item }) => {
             const lid = lidsById.get(item.pokeLidId);
             const primaryPhoto = item.photos.find((p) => p.isPrimary) ?? item.photos[0];
+            const retired = lid?.retiredAt != null;
             return (
               <PokeLidCard
                 title={lid?.municipality ?? '（不明）'}
@@ -135,7 +136,11 @@ export default function CollectionScreen() {
                 imageUri={primaryPhoto ? photoUrl(primaryPhoto.thumbUrl) : lid?.officialImageUrl}
                 collected
                 badge={
-                  primaryPhoto && primaryPhoto.medal !== 'NONE' ? (
+                  retired ? (
+                    <View style={styles.retiredBadge}>
+                      <Text style={styles.retiredBadgeText}>撤去済み</Text>
+                    </View>
+                  ) : primaryPhoto && primaryPhoto.medal !== 'NONE' ? (
                     <Text style={styles.medal}>{MEDAL_EMOJI[primaryPhoto.medal]}</Text>
                   ) : undefined
                 }
@@ -162,6 +167,13 @@ const styles = StyleSheet.create({
   listContent: { padding: spacing.sm },
   empty: { ...typography.caption, textAlign: 'center', color: colors.textTertiary, marginTop: 40 },
   medal: { fontSize: 20 },
+  retiredBadge: {
+    backgroundColor: colors.textSecondary,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+  },
+  retiredBadgeText: { color: colors.white, fontSize: 10, fontWeight: '600' },
   statsCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,

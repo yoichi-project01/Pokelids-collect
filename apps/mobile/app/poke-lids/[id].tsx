@@ -257,6 +257,13 @@ export default function PokeLidDetailScreen() {
           <Text style={styles.title}>{lid.municipality}</Text>
           <Text style={styles.pokemon}>{lid.pokemonFeatured.join('・')}</Text>
           <Text style={styles.address}>{lid.address}</Text>
+          {lid.retiredAt != null && (
+            <View style={styles.retiredNotice}>
+              <Text style={styles.retiredNoticeText}>
+                このポケふたは撤去され、現地では見られなくなりました
+              </Text>
+            </View>
+          )}
           {distanceKm !== null && <Text style={styles.distance}>現在地から {distanceKm.toFixed(1)}km</Text>}
           <Button
             title="経路案内を開く"
@@ -380,6 +387,12 @@ const styles = StyleSheet.create({
   title: { ...typography.title },
   pokemon: { ...typography.caption },
   address: { ...typography.caption, marginBottom: spacing.xs },
+  retiredNotice: {
+    backgroundColor: colors.background,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+  },
+  retiredNoticeText: { ...typography.footnote, color: colors.textSecondary, fontWeight: '600' },
   distance: { ...typography.footnote, color: colors.accent, fontWeight: '600' },
   collectedLabel: { ...typography.bodyMedium, marginBottom: spacing.sm },
   notCollectedLabel: { ...typography.caption, marginBottom: spacing.sm },

@@ -190,7 +190,10 @@ async function main() {
   // セレクタ崩壊などで件数が急減した場合、DB 更新・スナップショット書き込みの
   // どちらも行わずに止める。ここで止めないと 2-1（論理削除）実装後は
   // 全ポケふたが「撤去済み」として上書きされてしまう。
-  const previousCount = await prisma.pokeLid.count();
+  // retiredAt: null のみを母数にする — 2-1 導入後は正規の撤去が積み重なる
+  // ため、撤去済みも含めた全件数を基準にすると、健全なスクレイプでも比率が
+  // じわじわ下がって誤検知するようになってしまう。
+  const previousCount = await prisma.pokeLid.count({ where: { retiredAt: null } });
   if (previousCount > 0 && results.length < previousCount * MIN_COUNT_RATIO) {
     const message = `スクレイプ件数が前回比${Math.round(MIN_COUNT_RATIO * 100)}%を下回りました（前回 ${previousCount} 件 → 今回 ${results.length} 件）。公式サイトのリニューアルでセレクタが変わった可能性があります。意図的に実行する場合は --force を付けてください。`;
     if (!FORCE) {
@@ -214,6 +217,28 @@ async function main() {
     });
   }
   console.log(`Upserted ${results.length} poke lids into the database`);
+
+  // 上の件数安全装置を通過した後（＝スクレイプ結果が信頼できる場合）にのみ
+  // 実行する。安全装置より前に置くと、セレクタ崩壊で results が空に近い
+  // ときに既存の全ポケふたを撤去済みにしてしまう。
+  console.log('Step 4: marking retired / restored poke lids...');
+  const scrapedRefs = results.map((r) => r.officialRef);
+
+  const retired = await prisma.pokeLid.updateMany({
+    where: { officialRef: { not: null, notIn: scrapedRefs }, retiredAt: null },
+    data: { retiredAt: new Date() },
+  });
+  if (retired.count > 0) {
+    console.log(`Marked ${retired.count} poke lid(s) as retired (no longer listed on the official site)`);
+  }
+
+  const restored = await prisma.pokeLid.updateMany({
+    where: { officialRef: { in: scrapedRefs }, retiredAt: { not: null } },
+    data: { retiredAt: null },
+  });
+  if (restored.count > 0) {
+    console.log(`Restored ${restored.count} previously-retired poke lid(s) that reappeared`);
+  }
 }
 
 main()

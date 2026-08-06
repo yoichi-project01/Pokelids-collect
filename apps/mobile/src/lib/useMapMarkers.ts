@@ -1,5 +1,6 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
+import { isPokeLidVisible } from '@pokelids/shared';
 import { fetchMyCollections, fetchPokeLids } from './api';
 import { useAuth } from './auth';
 import { getGuestCollectedIds } from './guestStorage';
@@ -35,14 +36,16 @@ export function useMapMarkers(): {
           if (cancelled) return;
           const collectedIds = new Set([...collections.map((c) => c.pokeLidId), ...guestIds]);
           setMarkers(
-            lids.map((l) => ({
-              id: l.id,
-              lat: l.latitude,
-              lng: l.longitude,
-              name: `${l.municipality}｜${l.pokemonFeatured.join('・')}`,
-              imageUrl: l.officialImageUrl,
-              collected: collectedIds.has(l.id),
-            })),
+            lids
+              .filter((l) => isPokeLidVisible(l.retiredAt, collectedIds.has(l.id)))
+              .map((l) => ({
+                id: l.id,
+                lat: l.latitude,
+                lng: l.longitude,
+                name: `${l.municipality}｜${l.pokemonFeatured.join('・')}`,
+                imageUrl: l.officialImageUrl,
+                collected: collectedIds.has(l.id),
+              })),
           );
           setError(false);
         })

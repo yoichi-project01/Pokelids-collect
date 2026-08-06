@@ -13,7 +13,10 @@ pokeLidsRouter.get('/nearby', async (req, res) => {
   const limit = Math.min(Number(req.query.limit ?? 12) || 12, 100);
 
   const lids = await prisma.pokeLid.findMany({
-    where: { officialImageUrl: { not: null } },
+    // /nearby only ever suggests places to newly go visit, so — unlike the
+    // main list/detail endpoints — a retired lid is excluded outright here,
+    // with no "already collected" exception to carve back out.
+    where: { officialImageUrl: { not: null }, retiredAt: null },
     select: {
       id: true,
       municipality: true,
@@ -77,6 +80,7 @@ export function serializePokeLid(lid: {
   officialImageUrl: string | null;
   officialSourceUrl: string;
   notes: string | null;
+  retiredAt: Date | null;
 }) {
   return {
     id: lid.id,
@@ -91,6 +95,7 @@ export function serializePokeLid(lid: {
     installDate: lid.installDate?.toISOString() ?? null,
     officialImageUrl: lid.officialImageUrl,
     officialSourceUrl: lid.officialSourceUrl,
+    retiredAt: lid.retiredAt?.toISOString() ?? null,
     notes: lid.notes,
   };
 }

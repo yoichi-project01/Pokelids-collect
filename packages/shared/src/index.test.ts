@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { determinePhotoMedal, haversineDistanceMeters, isValidVisitedAt } from './index';
+import {
+  countsTowardProgress,
+  determinePhotoMedal,
+  haversineDistanceMeters,
+  isPokeLidVisible,
+  isValidVisitedAt,
+} from './index';
 
 describe('haversineDistanceMeters', () => {
   it('returns 0 for identical coordinates', () => {
@@ -72,5 +78,39 @@ describe('isValidVisitedAt', () => {
 
   it('rejects an unparseable date', () => {
     expect(isValidVisitedAt(new Date('not-a-date'), NOW)).toBe(false);
+  });
+});
+
+describe('countsTowardProgress', () => {
+  it('is true for an active (never-retired) poke lid', () => {
+    expect(countsTowardProgress(null)).toBe(true);
+  });
+
+  it('is true when the field is absent (a snapshot bundled before retiredAt existed)', () => {
+    expect(countsTowardProgress(undefined)).toBe(true);
+  });
+
+  it('is false once retiredAt is set', () => {
+    expect(countsTowardProgress('2026-08-01T00:00:00.000Z')).toBe(false);
+    expect(countsTowardProgress(new Date('2026-08-01T00:00:00.000Z'))).toBe(false);
+  });
+});
+
+describe('isPokeLidVisible', () => {
+  it('is visible when active, whether or not the viewer collected it', () => {
+    expect(isPokeLidVisible(null, false)).toBe(true);
+    expect(isPokeLidVisible(null, true)).toBe(true);
+  });
+
+  it('is hidden when retired and the viewer never collected it', () => {
+    expect(isPokeLidVisible('2026-08-01T00:00:00.000Z', false)).toBe(false);
+  });
+
+  it('stays visible when retired if the viewer already collected it (memory is kept)', () => {
+    expect(isPokeLidVisible('2026-08-01T00:00:00.000Z', true)).toBe(true);
+  });
+
+  it('treats an absent field (stale snapshot) as active regardless of collected status', () => {
+    expect(isPokeLidVisible(undefined, false)).toBe(true);
   });
 });

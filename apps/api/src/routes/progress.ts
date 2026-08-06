@@ -5,14 +5,19 @@ import { requireAuth, type AuthedRequest } from '../middleware/auth';
 export const progressRouter = Router();
 
 async function buildProgress(userId: string | null) {
+  // A retired lid can no longer be visited, so it's dropped from both sides
+  // of the ratio (see packages/shared's countsTowardProgress) — not just the
+  // total. Counting a collected-but-retired lid in collectedCount while
+  // excluding it from totalPokeLids would let collected exceed total and
+  // push the percentage past 100%.
   const [totalPokeLids, collectedCount, prefectures, lidCounts, representativeImages, collectedByPrefecture] =
     await Promise.all([
-      prisma.pokeLid.count(),
-      userId ? prisma.collection.count({ where: { userId } }) : 0,
+      prisma.pokeLid.count({ where: { retiredAt: null } }),
+      userId ? prisma.collection.count({ where: { userId, pokeLid: { retiredAt: null } } }) : 0,
       prisma.prefecture.findMany({ orderBy: { displayOrder: 'asc' } }),
-      prisma.pokeLid.groupBy({ by: ['prefectureId'], _count: { _all: true } }),
+      prisma.pokeLid.groupBy({ by: ['prefectureId'], where: { retiredAt: null }, _count: { _all: true } }),
       prisma.pokeLid.findMany({
-        where: { officialImageUrl: { not: null } },
+        where: { officialImageUrl: { not: null }, retiredAt: null },
         distinct: ['prefectureId'],
         orderBy: [{ prefectureId: 'asc' }, { name: 'asc' }],
         select: { prefectureId: true, officialImageUrl: true },
@@ -22,7 +27,7 @@ async function buildProgress(userId: string | null) {
             SELECT pl.prefecture_id AS "prefectureId", COUNT(*) AS count
             FROM collections c
             JOIN poke_lids pl ON pl.id = c.poke_lid_id
-            WHERE c.user_id = ${userId}
+            WHERE c.user_id = ${userId} AND pl.retired_at IS NULL
             GROUP BY pl.prefecture_id
           `
         : Promise.resolve([]),

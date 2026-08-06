@@ -72,6 +72,11 @@ export interface PokeLidDto {
   officialImageUrl: string | null;
   officialSourceUrl: string;
   notes: string | null;
+  // Set once the ETL no longer finds this poke lid on the official site.
+  // Absent from a stale bundled snapshot predating this field — callers
+  // should compare with `!= null` (not `!==`) so `undefined` there is
+  // treated the same as "not retired".
+  retiredAt: string | null;
 }
 
 export interface CollectionDto {
@@ -156,4 +161,27 @@ export function isValidVisitedAt(visitedAt: Date, now: Date): boolean {
   if (Number.isNaN(visitedAt.getTime())) return false;
   if (visitedAt.getTime() < EARLIEST_VISITED_AT.getTime()) return false;
   return visitedAt.getTime() <= now.getTime() + VISITED_AT_FUTURE_TOLERANCE_MS;
+}
+
+// A retired poke lid can no longer be visited, so it shouldn't count toward
+// the "still collectible" universe — the progress denominator, and (for
+// someone who hasn't already collected it) general browsing surfaces. See
+// isPokeLidVisible below for the display-side exception to that.
+// `undefined` is accepted alongside `null` so a client-bundled snapshot
+// taken before this field existed is treated the same as "not retired"
+// rather than as a type error.
+export function countsTowardProgress(retiredAt: string | Date | null | undefined): boolean {
+  return retiredAt == null;
+}
+
+// Whether a poke lid should appear in browse/discovery surfaces (the poke
+// lid list, map, /nearby) for a given viewer. A retired lid stays visible
+// only if the viewer already holds a collection record for it — the
+// physical manhole is gone, but that isn't a reason to erase the user's own
+// memory of having been there.
+export function isPokeLidVisible(
+  retiredAt: string | Date | null | undefined,
+  hasCollected: boolean,
+): boolean {
+  return countsTowardProgress(retiredAt) || hasCollected;
 }

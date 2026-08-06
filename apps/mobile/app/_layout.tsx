@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import Head from 'expo-router/head';
+import { Toast } from '../src/components/Toast';
 import { AuthProvider } from '../src/lib/auth';
 import { colors } from '../src/theme';
 
@@ -37,6 +38,7 @@ export default function RootLayout() {
         <Stack.Screen name="privacy" options={{ title: 'プライバシーポリシー' }} />
         <Stack.Screen name="terms" options={{ title: '利用規約' }} />
       </Stack>
+      <Toast />
     </AuthProvider>
   );
 }

@@ -8,9 +8,10 @@ import {
   setTokens,
   setTokensChangedListener,
 } from './api';
-import { alertAsync, confirmAsync } from './confirm';
+import { confirmAsync } from './confirm';
 import { getGuestCollections, syncGuestCollectionsToAccount } from './guestStorage';
 import { getStoredTokens, removeStoredTokens, setStoredTokens } from './tokenStorage';
+import { showToast } from './toast';
 
 const STORAGE_KEY = 'pokelids_auth_tokens';
 
@@ -107,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const synced = await syncGuestCollectionsToAccount();
       if (synced < guestItems.length) {
-        alertAsync(
+        showToast(
           '一部を保存できませんでした',
           `${synced}/${guestItems.length}件を保存しました。残りは次回ログイン時に再試行します。`,
         );

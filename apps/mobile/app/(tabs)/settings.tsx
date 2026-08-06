@@ -1,12 +1,13 @@
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { deleteAccount } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { confirmAsync } from '../../src/lib/confirm';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
+import { showToast } from '../../src/lib/toast';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
 export default function SettingsScreen() {
@@ -26,7 +27,7 @@ export default function SettingsScreen() {
       await deleteAccount();
       await logout();
     } catch {
-      Alert.alert('エラー', 'アカウントの削除に失敗しました');
+      showToast('エラー', 'アカウントの削除に失敗しました');
     } finally {
       setDeletingAccount(false);
     }

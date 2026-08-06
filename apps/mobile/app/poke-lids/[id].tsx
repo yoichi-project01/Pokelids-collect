@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useEffect, useState } from 'react';
-import { Alert, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { haversineDistanceMeters, type PhotoMedal, type PokeLidDto } from '@pokelids/shared';
 import { Button } from '../../src/components/Button';
 import { CelebrationModal } from '../../src/components/CelebrationModal';
@@ -30,6 +30,7 @@ import {
 } from '../../src/lib/guestStorage';
 import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
+import { showToast } from '../../src/lib/toast';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
 // Round-number milestones for the "N箇所達成" celebration. Starting with a
@@ -134,7 +135,7 @@ export default function PokeLidDetailScreen() {
       await updateCollectionNotes(collection.id, notes || null);
       setCollection({ ...collection, notes: notes || null });
     } catch {
-      Alert.alert('エラー', 'メモの保存に失敗しました');
+      showToast('エラー', 'メモの保存に失敗しました');
     } finally {
       setSavingNotes(false);
     }
@@ -144,13 +145,13 @@ export default function PokeLidDetailScreen() {
     if (source === 'camera') {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert('権限が必要です', 'カメラへのアクセス許可が必要です');
+        showToast('権限が必要です', 'カメラへのアクセス許可が必要です');
         return;
       }
     } else {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert('権限が必要です', '写真ライブラリへのアクセス許可が必要です');
+        showToast('権限が必要です', '写真ライブラリへのアクセス許可が必要です');
         return;
       }
     }
@@ -192,7 +193,7 @@ export default function PokeLidDetailScreen() {
         setCelebration({ medal: uploaded.medal, milestone });
       }
     } catch {
-      Alert.alert('エラー', 'アップロードに失敗しました');
+      showToast('エラー', 'アップロードに失敗しました');
     } finally {
       setUploading(false);
     }
@@ -211,7 +212,7 @@ export default function PokeLidDetailScreen() {
       await deleteCollection(collection.id);
       setCollection(null);
     } catch {
-      Alert.alert('エラー', '削除に失敗しました');
+      showToast('エラー', '削除に失敗しました');
     } finally {
       setDeleting(false);
     }

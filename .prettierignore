@@ -4,3 +4,9 @@ node_modules
 apps/api/etl/raw
 apps/mobile/public
 package-lock.json
+
+# 人が読むための指示書・設計方針ドキュメント。表の桁揃えなど、prettierの
+# 整形はコード向けの規約でありここでは可読性を下げるため対象外にする。
+# README.md は通常のプロジェクト文書として対象のまま。
+TASKS.md
+ROADMAP.md

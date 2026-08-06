@@ -9,6 +9,7 @@ import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { getGuestCollectedIds } from '../../src/lib/guestStorage';
+import { gridKeyExtractor, useGridData } from '../../src/lib/useGridData';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
 const GRID_COLUMNS = 3;
@@ -70,6 +71,8 @@ export default function PrefecturePokeLidsScreen() {
       : notRetiredOrCollected;
   }, [lids, collectedIds, uncollectedOnly]);
 
+  const gridData = useGridData(visibleLids, GRID_COLUMNS);
+
   return (
     <ScreenContainer>
       <Head>
@@ -90,10 +93,10 @@ export default function PrefecturePokeLidsScreen() {
         />
       ) : (
         <FlatList
-          data={visibleLids}
+          data={gridData}
           key={GRID_COLUMNS}
           numColumns={GRID_COLUMNS}
-          keyExtractor={(item) => item.id}
+          keyExtractor={gridKeyExtractor((item) => item.id)}
           refreshing={loading}
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={
@@ -113,6 +116,7 @@ export default function PrefecturePokeLidsScreen() {
             </View>
           }
           renderItem={({ item }) => {
+            if (item === null) return <View style={styles.placeholder} />;
             const collected = collectedIds.has(item.id);
             const retired = item.retiredAt != null;
             return (
@@ -140,6 +144,9 @@ export default function PrefecturePokeLidsScreen() {
 
 const styles = StyleSheet.create({
   listContent: { padding: spacing.sm },
+  // Matches PokeLidCard's own outer flex/padding so a trailing placeholder
+  // cell takes up exactly as much row width as a real card would.
+  placeholder: { flex: 1, padding: spacing.xs },
   filterRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.sm },
   filterOption: {
     ...typography.footnote,

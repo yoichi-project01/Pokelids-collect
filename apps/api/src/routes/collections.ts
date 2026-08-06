@@ -130,6 +130,27 @@ function thumbPathFor(relativePath: string): string {
   return `${relativePath.slice(0, -ext.length)}_thumb.jpg`;
 }
 
+// Best-effort: file removal is tried before the DB row is touched, but a
+// failure here (e.g. a permissions issue) must not abort the request — an
+// orphaned file that's merely logged can be found and cleaned up later from
+// the filesystem side, whereas an orphaned DB row pointing at a file that's
+// actually gone cannot be recovered from at all. Same ordering/tolerance as
+// 2-5's account deletion.
+async function removePhotoFiles(photo: { id: string; userId: string; filePath: string }): Promise<void> {
+  const targets = [
+    path.join(PHOTO_STORAGE_PATH, photo.filePath),
+    path.join(PHOTO_STORAGE_PATH, thumbPathFor(photo.filePath)),
+  ];
+  const results = await Promise.allSettled(targets.map((p) => fs.rm(p, { force: true })));
+  results.forEach((result, i) => {
+    if (result.status === 'rejected') {
+      console.error(
+        `Failed to delete photo file for photo=${photo.id} user=${photo.userId} path=${targets[i]}: ${result.reason}`,
+      );
+    }
+  });
+}
+
 function serializePhoto(photo: { id: string; isPrimary: boolean; medal: PhotoMedal; createdAt: Date }) {
   const token = signPhotoAccessToken(photo.id);
   return {
@@ -324,16 +345,91 @@ collectionsRouter.delete('/:id', requireAuth, async (req: AuthedRequest, res) =>
     return res.status(404).json({ error: 'Collection not found' });
   }
 
-  await Promise.all(
-    collection.photos.flatMap((photo) => {
-      const absolutePath = path.join(PHOTO_STORAGE_PATH, photo.filePath);
-      const thumbAbsolutePath = path.join(PHOTO_STORAGE_PATH, thumbPathFor(photo.filePath));
-      return [fs.rm(absolutePath, { force: true }), fs.rm(thumbAbsolutePath, { force: true })];
-    }),
-  );
+  await Promise.all(collection.photos.map(removePhotoFiles));
 
   // Cascades to `photos` at the DB level (onDelete: Cascade in the schema).
   await prisma.collection.delete({ where: { id: collection.id } });
 
   res.status(204).end();
+});
+
+collectionsRouter.delete('/:id/photos/:photoId', requireAuth, async (req: AuthedRequest, res) => {
+  const collection = await prisma.collection.findUnique({ where: { id: req.params.id } });
+  // 404 rather than 403 so the existence of another user's collection can't
+  // be probed by ID.
+  if (!collection || collection.userId !== req.userId) {
+    return res.status(404).json({ error: 'Collection not found' });
+  }
+
+  const photo = await prisma.photo.findUnique({ where: { id: req.params.photoId } });
+  if (!photo || photo.collectionId !== collection.id) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+
+  await removePhotoFiles(photo);
+
+  const photos = await prisma.$transaction(async (tx) => {
+    // Decide the promotion candidate (oldest of what's left) before
+    // deleting, then delete the old primary and promote in that order — the
+    // partial unique index (one_primary_per_collection) never sees two
+    // primaries at once this way, only ever zero-then-one.
+    const promotionCandidate = photo.isPrimary
+      ? await tx.photo.findFirst({
+          where: { collectionId: collection.id, id: { not: photo.id } },
+          orderBy: { createdAt: 'asc' },
+        })
+      : null;
+
+    await tx.photo.delete({ where: { id: photo.id } });
+
+    if (promotionCandidate) {
+      await tx.photo.update({ where: { id: promotionCandidate.id }, data: { isPrimary: true } });
+    }
+
+    return tx.photo.findMany({ where: { collectionId: collection.id }, orderBy: { createdAt: 'asc' } });
+  });
+
+  res.json(photos.map(serializePhoto));
+});
+
+const setPrimaryPhotoSchema = z.object({
+  isPrimary: z.literal(true),
+});
+
+collectionsRouter.patch('/:id/photos/:photoId', requireAuth, async (req: AuthedRequest, res) => {
+  const parsed = setPrimaryPhotoSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res
+      .status(400)
+      .json({ error: firstValidationError(parsed.error), details: parsed.error.flatten() });
+  }
+
+  const collection = await prisma.collection.findUnique({ where: { id: req.params.id } });
+  if (!collection || collection.userId !== req.userId) {
+    return res.status(404).json({ error: 'Collection not found' });
+  }
+
+  const photo = await prisma.photo.findUnique({ where: { id: req.params.photoId } });
+  if (!photo || photo.collectionId !== collection.id) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+
+  if (!photo.isPrimary) {
+    // Unset the old primary before setting the new one — the reverse order
+    // would briefly have two rows with is_primary = true in the same
+    // collection, which the partial unique index rejects.
+    await prisma.$transaction([
+      prisma.photo.updateMany({
+        where: { collectionId: collection.id, isPrimary: true },
+        data: { isPrimary: false },
+      }),
+      prisma.photo.update({ where: { id: photo.id }, data: { isPrimary: true } }),
+    ]);
+  }
+
+  const photos = await prisma.photo.findMany({
+    where: { collectionId: collection.id },
+    orderBy: { createdAt: 'asc' },
+  });
+  res.json(photos.map(serializePhoto));
 });

@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useEffect, useState } from 'react';
-import { Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { haversineDistanceMeters, type PhotoMedal, type PokeLidDto } from '@pokelids/shared';
 import { Button } from '../../src/components/Button';
 import { CelebrationModal } from '../../src/components/CelebrationModal';
@@ -13,10 +13,12 @@ import POKE_LIDS from '../../src/data/poke-lids.json';
 import {
   ApiError,
   deleteCollection,
+  deleteCollectionPhoto,
   fetchMyCollections,
   fetchPokeLid,
   fetchPrefectureProgress,
   photoUrl,
+  setPrimaryPhoto,
   updateCollectionNotes,
   uploadCollection,
 } from '../../src/lib/api';
@@ -73,6 +75,9 @@ export default function PokeLidDetailScreen() {
   const [savingGuest, setSavingGuest] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // The specific photo currently being deleted or promoted, so only that
+  // photo's buttons show a busy state / get disabled — not the whole row.
+  const [photoActionId, setPhotoActionId] = useState<string | null>(null);
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [celebration, setCelebration] = useState<{ medal: PhotoMedal; milestone: string | null } | null>(
     null,
@@ -225,6 +230,34 @@ export default function PokeLidDetailScreen() {
     }
   }
 
+  async function onDeletePhoto(photoId: string) {
+    if (!collection) return;
+    const confirmed = await confirmAsync('写真を削除', 'この写真を削除します。よろしいですか？', '削除する');
+    if (!confirmed) return;
+    setPhotoActionId(photoId);
+    try {
+      const photos = await deleteCollectionPhoto(collection.id, photoId);
+      setCollection({ ...collection, photos });
+    } catch (err) {
+      showToast('エラー', err instanceof ApiError ? err.message : '写真の削除に失敗しました');
+    } finally {
+      setPhotoActionId(null);
+    }
+  }
+
+  async function onSetPrimaryPhoto(photoId: string) {
+    if (!collection) return;
+    setPhotoActionId(photoId);
+    try {
+      const photos = await setPrimaryPhoto(collection.id, photoId);
+      setCollection({ ...collection, photos });
+    } catch (err) {
+      showToast('エラー', err instanceof ApiError ? err.message : '主写真の変更に失敗しました');
+    } finally {
+      setPhotoActionId(null);
+    }
+  }
+
   if (!lid) {
     return (
       <ScreenContainer style={error ? { alignItems: 'center', justifyContent: 'center' } : undefined}>
@@ -290,6 +323,26 @@ export default function PokeLidDetailScreen() {
                       style={styles.photoThumb}
                       accessibilityLabel={`${lid.municipality}で撮影した写真`}
                     />
+                    <Pressable
+                      onPress={() => onSetPrimaryPhoto(p.id)}
+                      disabled={p.isPrimary || photoActionId === p.id}
+                      accessibilityRole="button"
+                      accessibilityLabel={p.isPrimary ? '主写真' : 'この写真を主写真にする'}
+                      hitSlop={6}
+                      style={styles.primaryToggle}
+                    >
+                      <Text style={styles.primaryToggleText}>{p.isPrimary ? '★' : '☆'}</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => onDeletePhoto(p.id)}
+                      disabled={photoActionId === p.id}
+                      accessibilityRole="button"
+                      accessibilityLabel="この写真を削除"
+                      hitSlop={6}
+                      style={styles.photoDeleteButton}
+                    >
+                      <Text style={styles.photoDeleteButtonText}>✕</Text>
+                    </Pressable>
                     <View style={[styles.geoBadge, { backgroundColor: MEDAL_BADGE_COLOR[p.medal] }]}>
                       <Text style={styles.geoBadgeText}>{MEDAL_LABEL[p.medal]}</Text>
                     </View>
@@ -410,5 +463,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   geoBadgeText: { color: colors.white, fontSize: 10, fontWeight: '600' },
+  primaryToggle: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    width: 22,
+    height: 22,
+    borderRadius: radius.sm,
+    backgroundColor: colors.overlay,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryToggleText: { color: colors.gold, fontSize: 14, fontWeight: '700' },
+  photoDeleteButton: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 22,
+    height: 22,
+    borderRadius: radius.sm,
+    backgroundColor: colors.overlay,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  photoDeleteButtonText: { color: colors.white, fontSize: 12, fontWeight: '700' },
   notesInput: { minHeight: 60, textAlignVertical: 'top' },
 });

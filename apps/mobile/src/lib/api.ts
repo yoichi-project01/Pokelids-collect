@@ -221,19 +221,21 @@ export async function fetchNearbyPokeLids(
   return request<NearbyPokeLidDto[]>(`/api/poke-lids/nearby?${params.toString()}`);
 }
 
+export interface CollectionPhoto {
+  id: string;
+  url: string;
+  thumbUrl: string;
+  isPrimary: boolean;
+  medal: PhotoMedal;
+  createdAt: string;
+}
+
 export interface CollectionSummary {
   id: string;
   pokeLidId: string;
   visitedAt: string;
   notes: string | null;
-  photos: {
-    id: string;
-    url: string;
-    thumbUrl: string;
-    isPrimary: boolean;
-    medal: PhotoMedal;
-    createdAt: string;
-  }[];
+  photos: CollectionPhoto[];
 }
 
 export async function fetchMyCollections() {
@@ -282,6 +284,26 @@ export async function updateCollectionNotes(collectionId: string, notes: string 
   await request<void>(`/api/collections/${collectionId}`, {
     method: 'PATCH',
     body: JSON.stringify({ notes }),
+  });
+}
+
+// Both of these return the collection's full, updated photo list (rather
+// than 204/the single changed photo) so the caller never has to re-derive
+// which photo is now primary — the server, which enforces the "at most one
+// primary" constraint, is the source of truth for that.
+export async function deleteCollectionPhoto(
+  collectionId: string,
+  photoId: string,
+): Promise<CollectionPhoto[]> {
+  return request<CollectionPhoto[]>(`/api/collections/${collectionId}/photos/${photoId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function setPrimaryPhoto(collectionId: string, photoId: string): Promise<CollectionPhoto[]> {
+  return request<CollectionPhoto[]>(`/api/collections/${collectionId}/photos/${photoId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ isPrimary: true }),
   });
 }
 

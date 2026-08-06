@@ -141,6 +141,11 @@ model Photo {
   // reason to persist where the photo was actually taken.
   exifDistanceMeters Float?     @map("exif_distance_meters")
   medal              PhotoMedal @default(NONE)
+  // 1収集記録につき true は最大1枚という制約は、マイグレーションで生SQLの
+  // 部分ユニークインデックス（one_primary_per_collection、WHERE is_primary）
+  // として定義している。Prisma は部分ユニークインデックス未対応のため、
+  // ここに @@unique 等を書かないこと。書くと通常の（WHERE句なしの）
+  // ユニーク制約と解釈され、prisma migrate dev がドリフトとして検出する。
   isPrimary          Boolean    @default(false) @map("is_primary")
   createdAt          DateTime   @default(now()) @map("created_at")
 

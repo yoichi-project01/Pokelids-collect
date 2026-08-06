@@ -135,8 +135,11 @@ export default function PokeLidDetailScreen() {
     try {
       await updateCollectionNotes(collection.id, notes || null);
       setCollection({ ...collection, notes: notes || null });
-    } catch {
-      showToast('エラー', 'メモの保存に失敗しました');
+    } catch (err) {
+      // Validation rejections (e.g. notes too long) carry a specific
+      // Japanese message from the server; anything else falls back to a
+      // generic one.
+      showToast('エラー', err instanceof ApiError ? err.message : 'メモの保存に失敗しました');
     } finally {
       setSavingNotes(false);
     }

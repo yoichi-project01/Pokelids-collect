@@ -8,7 +8,7 @@ import exifr from 'exifr';
 import sharp from 'sharp';
 import { z } from 'zod';
 import { PhotoMedal } from '@prisma/client';
-import { determinePhotoMedal, haversineDistanceMeters } from '@pokelids/shared';
+import { determinePhotoMedal, haversineDistanceMeters, isValidVisitedAt } from '@pokelids/shared';
 import { prisma } from '../lib/prisma';
 import { signPhotoAccessToken } from '../lib/auth';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
@@ -22,13 +22,18 @@ export const collectionsRouter = Router();
 const MAX_PHOTOS_PER_COLLECTION = Number(process.env.MAX_PHOTOS_PER_COLLECTION ?? '5');
 const MAX_USER_STORAGE_BYTES = Number(process.env.MAX_USER_STORAGE_MB ?? '500') * 1024 * 1024;
 
-// Same flavor as auth.ts's credentialRateLimit — trust proxy is already
-// configured once, in index.ts, so the default IP-based keying just works.
+// Same flavor as auth.ts's credentialRateLimit, but keyed by userId rather
+// than IP: this route sits behind requireAuth (so userId is always set by
+// the time this runs), and unlike login/register — where the caller isn't
+// authenticated yet — IP-based keying here would let unrelated users behind
+// the same carrier-grade NAT (common on Japanese mobile networks) share one
+// upload budget.
 const uploadRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: Number(process.env.UPLOAD_RATE_LIMIT_PER_HOUR ?? '60'),
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req: AuthedRequest) => req.userId!,
 });
 
 // Client-reported filenames/extensions are attacker-controlled; only trust
@@ -137,16 +142,39 @@ function serializePhoto(photo: { id: string; isPrimary: boolean; medal: PhotoMed
   };
 }
 
+const NOTES_MAX_LENGTH = 1000;
+const notesSchema = z.string().max(NOTES_MAX_LENGTH, `メモは${NOTES_MAX_LENGTH}文字以内で入力してください`);
+
+// Guards against a wildly wrong visitedAt corrupting the collection screen's
+// "first/latest record" stats and the visitedAt orderBy sort — not a
+// generic freshness check, so the message names the actual valid range.
+const visitedAtSchema = z
+  .string()
+  .datetime()
+  .refine((value) => isValidVisitedAt(new Date(value), new Date()), {
+    message: '訪問日は2018年12月1日から明日までの日付を指定してください',
+  });
+
 const createCollectionSchema = z.object({
   pokeLidId: z.string().uuid(),
-  visitedAt: z.string().datetime().optional(),
-  notes: z.string().optional(),
+  visitedAt: visitedAtSchema.optional(),
+  notes: notesSchema.optional(),
 });
+
+// zod's flattened error details aren't meant for end users; the app surfaces
+// `error` directly via showToast, so it needs to be the specific, Japanese
+// message from the failing check (see notesSchema/visitedAtSchema above)
+// rather than a generic string.
+function firstValidationError(error: z.ZodError): string {
+  return error.issues[0]?.message ?? 'Invalid request body';
+}
 
 collectionsRouter.post('/', requireAuth, uploadRateLimit, handleUpload, async (req: AuthedRequest, res) => {
   const parsed = createCollectionSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+    return res
+      .status(400)
+      .json({ error: firstValidationError(parsed.error), details: parsed.error.flatten() });
   }
 
   const userId = req.userId!;
@@ -262,13 +290,15 @@ collectionsRouter.get('/me', requireAuth, async (req: AuthedRequest, res) => {
 });
 
 const updateNotesSchema = z.object({
-  notes: z.string().nullable(),
+  notes: notesSchema.nullable(),
 });
 
 collectionsRouter.patch('/:id', requireAuth, async (req: AuthedRequest, res) => {
   const parsed = updateNotesSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+    return res
+      .status(400)
+      .json({ error: firstValidationError(parsed.error), details: parsed.error.flatten() });
   }
 
   const collection = await prisma.collection.findUnique({ where: { id: req.params.id } });

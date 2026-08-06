@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { determinePhotoMedal, haversineDistanceMeters } from './index';
+import { determinePhotoMedal, haversineDistanceMeters, isValidVisitedAt } from './index';
 
 describe('haversineDistanceMeters', () => {
   it('returns 0 for identical coordinates', () => {
@@ -44,5 +44,33 @@ describe('determinePhotoMedal', () => {
 
   it('is NONE when far away', () => {
     expect(determinePhotoMedal(50_000, RADIUS)).toBe('NONE');
+  });
+});
+
+describe('isValidVisitedAt', () => {
+  const NOW = new Date('2026-08-06T00:00:00.000Z');
+
+  it('accepts exactly the earliest allowed date (poke lid installation start)', () => {
+    expect(isValidVisitedAt(new Date('2018-12-01T00:00:00.000Z'), NOW)).toBe(true);
+  });
+
+  it('rejects one second before the earliest allowed date', () => {
+    expect(isValidVisitedAt(new Date('2018-11-30T23:59:59.000Z'), NOW)).toBe(false);
+  });
+
+  it('accepts exactly one day in the future (clock-skew tolerance)', () => {
+    expect(isValidVisitedAt(new Date(NOW.getTime() + 24 * 60 * 60 * 1000), NOW)).toBe(true);
+  });
+
+  it('rejects two days in the future', () => {
+    expect(isValidVisitedAt(new Date(NOW.getTime() + 2 * 24 * 60 * 60 * 1000), NOW)).toBe(false);
+  });
+
+  it('accepts an ordinary date well within range', () => {
+    expect(isValidVisitedAt(new Date('2026-01-01T00:00:00.000Z'), NOW)).toBe(true);
+  });
+
+  it('rejects an unparseable date', () => {
+    expect(isValidVisitedAt(new Date('not-a-date'), NOW)).toBe(false);
   });
 });

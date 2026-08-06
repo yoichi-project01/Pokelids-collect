@@ -142,3 +142,18 @@ export function determinePhotoMedal(distanceMeters: number | null, radiusMeters:
   if (distanceMeters === null) return 'SILVER';
   return distanceMeters <= radiusMeters ? 'GOLD' : 'NONE';
 }
+
+// No poke lid was installed before this date; a Collection.visitedAt earlier
+// than it can only be bad client input, and would otherwise corrupt the
+// collection screen's "first/latest record" stats and the orderBy sort.
+export const EARLIEST_VISITED_AT: Date = new Date('2018-12-01T00:00:00.000Z');
+
+// A client's clock can run fast; tolerate up to a day of skew rather than
+// rejecting an otherwise-genuine "just visited" record.
+export const VISITED_AT_FUTURE_TOLERANCE_MS = 24 * 60 * 60 * 1000;
+
+export function isValidVisitedAt(visitedAt: Date, now: Date): boolean {
+  if (Number.isNaN(visitedAt.getTime())) return false;
+  if (visitedAt.getTime() < EARLIEST_VISITED_AT.getTime()) return false;
+  return visitedAt.getTime() <= now.getTime() + VISITED_AT_FUTURE_TOLERANCE_MS;
+}

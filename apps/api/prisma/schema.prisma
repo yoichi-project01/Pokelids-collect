@@ -72,28 +72,28 @@ model PasswordResetToken {
 }
 
 model PokeLid {
-  id                 String    @id @default(uuid())
-  officialRef        String?   @unique @map("official_ref")
-  name               String
-  pokemonFeatured    String[]  @map("pokemon_featured")
-  prefectureId       Int       @map("prefecture_id")
-  municipality       String
-  address            String
-  latitude           Decimal   @db.Decimal(9, 6)
-  longitude          Decimal   @db.Decimal(9, 6)
-  installDate        DateTime? @map("install_date") @db.Date
-  officialImageUrl   String?   @map("official_image_url")
-  officialSourceUrl  String    @map("official_source_url")
-  notes              String?
-  lastSyncedAt       DateTime? @map("last_synced_at")
+  id                String    @id @default(uuid())
+  officialRef       String?   @unique @map("official_ref")
+  name              String
+  pokemonFeatured   String[]  @map("pokemon_featured")
+  prefectureId      Int       @map("prefecture_id")
+  municipality      String
+  address           String
+  latitude          Decimal   @db.Decimal(9, 6)
+  longitude         Decimal   @db.Decimal(9, 6)
+  installDate       DateTime? @map("install_date") @db.Date
+  officialImageUrl  String?   @map("official_image_url")
+  officialSourceUrl String    @map("official_source_url")
+  notes             String?
+  lastSyncedAt      DateTime? @map("last_synced_at")
   // Set by the ETL when a previously-seen officialRef is missing from a scrape
   // (physically removed/closed), cleared again if it later reappears (a
   // renewal-triggered false positive recovering). Never deleted outright:
   // Collection has onDelete: Cascade on pokeLidId, so removing the row would
   // also delete every user's record and photos of having collected it.
-  retiredAt          DateTime? @map("retired_at")
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
+  retiredAt         DateTime? @map("retired_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   prefecture  Prefecture   @relation(fields: [prefectureId], references: [id])
   collections Collection[]
@@ -104,13 +104,13 @@ model PokeLid {
 }
 
 model Collection {
-  id         String   @id @default(uuid())
-  userId     String   @map("user_id")
-  pokeLidId  String   @map("poke_lid_id")
-  visitedAt  DateTime @map("visited_at")
-  notes      String?
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  pokeLidId String   @map("poke_lid_id")
+  visitedAt DateTime @map("visited_at")
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   pokeLid PokeLid @relation(fields: [pokeLidId], references: [id], onDelete: Cascade)
@@ -123,21 +123,26 @@ model Collection {
 }
 
 model Photo {
-  id               String    @id @default(uuid())
-  collectionId     String    @map("collection_id")
-  userId           String    @map("user_id")
-  filePath         String    @map("file_path")
-  originalFilename String    @map("original_filename")
-  mimeType         String    @map("mime_type")
-  fileSizeBytes    Int       @map("file_size_bytes")
-  width            Int?
-  height           Int?
-  exifCapturedAt   DateTime? @map("exif_captured_at")
-  exifLatitude     Decimal?  @map("exif_latitude") @db.Decimal(9, 6)
-  exifLongitude    Decimal?  @map("exif_longitude") @db.Decimal(9, 6)
-  medal            PhotoMedal @default(NONE)
-  isPrimary        Boolean   @default(false) @map("is_primary")
-  createdAt        DateTime  @default(now()) @map("created_at")
+  id                 String     @id @default(uuid())
+  collectionId       String     @map("collection_id")
+  userId             String     @map("user_id")
+  filePath           String     @map("file_path")
+  originalFilename   String     @map("original_filename")
+  mimeType           String     @map("mime_type")
+  fileSizeBytes      Int        @map("file_size_bytes")
+  width              Int?
+  height             Int?
+  exifCapturedAt     DateTime?  @map("exif_captured_at")
+  // Distance in meters from the photo's EXIF GPS coordinates to the poke
+  // lid's registered location, computed once at upload time. The medal
+  // determination (determinePhotoMedal, @pokelids/shared) only ever needs
+  // this distance, never the raw coordinates — so unlike the file itself
+  // (EXIF-stripped by sharp on re-encode, see resizeForStorage), there's no
+  // reason to persist where the photo was actually taken.
+  exifDistanceMeters Float?     @map("exif_distance_meters")
+  medal              PhotoMedal @default(NONE)
+  isPrimary          Boolean    @default(false) @map("is_primary")
+  createdAt          DateTime   @default(now()) @map("created_at")
 
   collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)

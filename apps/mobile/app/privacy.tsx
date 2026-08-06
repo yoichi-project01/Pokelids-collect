@@ -5,7 +5,7 @@ import { ScreenContainer } from '../src/components/ScreenContainer';
 import { spacing, typography } from '../src/theme';
 
 const CONTACT_EMAIL = 'setoyama.yoichi@gmail.com';
-const LAST_UPDATED = '2026-07-29';
+const LAST_UPDATED = '2026-08-06';
 
 export default function PrivacyPolicyScreen() {
   return (
@@ -25,11 +25,11 @@ export default function PrivacyPolicyScreen() {
           {'\n\n'}・アカウント情報：メールアドレス、パスワード（ハッシュ化して保存）、表示名
           {'\n'}・収集記録：訪問したポケふた、訪問日時、メモ
           {'\n'}
-          ・アップロードされた写真、および写真に含まれるEXIF情報（撮影日時・位置情報）。位置情報は、訪問先のポケふたの登録座標との照合（金・銀メダル判定）に使用します。
+          ・アップロードされた写真、および写真に含まれるEXIF情報（撮影日時）。写真にGPS位置情報が含まれる場合は、訪問先のポケふたの登録座標との距離（金・銀メダル判定に使用）のみを算出して保存し、緯度・経度の座標自体は保存しません。
         </Section>
 
         <Section title="2. 位置情報の取り扱いについて">
-          アップロードされた写真にGPS位置情報が含まれる場合、その座標をサーバーに保存します。自宅など、訪問先以外の場所で撮影された写真をアップロードした場合、その場所の座標が記録される可能性がありますので、ご注意ください。
+          アップロードされた写真にGPS位置情報が含まれる場合、訪問先のポケふたの登録座標との距離を算出するためにのみ使用します。サーバーに保存するのはその距離（メートル単位の数値）のみで、写真が撮影された緯度・経度の座標そのものは保存しません。自宅など訪問先以外の場所で撮影された写真をアップロードした場合も、記録されるのは「訪問先からどれだけ離れていたか」という距離のみです。
         </Section>
 
         <Section title="3. 利用目的">

@@ -1,13 +1,14 @@
 import { useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ErrorState } from '../../src/components/ErrorState';
+import { FilterChip } from '../../src/components/FilterChip';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { getApiBaseUrl } from '../../src/lib/api';
 import { buildMapHtml } from '../../src/lib/mapHtml';
 import { useMapMarkers } from '../../src/lib/useMapMarkers';
-import { colors, spacing, typography } from '../../src/theme';
+import { colors, spacing } from '../../src/theme';
 
 export default function MapScreen() {
   const router = useRouter();
@@ -63,18 +64,18 @@ export default function MapScreen() {
     <View style={{ flex: 1 }}>
       {head}
       <View style={styles.filterRow}>
-        <Text
-          style={[styles.filterOption, !uncollectedOnly && styles.filterOptionActive]}
+        <FilterChip
+          label="すべて"
+          selected={!uncollectedOnly}
           onPress={() => setUncollectedOnly(false)}
-        >
-          すべて
-        </Text>
-        <Text
-          style={[styles.filterOption, uncollectedOnly && styles.filterOptionActive]}
+          inactiveBackgroundColor={colors.background}
+        />
+        <FilterChip
+          label="未収集のみ"
+          selected={uncollectedOnly}
           onPress={() => setUncollectedOnly(true)}
-        >
-          未収集のみ
-        </Text>
+          inactiveBackgroundColor={colors.background}
+        />
       </View>
       <iframe
         title="poke-lids-map"
@@ -98,17 +99,4 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
-  filterOption: {
-    ...typography.footnote,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderRadius: 999,
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    overflow: 'hidden',
-  },
-  filterOptionActive: { color: colors.white, backgroundColor: colors.accent, borderColor: colors.accent },
 });

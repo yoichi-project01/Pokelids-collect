@@ -101,10 +101,15 @@ const styles = StyleSheet.create({
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   legendDot: { width: 12, height: 12, borderRadius: 6 },
   legendText: { ...typography.caption, flex: 1 },
+  // Link must stay a Link (not a Pressable) so it renders as a real <a> on
+  // web — expanded via paddingVertical/minHeight instead, to still meet the
+  // 44px iOS/Android HIG minimum tap target (paddingVertical: spacing.xs
+  // alone left this at ~24px).
   link: {
     ...typography.body,
     color: colors.accent,
     textDecorationLine: 'underline',
-    paddingVertical: spacing.xs,
+    paddingVertical: spacing.md,
+    minHeight: 44,
   },
 });

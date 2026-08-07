@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { isPokeLidVisible, PREFECTURES, type PokeLidDto } from '@pokelids/shared';
 import { ErrorState } from '../../src/components/ErrorState';
+import { FilterChip } from '../../src/components/FilterChip';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
@@ -15,7 +16,7 @@ import {
   useGridData,
   useResponsiveColumns,
 } from '../../src/lib/useGridData';
-import { colors, radius, spacing, typography } from '../../src/theme';
+import { colors, radius, spacing } from '../../src/theme';
 
 const PREFECTURE_COUNT = 47;
 
@@ -106,18 +107,16 @@ export default function PrefecturePokeLidsScreen() {
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={
             <View style={styles.filterRow}>
-              <Text
-                style={[styles.filterOption, !uncollectedOnly && styles.filterOptionActive]}
+              <FilterChip
+                label="すべて"
+                selected={!uncollectedOnly}
                 onPress={() => setUncollectedOnly(false)}
-              >
-                すべて
-              </Text>
-              <Text
-                style={[styles.filterOption, uncollectedOnly && styles.filterOptionActive]}
+              />
+              <FilterChip
+                label="未収集のみ"
+                selected={uncollectedOnly}
                 onPress={() => setUncollectedOnly(true)}
-              >
-                未収集のみ
-              </Text>
+              />
             </View>
           }
           renderItem={({ item }) => {
@@ -153,19 +152,6 @@ const styles = StyleSheet.create({
   // cell takes up exactly as much row width as a real card would.
   placeholder: { flex: 1, padding: GRID_CELL_PADDING },
   filterRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.sm },
-  filterOption: {
-    ...typography.footnote,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderRadius: 999,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    overflow: 'hidden',
-  },
-  filterOptionActive: { color: colors.white, backgroundColor: colors.accent, borderColor: colors.accent },
   retiredBadge: {
     backgroundColor: colors.textSecondary,
     borderRadius: radius.sm,

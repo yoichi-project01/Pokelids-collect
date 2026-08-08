@@ -21,7 +21,21 @@ export default function Root({ children }: PropsWithChildren) {
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        {/*
+          viewport-fit=cover is required for two things: it's what makes
+          `env(safe-area-inset-*)` resolve to a nonzero value on notched
+          iPhones (otherwise it's always 0, safe area or not), and it's what
+          lets the page draw under the status bar / home indicator instead of
+          leaving a hard-edged gap. react-native-safe-area-context's web
+          provider reads those env() values via a hidden probe element, so
+          the tab bar's built-in `insets.bottom` padding (see
+          BottomTabBar's use of useSafeAreaInsets) only starts reporting a
+          real number once this is set.
+        */}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+        />
         <meta name="theme-color" content="#000000" />
 
         <meta property="og:type" content="website" />
@@ -37,6 +51,27 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="manifest" href="/manifest.json" />
 
         <ScrollViewStyleReset />
+
+        {/*
+          ScrollViewStyleReset sets html,body,#root to height:100%, which on
+          mobile browsers is 100% of the *layout* viewport — not the
+          *visual* one currently on screen once the address bar is showing.
+          The flex column (header + content + tab bar) sizes itself to that
+          taller-than-visible height, and body's overflow:hidden then clips
+          whatever falls off the bottom — in practice, the tab bar. 100dvh
+          tracks the address-bar-aware visual viewport instead, so this rule
+          must come after ScrollViewStyleReset in the DOM to win the
+          cascade (same selector, same specificity, later wins). The plain
+          100% stays as a fallback for browsers without dvh support — this
+          is an inline <style>, which is unaffected by helmet's CSP
+          (style-src keeps the default 'unsafe-inline'; only script-src is
+          locked down here, see the <script> comment below).
+        */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `html,body,#root{height:100%;height:100dvh}`,
+          }}
+        />
 
         {/*
           An inline script here would be blocked by helmet's default CSP

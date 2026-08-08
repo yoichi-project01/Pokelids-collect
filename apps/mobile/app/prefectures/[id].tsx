@@ -1,7 +1,7 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { SectionList, StyleSheet, Text, View } from 'react-native';
 import { isPokeLidVisible, PREFECTURES, type PokeLidDto } from '@pokelids/shared';
 import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
@@ -12,12 +12,12 @@ import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { getGuestCollectedIds } from '../../src/lib/guestStorage';
 import {
+  chunkIntoRows,
   GRID_CELL_PADDING,
-  gridKeyExtractor,
-  useGridData,
+  rowKeyExtractor,
   useResponsiveColumns,
 } from '../../src/lib/useGridData';
-import { colors, radius, spacing } from '../../src/theme';
+import { colors, radius, spacing, typography } from '../../src/theme';
 
 const PREFECTURE_COUNT = 47;
 
@@ -113,7 +113,37 @@ export default function PrefecturePokeLidsScreen() {
       : notRetiredOrCollected;
   }, [lids, collectedIds, uncollectedOnly]);
 
-  const gridData = useGridData(visibleLids, columns);
+  // 7-5: grouped by municipality rather than one flat grid — "西宮市 3/4"
+  // is what makes "あと1つ" findable at a glance in a 58-item prefecture.
+  // Sorted alphabetically (not by "closest to complete") because this is a
+  // browsing view, not a motivational shelf — that's the home screen's job
+  // (see index.tsx's "もう少しで達成" section), and an alphabetical order is
+  // the more predictable one to scan or search within.
+  //
+  // All lids here already belong to this one prefecture (fetched via
+  // fetchPokeLids(prefectureId)), so grouping by the bare `municipality`
+  // string is safe — the prefectureId+municipality uniqueness concern
+  // (municipalityKey in packages/shared) only matters when comparing across
+  // prefectures, which never happens on this screen.
+  const sections = useMemo(() => {
+    const groups = new Map<string, PokeLidDto[]>();
+    for (const lid of visibleLids) {
+      const list = groups.get(lid.municipality);
+      if (list) list.push(lid);
+      else groups.set(lid.municipality, [lid]);
+    }
+    return [...groups.entries()]
+      .sort(([a], [b]) => a.localeCompare(b, 'ja'))
+      .map(([municipality, items]) => ({
+        title: municipality,
+        // total excludes retired lids, same rule as everywhere else
+        // (packages/shared's countsTowardProgress) — collected does not, so
+        // a retired-but-collected lid still counts toward "3/4" here.
+        total: items.filter((l) => l.retiredAt == null).length,
+        collected: items.filter((l) => collectedIds.has(l.id)).length,
+        data: chunkIntoRows(items, columns),
+      }));
+  }, [visibleLids, collectedIds, columns]);
 
   return (
     <ScreenContainer>
@@ -129,14 +159,14 @@ export default function PrefecturePokeLidsScreen() {
       {error && lids.length === 0 ? (
         <ErrorState onRetry={onRefresh} />
       ) : (
-        <FlatList
-          data={gridData}
+        <SectionList
+          sections={sections}
           key={columns}
-          numColumns={columns}
-          keyExtractor={gridKeyExtractor((item) => item.id)}
+          keyExtractor={rowKeyExtractor((item: PokeLidDto) => item.id)}
           refreshing={loading}
           onRefresh={onRefresh}
           contentContainerStyle={styles.listContent}
+          stickySectionHeadersEnabled={false}
           ListHeaderComponent={
             <View style={styles.filterRow}>
               <FilterChip
@@ -166,27 +196,45 @@ export default function PrefecturePokeLidsScreen() {
               />
             ) : null
           }
-          renderItem={({ item }) => {
-            if (item === null) return <View style={styles.placeholder} />;
-            const collected = collectedIds.has(item.id);
-            const retired = item.retiredAt != null;
+          renderSectionHeader={({ section }) => {
+            const remaining = section.total - section.collected;
             return (
-              <PokeLidCard
-                title={item.municipality}
-                subtitle={item.pokemonFeatured.join('・')}
-                imageUri={item.officialImageUrl}
-                collected={collected}
-                badge={
-                  retired ? (
-                    <View style={styles.retiredBadge}>
-                      <Text style={styles.retiredBadgeText}>撤去済み</Text>
-                    </View>
-                  ) : undefined
-                }
-                onPress={() => router.push(`/poke-lids/${item.id}`)}
-              />
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{section.title}</Text>
+                <Text style={[styles.sectionCount, remaining === 1 && styles.sectionCountAlmost]}>
+                  {remaining === 0 ? 'コンプリート✓' : `${section.collected}/${section.total}`}
+                </Text>
+              </View>
             );
           }}
+          renderItem={({ item: row }) => (
+            <View style={styles.row}>
+              {row.map((item, index) => {
+                if (item === null) {
+                  return <View key={`placeholder-${index}`} style={styles.placeholder} />;
+                }
+                const collected = collectedIds.has(item.id);
+                const retired = item.retiredAt != null;
+                return (
+                  <PokeLidCard
+                    key={item.id}
+                    title={item.municipality}
+                    subtitle={item.pokemonFeatured.join('・')}
+                    imageUri={item.officialImageUrl}
+                    collected={collected}
+                    badge={
+                      retired ? (
+                        <View style={styles.retiredBadge}>
+                          <Text style={styles.retiredBadgeText}>撤去済み</Text>
+                        </View>
+                      ) : undefined
+                    }
+                    onPress={() => router.push(`/poke-lids/${item.id}`)}
+                  />
+                );
+              })}
+            </View>
+          )}
         />
       )}
     </ScreenContainer>
@@ -195,10 +243,24 @@ export default function PrefecturePokeLidsScreen() {
 
 const styles = StyleSheet.create({
   listContent: { padding: spacing.sm },
+  row: { flexDirection: 'row' },
   // Matches PokeLidCard's own outer flex/padding so a trailing placeholder
   // cell takes up exactly as much row width as a real card would.
   placeholder: { flex: 1, padding: GRID_CELL_PADDING },
   filterRow: { flexDirection: 'row', gap: spacing.sm, padding: spacing.sm },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.sm,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xs,
+  },
+  sectionTitle: { ...typography.bodyMedium },
+  sectionCount: { ...typography.footnote, fontWeight: '600', color: colors.textSecondary },
+  // "あと1つ" (7-5) — the one count worth calling out visually while
+  // scanning a 58-item prefecture for something achievable today.
+  sectionCountAlmost: { color: colors.accent },
   retiredBadge: {
     backgroundColor: colors.textSecondary,
     borderRadius: radius.sm,

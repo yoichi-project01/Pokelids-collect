@@ -241,10 +241,20 @@ export default function PokeLidDetailScreen() {
       const newPhoto = updated.photos[updated.photos.length - 1] ?? null;
       if (newPhoto) {
         let milestone: string | null = null;
-        const { prefecture } = summary;
+        const { prefecture, municipality } = summary;
         if (prefecture.total > 0 && prefecture.collected === prefecture.total) {
           const prefName = PREFECTURES.find((p) => p.id === prefecture.id)?.nameJa ?? '';
           milestone = `${prefName}コンプリート！`;
+        } else if (
+          // total >= 2 guard matches the home screen's "もう少しで達成" shelf
+          // (7-5): a municipality with only one poke lid "completes" on every
+          // single visit there (it's ~91% of all municipalities — see the
+          // distribution survey behind this task), which would make this
+          // celebration fire almost constantly and stop feeling special.
+          municipality.total >= 2 &&
+          municipality.collected === municipality.total
+        ) {
+          milestone = `${municipality.municipality}コンプリート！`;
         } else if (MILESTONE_COUNTS.includes(summary.collectedCount)) {
           milestone = `${summary.collectedCount}箇所達成！`;
         }

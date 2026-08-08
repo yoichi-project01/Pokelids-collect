@@ -6,6 +6,7 @@ import {
   haversineDistanceMeters,
   isPokeLidVisible,
   isValidVisitedAt,
+  municipalityKey,
 } from './index';
 
 describe('haversineDistanceMeters', () => {
@@ -117,8 +118,11 @@ describe('isPokeLidVisible', () => {
 });
 
 // The poke lid the caller just recorded — the fixed "you are here" point
-// every nearestUncollected search below measures from.
-const ORIGIN = { id: 'origin', latitude: 35.0, longitude: 135.0 };
+// every nearestUncollected search below measures from. prefectureId/
+// municipality match candidateLid's own defaults below, so a plain
+// `candidateLid()` with no overrides lands in the same prefecture AND
+// municipality as ORIGIN unless a test explicitly moves it.
+const ORIGIN = { id: 'origin', prefectureId: 13, municipality: 'テスト市', latitude: 35.0, longitude: 135.0 };
 
 // Fills in every field of the candidate list buildCollectionSummary takes,
 // so each test only has to spell out the one or two fields it's exercising.
@@ -149,7 +153,7 @@ function candidateLid(
 
 describe('buildCollectionSummary — prefecture tally', () => {
   it('excludes a retired poke lid from the total (denominator)', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [
+    const summary = buildCollectionSummary(1, ORIGIN, [
       candidateLid({ id: 'a', retiredAt: null }),
       candidateLid({ id: 'b', retiredAt: '2026-08-01T00:00:00.000Z' }),
     ]);
@@ -157,7 +161,7 @@ describe('buildCollectionSummary — prefecture tally', () => {
   });
 
   it('keeps a retired-but-collected poke lid in collected (numerator)', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [
+    const summary = buildCollectionSummary(1, ORIGIN, [
       candidateLid({ id: 'a', retiredAt: null }),
       candidateLid({ id: 'b', retiredAt: '2026-08-01T00:00:00.000Z', collected: true }),
     ]);
@@ -168,7 +172,7 @@ describe('buildCollectionSummary — prefecture tally', () => {
   });
 
   it('passes collectedCount and prefectureId through unchanged', () => {
-    const summary = buildCollectionSummary(42, 13, ORIGIN, []);
+    const summary = buildCollectionSummary(42, ORIGIN, []);
     expect(summary.collectedCount).toBe(42);
     expect(summary.prefecture.id).toBe(13);
     expect(summary.prefecture.total).toBe(0);
@@ -176,12 +180,12 @@ describe('buildCollectionSummary — prefecture tally', () => {
   });
 
   it('treats an absent retiredAt field the same as null (stale snapshot)', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [candidateLid({ id: 'a', retiredAt: undefined })]);
+    const summary = buildCollectionSummary(1, ORIGIN, [candidateLid({ id: 'a', retiredAt: undefined })]);
     expect(summary.prefecture.total).toBe(1);
   });
 
   it('only considers poke lids in the given prefecture, not every candidate', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [
+    const summary = buildCollectionSummary(1, ORIGIN, [
       candidateLid({ id: 'a', prefectureId: 13 }),
       candidateLid({ id: 'b', prefectureId: 14, collected: true }),
     ]);
@@ -192,22 +196,22 @@ describe('buildCollectionSummary — prefecture tally', () => {
 
 describe('buildCollectionSummary — isFirstCollection', () => {
   it('is true exactly when collectedCount is 1', () => {
-    expect(buildCollectionSummary(1, 13, ORIGIN, []).isFirstCollection).toBe(true);
+    expect(buildCollectionSummary(1, ORIGIN, []).isFirstCollection).toBe(true);
   });
 
   it('is false when collectedCount is 0 or greater than 1', () => {
-    expect(buildCollectionSummary(0, 13, ORIGIN, []).isFirstCollection).toBe(false);
-    expect(buildCollectionSummary(2, 13, ORIGIN, []).isFirstCollection).toBe(false);
+    expect(buildCollectionSummary(0, ORIGIN, []).isFirstCollection).toBe(false);
+    expect(buildCollectionSummary(2, ORIGIN, []).isFirstCollection).toBe(false);
   });
 });
 
 describe('buildCollectionSummary — nearestUncollected (7-4)', () => {
   it('is null when there are no other poke lids at all', () => {
-    expect(buildCollectionSummary(1, 13, ORIGIN, []).nearestUncollected).toBeNull();
+    expect(buildCollectionSummary(1, ORIGIN, []).nearestUncollected).toBeNull();
   });
 
   it('excludes poke lids the user has already collected, even if nearer', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [
+    const summary = buildCollectionSummary(1, ORIGIN, [
       candidateLid({ id: 'near-collected', latitude: 35.001, longitude: 135.001, collected: true }),
       candidateLid({ id: 'far-uncollected', latitude: 36.0, longitude: 136.0, collected: false }),
     ]);
@@ -215,7 +219,7 @@ describe('buildCollectionSummary — nearestUncollected (7-4)', () => {
   });
 
   it('excludes retired poke lids, even if nearer and uncollected', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [
+    const summary = buildCollectionSummary(1, ORIGIN, [
       candidateLid({
         id: 'near-retired',
         latitude: 35.001,
@@ -228,7 +232,7 @@ describe('buildCollectionSummary — nearestUncollected (7-4)', () => {
   });
 
   it('selects across prefecture boundaries rather than only the origin prefecture', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [
+    const summary = buildCollectionSummary(1, ORIGIN, [
       candidateLid({ id: 'same-prefecture-far', prefectureId: 13, latitude: 37.0, longitude: 137.0 }),
       candidateLid({
         id: 'other-prefecture-near',
@@ -242,7 +246,7 @@ describe('buildCollectionSummary — nearestUncollected (7-4)', () => {
   });
 
   it('never suggests the just-recorded poke lid itself', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [
+    const summary = buildCollectionSummary(1, ORIGIN, [
       candidateLid({ id: ORIGIN.id, latitude: ORIGIN.latitude, longitude: ORIGIN.longitude }),
       candidateLid({ id: 'next-nearest', latitude: 35.5, longitude: 135.5 }),
     ]);
@@ -250,7 +254,7 @@ describe('buildCollectionSummary — nearestUncollected (7-4)', () => {
   });
 
   it('reports the haversine distance from the origin, in meters', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [
+    const summary = buildCollectionSummary(1, ORIGIN, [
       candidateLid({ id: 'nearby', latitude: 35.01, longitude: 135.0 }),
     ]);
     expect(summary.nearestUncollected?.distanceMeters).toBeCloseTo(
@@ -260,7 +264,7 @@ describe('buildCollectionSummary — nearestUncollected (7-4)', () => {
   });
 
   it('carries the municipality and image through for display', () => {
-    const summary = buildCollectionSummary(1, 13, ORIGIN, [
+    const summary = buildCollectionSummary(1, ORIGIN, [
       candidateLid({ id: 'a', municipality: '西宮市', officialImageUrl: 'https://example.com/a.png' }),
     ]);
     expect(summary.nearestUncollected).toMatchObject({
@@ -268,5 +272,78 @@ describe('buildCollectionSummary — nearestUncollected (7-4)', () => {
       municipality: '西宮市',
       officialImageUrl: 'https://example.com/a.png',
     });
+  });
+});
+
+describe('municipalityKey', () => {
+  it('joins prefectureId and municipality into one string', () => {
+    expect(municipalityKey(13, '府中市')).toBe('13::府中市');
+  });
+
+  it('produces different keys for the same municipality name in different prefectures', () => {
+    // 府中市 exists in both Tokyo (13) and Hiroshima (34) — this is exactly
+    // the case buildCollectionSummary's municipality tally must not conflate.
+    expect(municipalityKey(13, '府中市')).not.toBe(municipalityKey(34, '府中市'));
+  });
+});
+
+describe('buildCollectionSummary — municipality tally (7-5)', () => {
+  it('excludes a retired poke lid from the municipality total', () => {
+    const summary = buildCollectionSummary(1, ORIGIN, [
+      candidateLid({ id: 'a', retiredAt: null }),
+      candidateLid({ id: 'b', retiredAt: '2026-08-01T00:00:00.000Z' }),
+    ]);
+    expect(summary.municipality.total).toBe(1);
+  });
+
+  it('keeps a retired-but-collected poke lid in the municipality collected count', () => {
+    const summary = buildCollectionSummary(1, ORIGIN, [
+      candidateLid({ id: 'a', retiredAt: '2026-08-01T00:00:00.000Z', collected: true }),
+    ]);
+    expect(summary.municipality.collected).toBe(1);
+    expect(summary.municipality.total).toBe(0);
+  });
+
+  it('echoes origin.prefectureId and origin.municipality unchanged', () => {
+    const summary = buildCollectionSummary(1, ORIGIN, []);
+    expect(summary.municipality.prefectureId).toBe(ORIGIN.prefectureId);
+    expect(summary.municipality.municipality).toBe(ORIGIN.municipality);
+  });
+
+  it('only counts poke lids in the same prefecture AND municipality as origin', () => {
+    const summary = buildCollectionSummary(1, ORIGIN, [
+      candidateLid({ id: 'same-muni', prefectureId: 13, municipality: 'テスト市' }),
+      candidateLid({ id: 'other-muni-same-pref', prefectureId: 13, municipality: '別の市' }),
+      candidateLid({ id: 'same-muni-other-pref', prefectureId: 14, municipality: 'テスト市' }),
+    ]);
+    expect(summary.municipality.total).toBe(1);
+  });
+
+  // The exact scenario the task calls out by name: 府中市 exists in both
+  // Tokyo and Hiroshima. A collection recorded in Hiroshima's 府中市 must
+  // never count toward, or be satisfied by, Tokyo's 府中市 lids.
+  it('does not merge same-named municipalities across different prefectures', () => {
+    const hiroshimaOrigin = {
+      id: 'origin',
+      prefectureId: 34,
+      municipality: '府中市',
+      latitude: 34.0,
+      longitude: 132.0,
+    };
+    const summary = buildCollectionSummary(1, hiroshimaOrigin, [
+      candidateLid({ id: 'tokyo-fuchu-1', prefectureId: 13, municipality: '府中市', collected: true }),
+      candidateLid({ id: 'tokyo-fuchu-2', prefectureId: 13, municipality: '府中市', collected: true }),
+      candidateLid({
+        id: 'hiroshima-fuchu-1',
+        prefectureId: 34,
+        municipality: '府中市',
+        latitude: 34.001,
+        longitude: 132.001,
+        collected: false,
+      }),
+    ]);
+    expect(summary.municipality.prefectureId).toBe(34);
+    expect(summary.municipality.total).toBe(1);
+    expect(summary.municipality.collected).toBe(0);
   });
 });

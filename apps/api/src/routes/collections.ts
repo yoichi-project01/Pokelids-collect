@@ -191,7 +191,7 @@ function serializeCollection(collection: {
 // pokeLids.ts's /nearby route already does unconditionally.
 async function fetchCollectionSummary(
   userId: string,
-  pokeLid: { id: string; prefectureId: number; latitude: unknown; longitude: unknown },
+  pokeLid: { id: string; prefectureId: number; municipality: string; latitude: unknown; longitude: unknown },
 ): Promise<CollectionSummary> {
   const [collectedCount, allLids] = await Promise.all([
     prisma.collection.count({ where: { userId } }),
@@ -211,8 +211,13 @@ async function fetchCollectionSummary(
 
   return buildCollectionSummary(
     collectedCount,
-    pokeLid.prefectureId,
-    { id: pokeLid.id, latitude: Number(pokeLid.latitude), longitude: Number(pokeLid.longitude) },
+    {
+      id: pokeLid.id,
+      prefectureId: pokeLid.prefectureId,
+      municipality: pokeLid.municipality,
+      latitude: Number(pokeLid.latitude),
+      longitude: Number(pokeLid.longitude),
+    },
     allLids.map((l) => ({
       id: l.id,
       prefectureId: l.prefectureId,
@@ -406,7 +411,7 @@ collectionsRouter.delete('/:id', requireAuth, async (req: AuthedRequest, res) =>
     where: { id: req.params.id },
     include: {
       photos: true,
-      pokeLid: { select: { prefectureId: true, latitude: true, longitude: true } },
+      pokeLid: { select: { prefectureId: true, municipality: true, latitude: true, longitude: true } },
     },
   });
   // 404 rather than 403 so the existence of another user's collection can't
@@ -432,7 +437,9 @@ collectionsRouter.delete('/:id', requireAuth, async (req: AuthedRequest, res) =>
 collectionsRouter.delete('/:id/photos/:photoId', requireAuth, async (req: AuthedRequest, res) => {
   const collection = await prisma.collection.findUnique({
     where: { id: req.params.id },
-    include: { pokeLid: { select: { prefectureId: true, latitude: true, longitude: true } } },
+    include: {
+      pokeLid: { select: { prefectureId: true, municipality: true, latitude: true, longitude: true } },
+    },
   });
   // 404 rather than 403 so the existence of another user's collection can't
   // be probed by ID.
@@ -494,7 +501,9 @@ collectionsRouter.patch('/:id/photos/:photoId', requireAuth, async (req: AuthedR
 
   const collection = await prisma.collection.findUnique({
     where: { id: req.params.id },
-    include: { pokeLid: { select: { prefectureId: true, latitude: true, longitude: true } } },
+    include: {
+      pokeLid: { select: { prefectureId: true, municipality: true, latitude: true, longitude: true } },
+    },
   });
   if (!collection || collection.userId !== req.userId) {
     return res.status(404).json({ error: 'Collection not found' });

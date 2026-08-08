@@ -11,7 +11,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import type { NearbyPokeLidDto, ProgressDto } from '@pokelids/shared';
+import {
+  haversineDistanceMeters,
+  municipalityKey,
+  type NearbyPokeLidDto,
+  type ProgressDto,
+} from '@pokelids/shared';
 import { ErrorState } from '../../src/components/ErrorState';
 import { ListRow } from '../../src/components/ListRow';
 import { ProgressBar } from '../../src/components/ProgressBar';
@@ -32,15 +37,33 @@ import { colors, radius, spacing, typography } from '../../src/theme';
 
 const NEXT_TO_COLLECT_COUNT = 12;
 // Over-fetch nearby candidates since some of the nearest ones may already be
-// collected and get filtered out below.
+// collected and get filtered out below. Also doubles as the pool the "今日
+// 行ける範囲" stat (7-5) counts within NEARBY_RANGE_KM — a dense area could
+// in principle have more than this within range, undercounting slightly,
+// but this is a motivational number, not an exhaustive one.
 const NEARBY_FETCH_COUNT = NEXT_TO_COLLECT_COUNT * 3;
+const NEARBY_RANGE_KM = 10;
+
+// A municipality worth surfacing as a near-term goal (7-5): at least 2 poke
+// lids (see pickMunicipalityGoals for why) and few enough left that visiting
+// is realistic this week, not "someday".
+const MUNICIPALITY_GOAL_MAX_REMAINING = 3;
+const MUNICIPALITY_GOAL_COUNT = 5;
 
 interface HomeData {
   progress: ProgressDto;
+  // Unsliced — the horizontal card row below only shows the first
+  // NEXT_TO_COLLECT_COUNT, but the "今日行ける範囲" stat needs the full
+  // fetched set to count how many fall within NEARBY_RANGE_KM.
   uncollected: NearbyPokeLidDto[];
 }
 
 type PrefectureProgress = ProgressDto['byPrefecture'][number];
+type MunicipalityProgress = ProgressDto['byMunicipality'][number];
+interface MunicipalityGoal extends MunicipalityProgress {
+  remaining: number;
+  distanceMeters: number | null;
+}
 
 async function loadHomeData(location: Coordinates | null): Promise<HomeData> {
   const [progressRes, guestItems, collections, nearby] = await Promise.all([
@@ -55,9 +78,49 @@ async function loadHomeData(location: Coordinates | null): Promise<HomeData> {
     ...guestItems.map((g) => g.pokeLidId),
   ]);
   const progress = guestItems.length > 0 ? mergeGuestProgress(progressRes, guestItems) : progressRes;
-  const uncollected = nearby.filter((l) => !collectedIds.has(l.id)).slice(0, NEXT_TO_COLLECT_COUNT);
+  const uncollected = nearby.filter((l) => !collectedIds.has(l.id));
 
   return { progress, uncollected };
+}
+
+function countWithinRange(uncollected: NearbyPokeLidDto[], location: Coordinates | null): number {
+  if (!location) return 0;
+  const rangeMeters = NEARBY_RANGE_KM * 1000;
+  return uncollected.filter(
+    (l) =>
+      haversineDistanceMeters(location.latitude, location.longitude, l.latitude, l.longitude) <= rangeMeters,
+  ).length;
+}
+
+// "あと1つ" municipalities, nearest first when location is known. Excludes
+// single-lid municipalities entirely: per the 7-5 distribution survey, 91%
+// of municipalities have exactly one poke lid, where "remaining" is always
+// indistinguishable from "haven't visited yet" — no different from what
+// 7-4's nearestUncollected already surfaces. Without this filter, this shelf
+// would just be a second copy of "次に集めよう" wearing a municipality name.
+function pickMunicipalityGoals(
+  byMunicipality: MunicipalityProgress[],
+  location: Coordinates | null,
+): MunicipalityGoal[] {
+  const candidates: MunicipalityGoal[] = byMunicipality
+    .filter((m) => m.total >= 2)
+    .map((m) => ({
+      ...m,
+      remaining: m.total - m.collected,
+      distanceMeters: location
+        ? haversineDistanceMeters(location.latitude, location.longitude, m.latitude, m.longitude)
+        : null,
+    }))
+    // "残り10個の市を出しても意味がない" — only genuinely near-term goals.
+    .filter((m) => m.remaining > 0 && m.remaining <= MUNICIPALITY_GOAL_MAX_REMAINING);
+
+  candidates.sort((a, b) => {
+    if (a.remaining !== b.remaining) return a.remaining - b.remaining;
+    if (a.distanceMeters !== null && b.distanceMeters !== null) return a.distanceMeters - b.distanceMeters;
+    return a.municipality.localeCompare(b.municipality, 'ja');
+  });
+
+  return candidates.slice(0, MUNICIPALITY_GOAL_COUNT);
 }
 
 function groupByRegion(byPrefecture: PrefectureProgress[]) {
@@ -192,7 +255,15 @@ export default function PrefecturesScreen() {
     progress && progress.totalPokeLids > 0
       ? Math.round((progress.collectedCount / progress.totalPokeLids) * 100)
       : 0;
-  const nextToCollect = data?.uncollected ?? [];
+  const nextToCollect = (data?.uncollected ?? []).slice(0, NEXT_TO_COLLECT_COUNT);
+  const nearbyWithinRangeCount = useMemo(
+    () => countWithinRange(data?.uncollected ?? [], location),
+    [data?.uncollected, location],
+  );
+  const municipalityGoals = useMemo(
+    () => pickMunicipalityGoals(progress?.byMunicipality ?? [], location),
+    [progress?.byMunicipality, location],
+  );
   const sections = useMemo(() => groupByRegion(progress?.byPrefecture ?? []), [progress]);
 
   return (
@@ -227,7 +298,47 @@ export default function PrefecturesScreen() {
                 {!user && !authLoading && (
                   <Text style={styles.guestNotice}>ログインすると収集記録を保存できます</Text>
                 )}
+                {location && nearbyWithinRangeCount > 0 && (
+                  <Text style={styles.rangeStat}>
+                    📍現在地から{NEARBY_RANGE_KM}km以内に未収集が{nearbyWithinRangeCount}個
+                  </Text>
+                )}
               </View>
+
+              {municipalityGoals.length > 0 && (
+                <View style={styles.nextSection}>
+                  <View style={styles.nextTitleRow}>
+                    <Text style={styles.nextTitleText}>もう少しで達成</Text>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.nextRow}
+                  >
+                    {municipalityGoals.map((goal) => (
+                      <TouchableOpacity
+                        key={municipalityKey(goal.prefectureId, goal.municipality)}
+                        style={styles.nextCard}
+                        onPress={() => router.push(`/prefectures/${goal.prefectureId}`)}
+                      >
+                        {goal.imageUrl ? (
+                          <Image
+                            source={{ uri: goal.imageUrl }}
+                            style={styles.nextImage}
+                            accessibilityLabel={goal.municipality}
+                          />
+                        ) : (
+                          <View style={[styles.nextImage, styles.nextImagePlaceholder]} />
+                        )}
+                        <Text style={styles.nextCaption} numberOfLines={1}>
+                          {goal.municipality}
+                        </Text>
+                        <Text style={styles.nextGoalRemaining}>あと{goal.remaining}つ</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
 
               {nextToCollect.length > 0 && (
                 <View style={styles.nextSection}>
@@ -319,6 +430,7 @@ const styles = StyleSheet.create({
   },
   percentBadgeText: { color: colors.white, fontWeight: '700', fontSize: 13 },
   guestNotice: { ...typography.footnote, color: colors.danger },
+  rangeStat: { ...typography.footnote, color: colors.accent, fontWeight: '600' },
   // flex: 1 with min/max caps instead of a fixed width: 320px screens need
   // the bar to shrink so it doesn't crowd the prefecture name, and 720px
   // (web's ScreenContainer cap) shouldn't stretch it into a thin sliver.
@@ -360,5 +472,8 @@ const styles = StyleSheet.create({
   nextRow: { paddingHorizontal: spacing.lg, gap: spacing.md, paddingBottom: spacing.lg },
   nextCard: { width: 96, gap: spacing.xs },
   nextImage: { width: 96, height: 96, borderRadius: radius.md, backgroundColor: colors.background },
+  nextImagePlaceholder: { backgroundColor: colors.border },
   nextCaption: { ...typography.footnote, textAlign: 'center' },
+  // "あと1つ" (7-5) — the one number on this card worth calling attention to.
+  nextGoalRemaining: { ...typography.footnote, textAlign: 'center', color: colors.accent, fontWeight: '600' },
 });

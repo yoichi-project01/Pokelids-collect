@@ -33,8 +33,12 @@ app.use(
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         // The map screen embeds an iframe (srcDoc) that, having no CSP of
         // its own, inherits this one — it needs to load OpenStreetMap tiles,
-        // which aren't same-origin.
-        'img-src': ["'self'", 'data:', 'https://*.tile.openstreetmap.org'],
+        // which aren't same-origin. `blob:` is needed separately: web's
+        // expo-image-picker returns a `blob:` URI for a picked/captured
+        // photo, and PhotoPreviewModal's <Image source={{ uri }} /> renders
+        // it directly (no upload/network round-trip involved) — without
+        // this the preview silently fails to load.
+        'img-src': ["'self'", 'data:', 'blob:', 'https://*.tile.openstreetmap.org'],
         // Expo Router's static export injects a tiny fixed inline bootstrap
         // script (`globalThis.__EXPO_ROUTER_HYDRATE__=true;`) on every page
         // to signal client-side hydration; this is its exact hash, not

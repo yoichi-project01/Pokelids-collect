@@ -112,6 +112,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           '一部を保存できませんでした',
           `${synced}/${guestItems.length}件を保存しました。残りは次回ログイン時に再試行します。`,
         );
+      } else {
+        showToast('保存しました', `${synced}件の記録をアカウントに保存しました。`, 'success');
       }
     } catch {
       // Login/register already succeeded at this point; a sync failure here

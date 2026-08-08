@@ -1,5 +1,7 @@
-import { Stack } from 'expo-router';
+import { Stack, type NativeStackHeaderProps } from 'expo-router';
 import Head from 'expo-router/head';
+import { Platform } from 'react-native';
+import { AppHeader } from '../src/components/AppHeader';
 import { Toast } from '../src/components/Toast';
 import { AuthProvider } from '../src/lib/auth';
 import { colors } from '../src/theme';
@@ -12,6 +14,20 @@ import { colors } from '../src/theme';
 const DEFAULT_DESCRIPTION =
   'ポケふた(ご当地ポケモンマンホール)を実際に訪問して写真を撮り、収集記録として残すアプリ。';
 
+// Renders AppHeader (a header whose content row is capped at
+// CONTENT_MAX_WIDTH) instead of the default header — see AppHeader's comment
+// for why headerStyle's maxWidth can't do this itself. Web only; native
+// keeps the platform header untouched.
+function renderWebHeader({ options, route, back, navigation }: NativeStackHeaderProps) {
+  return (
+    <AppHeader
+      title={typeof options.headerTitle === 'string' ? options.headerTitle : (options.title ?? route.name)}
+      canGoBack={!!back}
+      onBack={() => navigation.goBack()}
+    />
+  );
+}
+
 const screenOptions = {
   headerStyle: { backgroundColor: colors.surface },
   headerShadowVisible: false,
@@ -19,6 +35,7 @@ const screenOptions = {
   headerTitleStyle: { fontWeight: '600' as const, fontSize: 17 },
   headerBackTitle: '',
   contentStyle: { backgroundColor: colors.background },
+  ...(Platform.OS === 'web' && { header: renderWebHeader }),
 };
 
 export default function RootLayout() {

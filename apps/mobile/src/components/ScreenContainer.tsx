@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { colors } from '../theme';
+import { colors, CONTENT_MAX_WIDTH } from '../theme';
 
 export function ScreenContainer({
   children,
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     // react-native-web doesn't constrain width, so on a wide desktop browser
     // every screen stretches full-bleed. Capping and centering it here fixes
     // every screen at once.
-    ...Platform.select({ web: { width: '100%', maxWidth: 720, alignSelf: 'center' } }),
+    ...Platform.select({ web: { width: '100%', maxWidth: CONTENT_MAX_WIDTH, alignSelf: 'center' } }),
   },
   padded: { padding: 16 },
 });

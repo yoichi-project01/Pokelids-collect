@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
-import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { getApiBaseUrl } from '../../src/lib/api';
 import { buildMapHtml } from '../../src/lib/mapHtml';
 import { useMapMarkers } from '../../src/lib/useMapMarkers';
@@ -42,21 +41,25 @@ export default function MapScreen() {
     </Head>
   );
 
+  // Not ScreenContainer here: the success state below is intentionally
+  // full-width (a map benefits from all the screen it can get), and
+  // ScreenContainer's 720px cap would make the loading/error states narrower
+  // than the map they're standing in for.
   if (error && !visibleMarkers) {
     return (
-      <ScreenContainer style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <View style={styles.fullWidthCenter}>
         {head}
         <ErrorState message="地図データを取得できませんでした" onRetry={reload} />
-      </ScreenContainer>
+      </View>
     );
   }
 
   if (!visibleMarkers) {
     return (
-      <ScreenContainer style={{ alignItems: 'center', justifyContent: 'center' }}>
+      <View style={styles.fullWidthCenter}>
         {head}
         <ActivityIndicator size="large" color={colors.black} />
-      </ScreenContainer>
+      </View>
     );
   }
 
@@ -91,6 +94,12 @@ export default function MapScreen() {
 }
 
 const styles = StyleSheet.create({
+  fullWidthCenter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
   filterRow: {
     flexDirection: 'row',
     gap: spacing.sm,

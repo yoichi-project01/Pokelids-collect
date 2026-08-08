@@ -20,6 +20,12 @@ export const colors = {
   gold: '#D4A017',
 };
 
+// Shared by ScreenContainer and (tabs)/_layout.tsx's headerStyle/tabBarStyle
+// (and the root Stack's headerStyle) — react-native-web doesn't constrain
+// width on its own, so a wide desktop browser would otherwise stretch every
+// one of them full-bleed independently.
+export const CONTENT_MAX_WIDTH = 720;
+
 export const spacing = {
   xs: 4,
   sm: 8,

@@ -111,13 +111,25 @@ export interface ProgressDto {
   }>;
 }
 
+// The single nearest poke lid a user hasn't collected yet, surfaced right
+// after they complete a record (7-4) so "found one" turns into "there are
+// more". Minimal on purpose — enough to render a thumbnail + caption + tap
+// target (matches the existing NearbyPokeLidDto card convention on the home
+// screen), not a full PokeLidDto.
+export interface NearestUncollectedPokeLid {
+  id: string;
+  municipality: string;
+  prefectureId: number;
+  officialImageUrl: string | null;
+  distanceMeters: number;
+}
+
 // Returned alongside every collections mutation (create, delete, photo
 // delete/promote) so a client can update its "collected count" / prefecture
 // progress UI from that single response instead of re-fetching /progress
 // and /collections/me afterward. Nested under `prefecture` rather than
-// flattened because 7-4/7-5 are expected to add more fields here (nearest
-// uncollected poke lid, municipality-level progress) and a flat shape would
-// force a breaking rename at that point.
+// flattened because 7-5 is expected to add a sibling `municipality` field
+// here and a flat shape would force a breaking rename at that point.
 export interface CollectionSummary {
   collectedCount: number;
   prefecture: {
@@ -125,13 +137,30 @@ export interface CollectionSummary {
     collected: number;
     total: number;
   };
+  // null when every non-retired poke lid nationwide is already collected —
+  // callers must handle this (no "next" card to show), not treat it as
+  // exceptional.
+  nearestUncollected: NearestUncollectedPokeLid | null;
+  // True once this mutation leaves the user with exactly one collection.
+  // Drives the "全国に481箇所あります" line (7-4 item 3) — someone on their
+  // very first record doesn't yet know the scale of what they just found,
+  // but showing it on every subsequent record would just be noise.
+  isFirstCollection: boolean;
 }
 
-// One prefecture's poke lids, each flagged with whether the requesting user
-// has collected it. Kept minimal (no id, no other fields) so the caller can
-// hand this pure function whatever it already fetched, in whatever shape,
-// without an extra mapping step just to satisfy a wider type.
-interface PrefectureLidCollectionStatus {
+// One poke lid nationwide, carrying everything buildCollectionSummary needs:
+// its own prefecture's total/collected tally (filtered to `prefectureId`)
+// AND the nearest-uncollected search (which deliberately is NOT filtered to
+// one prefecture — see buildCollectionSummary's `origin` doc comment).
+// Kept minimal/structural (no id-based lookups, no other fields) so the
+// caller can hand this pure function whatever shape it already fetched.
+interface PokeLidSummaryCandidate {
+  id: string;
+  prefectureId: number;
+  municipality: string;
+  officialImageUrl: string | null;
+  latitude: number;
+  longitude: number;
   retiredAt: string | Date | null | undefined;
   collected: boolean;
 }
@@ -143,11 +172,53 @@ interface PrefectureLidCollectionStatus {
 // lid was later retired would contradict 2-1's "撤去済みでも収集済みの記録
 // は残す" policy. This asymmetry is exactly why it's a separate, tested
 // function rather than inline filtering at each call site.
+//
+// `origin` is the poke lid that was just recorded — its OWN DB coordinates,
+// not the device's current GPS fix (7-4). Deliberate:
+//   - a user who has denied location permission still gets a "next" — the
+//     home screen's "次に集めよう" already degrades to prefecture order for
+//     them, and precisely those users most need to discover "there's more"
+//     some other way
+//   - whoever triggered this just took a photo standing at the poke lid, so
+//     its coordinates ARE their current location, to within the same margin
+//   - poke lids sit near buildings/underground passages where a live GPS fix
+//     can be off by tens to hundreds of meters; the DB coordinate is exact
+//   - no extra data has to travel from the client to compute it
+// `nearestUncollected` search deliberately spans every prefecture (not just
+// `prefectureId`) — a lid just across a prefecture border can be the
+// genuinely closest one.
 export function buildCollectionSummary(
   collectedCount: number,
   prefectureId: number,
-  prefectureLids: PrefectureLidCollectionStatus[],
+  origin: { id: string; latitude: number; longitude: number },
+  allLids: PokeLidSummaryCandidate[],
 ): CollectionSummary {
+  const prefectureLids = allLids.filter((l) => l.prefectureId === prefectureId);
+
+  let nearestUncollected: NearestUncollectedPokeLid | null = null;
+  let nearestDistance = Infinity;
+  for (const lid of allLids) {
+    if (lid.id === origin.id) continue;
+    if (lid.collected) continue;
+    if (!countsTowardProgress(lid.retiredAt)) continue;
+    const distanceMeters = haversineDistanceMeters(
+      origin.latitude,
+      origin.longitude,
+      lid.latitude,
+      lid.longitude,
+    );
+    if (distanceMeters < nearestDistance) {
+      nearestDistance = distanceMeters;
+      nearestUncollected = {
+        id: lid.id,
+        municipality: lid.municipality,
+        prefectureId: lid.prefectureId,
+        officialImageUrl: lid.officialImageUrl,
+        distanceMeters,
+      };
+    }
+  }
+
   return {
     collectedCount,
     prefecture: {
@@ -155,6 +226,8 @@ export function buildCollectionSummary(
       collected: prefectureLids.filter((l) => l.collected).length,
       total: prefectureLids.filter((l) => countsTowardProgress(l.retiredAt)).length,
     },
+    nearestUncollected,
+    isFirstCollection: collectedCount === 1,
   };
 }
 

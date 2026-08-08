@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   PREFECTURES,
+  countsTowardProgress,
   haversineDistanceMeters,
   type CollectionDto,
+  type CollectionSummary,
   type PhotoMedal,
   type PokeLidDto,
 } from '@pokelids/shared';
@@ -100,6 +102,8 @@ export default function PokeLidDetailScreen() {
     // Which picker produced the photo this celebration is about, so a NONE
     // medal's "もう一度撮影する" button re-launches the same one.
     source: 'camera' | 'library';
+    // Drives the "next" section (7-4) inside CelebrationModal.
+    summary: CollectionSummary;
   } | null>(null);
   const [error, setError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
@@ -244,7 +248,7 @@ export default function PokeLidDetailScreen() {
         } else if (MILESTONE_COUNTS.includes(summary.collectedCount)) {
           milestone = `${summary.collectedCount}箇所達成！`;
         }
-        setCelebration({ medal: newPhoto.medal, milestone, source });
+        setCelebration({ medal: newPhoto.medal, milestone, source, summary });
       }
     } catch (err) {
       // Upload-limit rejections (400/413) carry a specific Japanese message
@@ -261,6 +265,13 @@ export default function PokeLidDetailScreen() {
     const source = celebration?.source;
     setCelebration(null);
     if (source) void onPickPhoto(source);
+  }
+
+  // Tapping the "一番近い未収集のポケふた" suggestion in CelebrationModal —
+  // closes this record's celebration and jumps straight to that one (7-4).
+  function onNavigateToNext(nextPokeLidId: string) {
+    setCelebration(null);
+    router.push(`/poke-lids/${nextPokeLidId}`);
   }
 
   async function onDeleteCollection() {
@@ -495,8 +506,22 @@ export default function PokeLidDetailScreen() {
         visible={celebration !== null}
         medal={celebration?.medal ?? null}
         milestone={celebration?.milestone ?? null}
+        summary={celebration?.summary ?? null}
+        // "全国に481箇所あります" (7-4 item 3) is computed from the bundled
+        // snapshot rather than a dedicated API field — it's static data the
+        // client already has (see generateStaticParams above) — and only
+        // passed through at all on a user's very first collection, matching
+        // isFirstCollection's purpose (see its doc comment in
+        // packages/shared): showing "the scale of it all" on every
+        // subsequent record would just be noise.
+        totalPokeLidsNationwide={
+          celebration?.summary.isFirstCollection
+            ? (POKE_LIDS as PokeLidDto[]).filter((l) => countsTowardProgress(l.retiredAt)).length
+            : null
+        }
         onClose={() => setCelebration(null)}
         onRetake={onRetakeFromCelebration}
+        onNavigateToNext={onNavigateToNext}
       />
     </ScreenContainer>
   );

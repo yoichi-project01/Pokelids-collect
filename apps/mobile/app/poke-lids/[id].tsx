@@ -3,10 +3,17 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { haversineDistanceMeters, type PhotoMedal, type PokeLidDto } from '@pokelids/shared';
+import {
+  PREFECTURES,
+  haversineDistanceMeters,
+  type CollectionDto,
+  type PhotoMedal,
+  type PokeLidDto,
+} from '@pokelids/shared';
 import { Button } from '../../src/components/Button';
 import { CelebrationModal } from '../../src/components/CelebrationModal';
 import { ErrorState } from '../../src/components/ErrorState';
+import { PhotoPreviewModal } from '../../src/components/PhotoPreviewModal';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { TextField } from '../../src/components/TextField';
 import POKE_LIDS from '../../src/data/poke-lids.json';
@@ -16,13 +23,12 @@ import {
   deleteCollectionPhoto,
   fetchMyCollections,
   fetchPokeLid,
-  fetchPrefectureProgress,
   photoUrl,
   setPrimaryPhoto,
   updateCollectionNotes,
   uploadCollection,
+  type UploadPhotoInput,
 } from '../../src/lib/api';
-import type { CollectionSummary } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { confirmAsync } from '../../src/lib/confirm';
 import { formatDateJST } from '../../src/lib/date';
@@ -69,10 +75,18 @@ export default function PokeLidDetailScreen() {
   const { user, isLoading: authLoading } = useAuth();
   const staticLid = (POKE_LIDS as PokeLidDto[]).find((l) => l.id === id) ?? null;
   const [lid, setLid] = useState<PokeLidDto | null>(staticLid);
-  const [collection, setCollection] = useState<CollectionSummary | null>(null);
+  const [collection, setCollection] = useState<CollectionDto | null>(null);
   const [guestCollection, setGuestCollectionState] = useState<GuestCollection | null>(null);
   const [notes, setNotes] = useState('');
+  // A photo the user just picked (camera or library) but hasn't confirmed
+  // yet — see PhotoPreviewModal (4-4). Not uploaded until onConfirmUpload.
+  const [pendingPhoto, setPendingPhoto] = useState<
+    (UploadPhotoInput & { source: 'camera' | 'library' }) | null
+  >(null);
   const [uploading, setUploading] = useState(false);
+  // Fraction (0–1), not a percent int — the progress bar below does its own
+  // rounding for display so this stays the raw value from the transport.
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [savingGuest, setSavingGuest] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -80,9 +94,13 @@ export default function PokeLidDetailScreen() {
   // photo's buttons show a busy state / get disabled — not the whole row.
   const [photoActionId, setPhotoActionId] = useState<string | null>(null);
   const [location, setLocation] = useState<Coordinates | null>(null);
-  const [celebration, setCelebration] = useState<{ medal: PhotoMedal; milestone: string | null } | null>(
-    null,
-  );
+  const [celebration, setCelebration] = useState<{
+    medal: PhotoMedal;
+    milestone: string | null;
+    // Which picker produced the photo this celebration is about, so a NONE
+    // medal's "もう一度撮影する" button re-launches the same one.
+    source: 'camera' | 'library';
+  } | null>(null);
   const [error, setError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -151,7 +169,10 @@ export default function PokeLidDetailScreen() {
     }
   }
 
-  async function onPickAndUpload(source: 'camera' | 'library') {
+  // Opens the camera/library picker and, on success, stops at the preview
+  // step (sets pendingPhoto) rather than uploading immediately — a blurry or
+  // finger-covered shot used to go straight to the server (4-4).
+  async function onPickPhoto(source: 'camera' | 'library') {
     if (source === 'camera') {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted) {
@@ -174,33 +195,56 @@ export default function PokeLidDetailScreen() {
             quality: 0.8,
             allowsEditing: false,
           });
-    if (result.canceled || !lid) return;
+    if (result.canceled) return;
 
     const asset = result.assets[0];
-    setUploading(true);
-    try {
-      const uploaded = await uploadCollection({
-        pokeLidId: id,
-        notes: notes || undefined,
-        photoUri: asset.uri,
-        photoName: asset.fileName ?? `${id}.jpg`,
-        photoType: asset.mimeType ?? 'image/jpeg',
-      });
-      const updated = await fetchMyCollections();
-      setCollection(updated.find((c) => c.pokeLidId === id) ?? null);
+    setPendingPhoto({
+      source,
+      uri: asset.uri,
+      name: asset.fileName ?? `${id}.jpg`,
+      type: asset.mimeType ?? 'image/jpeg',
+      // Only present on web — see UploadPhotoInput's doc comment in api.ts.
+      webFile: asset.file,
+    });
+  }
 
-      if (uploaded.medal) {
-        const progress = await fetchPrefectureProgress().catch(() => null);
+  function onRetakePhoto() {
+    const source = pendingPhoto?.source;
+    setPendingPhoto(null);
+    if (source) void onPickPhoto(source);
+  }
+
+  function onDismissPreview() {
+    setPendingPhoto(null);
+  }
+
+  async function onConfirmUpload() {
+    if (!pendingPhoto || !lid) return;
+    const { source, ...photo } = pendingPhoto;
+    setPendingPhoto(null);
+    setUploading(true);
+    setUploadProgress(0);
+    try {
+      const { collection: updated, summary } = await uploadCollection(
+        { pokeLidId: id, notes: notes || undefined, photo },
+        setUploadProgress,
+      );
+      setCollection(updated);
+
+      // The photo this request just added is the newest one — the server
+      // always returns `photos` ordered oldest-first (see collections.ts's
+      // serializeCollection), so it's the last element.
+      const newPhoto = updated.photos[updated.photos.length - 1] ?? null;
+      if (newPhoto) {
         let milestone: string | null = null;
-        if (progress) {
-          const pref = progress.byPrefecture.find((p) => p.prefectureId === lid.prefectureId);
-          if (pref && pref.total > 0 && pref.collected === pref.total) {
-            milestone = `${pref.nameJa}コンプリート！`;
-          } else if (MILESTONE_COUNTS.includes(progress.collectedCount)) {
-            milestone = `${progress.collectedCount}箇所達成！`;
-          }
+        const { prefecture } = summary;
+        if (prefecture.total > 0 && prefecture.collected === prefecture.total) {
+          const prefName = PREFECTURES.find((p) => p.id === prefecture.id)?.nameJa ?? '';
+          milestone = `${prefName}コンプリート！`;
+        } else if (MILESTONE_COUNTS.includes(summary.collectedCount)) {
+          milestone = `${summary.collectedCount}箇所達成！`;
         }
-        setCelebration({ medal: uploaded.medal, milestone });
+        setCelebration({ medal: newPhoto.medal, milestone, source });
       }
     } catch (err) {
       // Upload-limit rejections (400/413) carry a specific Japanese message
@@ -209,7 +253,14 @@ export default function PokeLidDetailScreen() {
       showToast('エラー', err instanceof ApiError ? err.message : 'アップロードに失敗しました');
     } finally {
       setUploading(false);
+      setUploadProgress(null);
     }
+  }
+
+  function onRetakeFromCelebration() {
+    const source = celebration?.source;
+    setCelebration(null);
+    if (source) void onPickPhoto(source);
   }
 
   async function onDeleteCollection() {
@@ -237,8 +288,8 @@ export default function PokeLidDetailScreen() {
     if (!confirmed) return;
     setPhotoActionId(photoId);
     try {
-      const photos = await deleteCollectionPhoto(collection.id, photoId);
-      setCollection({ ...collection, photos });
+      const { collection: updated } = await deleteCollectionPhoto(collection.id, photoId);
+      setCollection(updated);
     } catch (err) {
       showToast('エラー', err instanceof ApiError ? err.message : '写真の削除に失敗しました');
     } finally {
@@ -250,8 +301,8 @@ export default function PokeLidDetailScreen() {
     if (!collection) return;
     setPhotoActionId(photoId);
     try {
-      const photos = await setPrimaryPhoto(collection.id, photoId);
-      setCollection({ ...collection, photos });
+      const { collection: updated } = await setPrimaryPhoto(collection.id, photoId);
+      setCollection(updated);
     } catch (err) {
       showToast('エラー', err instanceof ApiError ? err.message : '主写真の変更に失敗しました');
     } finally {
@@ -381,15 +432,32 @@ export default function PokeLidDetailScreen() {
 
           {user ? (
             <>
+              {uploading && (
+                <View style={styles.uploadProgress}>
+                  <View style={styles.uploadProgressTrack}>
+                    <View
+                      style={[
+                        styles.uploadProgressFill,
+                        { width: `${Math.round((uploadProgress ?? 0) * 100)}%` },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.uploadProgressLabel}>
+                    アップロード中… {Math.round((uploadProgress ?? 0) * 100)}%
+                  </Text>
+                </View>
+              )}
               <Button
-                title={uploading ? 'アップロード中…' : '写真を撮って記録する'}
-                onPress={() => onPickAndUpload('camera')}
+                title="写真を撮って記録する"
+                onPress={() => onPickPhoto('camera')}
                 loading={uploading}
+                disabled={uploading}
               />
               <Button
                 title="ライブラリから選ぶ"
-                onPress={() => onPickAndUpload('library')}
+                onPress={() => onPickPhoto('library')}
                 loading={uploading}
+                disabled={uploading}
                 variant="secondary"
               />
             </>
@@ -415,11 +483,20 @@ export default function PokeLidDetailScreen() {
           )}
         </View>
       </ScrollView>
+      <PhotoPreviewModal
+        visible={pendingPhoto !== null}
+        uri={pendingPhoto?.uri ?? null}
+        source={pendingPhoto?.source ?? 'camera'}
+        onConfirm={onConfirmUpload}
+        onRetake={onRetakePhoto}
+        onDismiss={onDismissPreview}
+      />
       <CelebrationModal
         visible={celebration !== null}
         medal={celebration?.medal ?? null}
         milestone={celebration?.milestone ?? null}
         onClose={() => setCelebration(null)}
+        onRetake={onRetakeFromCelebration}
       />
     </ScreenContainer>
   );
@@ -487,4 +564,13 @@ const styles = StyleSheet.create({
   },
   photoDeleteButtonText: { color: colors.white, fontSize: 12, fontWeight: '700' },
   notesInput: { minHeight: 60, textAlignVertical: 'top' },
+  uploadProgress: { gap: spacing.xs },
+  uploadProgressTrack: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.border,
+    overflow: 'hidden',
+  },
+  uploadProgressFill: { height: '100%', backgroundColor: colors.accent },
+  uploadProgressLabel: { ...typography.footnote, textAlign: 'center' },
 });

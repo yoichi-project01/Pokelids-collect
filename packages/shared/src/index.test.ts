@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildCollectionSummary,
   countsTowardProgress,
   determinePhotoMedal,
   haversineDistanceMeters,
@@ -112,5 +113,39 @@ describe('isPokeLidVisible', () => {
 
   it('treats an absent field (stale snapshot) as active regardless of collected status', () => {
     expect(isPokeLidVisible(undefined, false)).toBe(true);
+  });
+});
+
+describe('buildCollectionSummary', () => {
+  it('excludes a retired poke lid from the total (denominator)', () => {
+    const summary = buildCollectionSummary(1, 13, [
+      { retiredAt: null, collected: false },
+      { retiredAt: '2026-08-01T00:00:00.000Z', collected: false },
+    ]);
+    expect(summary.prefecture.total).toBe(1);
+  });
+
+  it('keeps a retired-but-collected poke lid in collected (numerator)', () => {
+    const summary = buildCollectionSummary(1, 13, [
+      { retiredAt: null, collected: false },
+      { retiredAt: '2026-08-01T00:00:00.000Z', collected: true },
+    ]);
+    expect(summary.prefecture.collected).toBe(1);
+    // Still excluded from total even though it counts toward collected —
+    // this is the asymmetry the function exists to encode.
+    expect(summary.prefecture.total).toBe(1);
+  });
+
+  it('passes collectedCount and prefectureId through unchanged', () => {
+    const summary = buildCollectionSummary(42, 13, []);
+    expect(summary.collectedCount).toBe(42);
+    expect(summary.prefecture.id).toBe(13);
+    expect(summary.prefecture.total).toBe(0);
+    expect(summary.prefecture.collected).toBe(0);
+  });
+
+  it('treats an absent retiredAt field the same as null (stale snapshot)', () => {
+    const summary = buildCollectionSummary(1, 13, [{ retiredAt: undefined, collected: false }]);
+    expect(summary.prefecture.total).toBe(1);
   });
 });

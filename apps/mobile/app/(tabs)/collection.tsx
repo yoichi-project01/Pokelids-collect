@@ -2,13 +2,12 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { haversineDistanceMeters, type PokeLidDto } from '@pokelids/shared';
+import { haversineDistanceMeters, type CollectionDto, type PokeLidDto } from '@pokelids/shared';
 import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchPokeLids, photoUrl } from '../../src/lib/api';
-import type { CollectionSummary } from '../../src/lib/api';
 import { formatDateJST } from '../../src/lib/date';
 import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import {
@@ -24,7 +23,7 @@ const MEDAL_EMOJI: Record<'GOLD' | 'SILVER', string> = { GOLD: '🥇', SILVER: '
 
 export default function CollectionScreen() {
   const router = useRouter();
-  const [collections, setCollections] = useState<CollectionSummary[]>([]);
+  const [collections, setCollections] = useState<CollectionDto[]>([]);
   const [lidsById, setLidsById] = useState<Map<string, PokeLidDto>>(new Map());
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [error, setError] = useState(false);

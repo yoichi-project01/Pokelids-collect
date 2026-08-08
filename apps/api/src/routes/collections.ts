@@ -8,7 +8,13 @@ import exifr from 'exifr';
 import sharp from 'sharp';
 import { z } from 'zod';
 import { PhotoMedal } from '@prisma/client';
-import { determinePhotoMedal, haversineDistanceMeters, isValidVisitedAt } from '@pokelids/shared';
+import {
+  buildCollectionSummary,
+  determinePhotoMedal,
+  haversineDistanceMeters,
+  isValidVisitedAt,
+  type CollectionSummary,
+} from '@pokelids/shared';
 import { removeFileBestEffort } from '../lib/fileCleanup';
 import { prisma } from '../lib/prisma';
 import { signPhotoAccessToken } from '../lib/auth';
@@ -155,6 +161,47 @@ function serializePhoto(photo: { id: string; isPrimary: boolean; medal: PhotoMed
   };
 }
 
+function serializeCollection(collection: {
+  id: string;
+  pokeLidId: string;
+  visitedAt: Date;
+  notes: string | null;
+  photos: { id: string; isPrimary: boolean; medal: PhotoMedal; createdAt: Date }[];
+}) {
+  return {
+    id: collection.id,
+    pokeLidId: collection.pokeLidId,
+    visitedAt: collection.visitedAt.toISOString(),
+    notes: collection.notes,
+    photos: collection.photos.map(serializePhoto),
+  };
+}
+
+// Backs the `summary` field every collections mutation returns (4-4), so a
+// client can update its collected-count / prefecture-progress UI from that
+// one response instead of re-fetching /progress and /collections/me
+// afterward. Only the single affected prefecture is fetched (not all 47,
+// unlike progress.ts's buildProgress) — 2 queries total, independent of how
+// many poke lids that prefecture has.
+async function fetchCollectionSummary(userId: string, prefectureId: number): Promise<CollectionSummary> {
+  const [collectedCount, prefectureLids] = await Promise.all([
+    prisma.collection.count({ where: { userId } }),
+    prisma.pokeLid.findMany({
+      where: { prefectureId },
+      select: {
+        retiredAt: true,
+        collections: { where: { userId }, select: { id: true }, take: 1 },
+      },
+    }),
+  ]);
+
+  return buildCollectionSummary(
+    collectedCount,
+    prefectureId,
+    prefectureLids.map((l) => ({ retiredAt: l.retiredAt, collected: l.collections.length > 0 })),
+  );
+}
+
 const NOTES_MAX_LENGTH = 1000;
 const notesSchema = z.string().max(NOTES_MAX_LENGTH, `メモは${NOTES_MAX_LENGTH}文字以内で入力してください`);
 
@@ -204,11 +251,14 @@ collectionsRouter.post('/', requireAuth, uploadRateLimit, handleUpload, async (r
   });
 
   if (!req.file) {
+    const photos = await prisma.photo.findMany({
+      where: { collectionId: collection.id },
+      orderBy: { createdAt: 'asc' },
+    });
+    const summary = await fetchCollectionSummary(userId, pokeLid.prefectureId);
     return res.status(201).json({
-      collectionId: collection.id,
-      photoId: null,
-      visitedAt: collection.visitedAt.toISOString(),
-      medal: null,
+      collection: serializeCollection({ ...collection, photos }),
+      summary,
     });
   }
 
@@ -259,7 +309,7 @@ collectionsRouter.post('/', requireAuth, uploadRateLimit, handleUpload, async (r
     await fs.writeFile(path.join(PHOTO_STORAGE_PATH, thumbPathFor(relativePath)), thumbBuffer);
   }
 
-  const photo = await prisma.photo.create({
+  await prisma.photo.create({
     data: {
       id: photoId,
       collectionId: collection.id,
@@ -275,30 +325,31 @@ collectionsRouter.post('/', requireAuth, uploadRateLimit, handleUpload, async (r
     },
   });
 
+  // Re-fetched (rather than appending the just-created row to a prior list)
+  // so `collection.photos` in the response reflects every photo the
+  // collection now has, not just this request's — the client needs the full,
+  // ordered list to reliably pick "the photo this request just added" (its
+  // newest by createdAt).
+  const photos = await prisma.photo.findMany({
+    where: { collectionId: collection.id },
+    orderBy: { createdAt: 'asc' },
+  });
+  const summary = await fetchCollectionSummary(userId, pokeLid.prefectureId);
+
   res.status(201).json({
-    collectionId: collection.id,
-    photoId: photo.id,
-    visitedAt: collection.visitedAt.toISOString(),
-    medal: photo.medal,
+    collection: serializeCollection({ ...collection, photos }),
+    summary,
   });
 });
 
 collectionsRouter.get('/me', requireAuth, async (req: AuthedRequest, res) => {
   const collections = await prisma.collection.findMany({
     where: { userId: req.userId },
-    include: { photos: true },
+    include: { photos: { orderBy: { createdAt: 'asc' } } },
     orderBy: { visitedAt: 'desc' },
   });
 
-  res.json(
-    collections.map((c) => ({
-      id: c.id,
-      pokeLidId: c.pokeLidId,
-      visitedAt: c.visitedAt.toISOString(),
-      notes: c.notes,
-      photos: c.photos.map(serializePhoto),
-    })),
-  );
+  res.json(collections.map(serializeCollection));
 });
 
 const updateNotesSchema = z.object({
@@ -329,7 +380,7 @@ collectionsRouter.patch('/:id', requireAuth, async (req: AuthedRequest, res) => 
 collectionsRouter.delete('/:id', requireAuth, async (req: AuthedRequest, res) => {
   const collection = await prisma.collection.findUnique({
     where: { id: req.params.id },
-    include: { photos: true },
+    include: { photos: true, pokeLid: { select: { prefectureId: true } } },
   });
   // 404 rather than 403 so the existence of another user's collection can't
   // be probed by ID.
@@ -342,11 +393,17 @@ collectionsRouter.delete('/:id', requireAuth, async (req: AuthedRequest, res) =>
   // Cascades to `photos` at the DB level (onDelete: Cascade in the schema).
   await prisma.collection.delete({ where: { id: collection.id } });
 
-  res.status(204).end();
+  // 200 + a summary body (was 204) so the client can update its collected
+  // count without a follow-up /progress fetch — see 4-4.
+  const summary = await fetchCollectionSummary(req.userId!, collection.pokeLid.prefectureId);
+  res.status(200).json({ summary });
 });
 
 collectionsRouter.delete('/:id/photos/:photoId', requireAuth, async (req: AuthedRequest, res) => {
-  const collection = await prisma.collection.findUnique({ where: { id: req.params.id } });
+  const collection = await prisma.collection.findUnique({
+    where: { id: req.params.id },
+    include: { pokeLid: { select: { prefectureId: true } } },
+  });
   // 404 rather than 403 so the existence of another user's collection can't
   // be probed by ID.
   if (!collection || collection.userId !== req.userId) {
@@ -381,7 +438,13 @@ collectionsRouter.delete('/:id/photos/:photoId', requireAuth, async (req: Authed
     return tx.photo.findMany({ where: { collectionId: collection.id }, orderBy: { createdAt: 'asc' } });
   });
 
-  res.json(photos.map(serializePhoto));
+  // Photo count changes, not collection count, so `summary.collectedCount`
+  // and `.prefecture.collected/.total` never actually move here — but the
+  // client type is shared across all four mutation endpoints (see 4-4), and
+  // computing it is cheap (2 small queries), so it's included rather than
+  // carving out a special-cased response shape for this one route.
+  const summary = await fetchCollectionSummary(req.userId!, collection.pokeLid.prefectureId);
+  res.json({ collection: serializeCollection({ ...collection, photos }), summary });
 });
 
 const setPrimaryPhotoSchema = z.object({
@@ -396,7 +459,10 @@ collectionsRouter.patch('/:id/photos/:photoId', requireAuth, async (req: AuthedR
       .json({ error: firstValidationError(parsed.error), details: parsed.error.flatten() });
   }
 
-  const collection = await prisma.collection.findUnique({ where: { id: req.params.id } });
+  const collection = await prisma.collection.findUnique({
+    where: { id: req.params.id },
+    include: { pokeLid: { select: { prefectureId: true } } },
+  });
   if (!collection || collection.userId !== req.userId) {
     return res.status(404).json({ error: 'Collection not found' });
   }
@@ -423,5 +489,8 @@ collectionsRouter.patch('/:id/photos/:photoId', requireAuth, async (req: AuthedR
     where: { collectionId: collection.id },
     orderBy: { createdAt: 'asc' },
   });
-  res.json(photos.map(serializePhoto));
+  // See the DELETE photo route above for why `summary` is included even
+  // though setting a primary photo never changes these counts.
+  const summary = await fetchCollectionSummary(req.userId!, collection.pokeLid.prefectureId);
+  res.json({ collection: serializeCollection({ ...collection, photos }), summary });
 });

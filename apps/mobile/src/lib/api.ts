@@ -1,7 +1,14 @@
+import { Platform } from 'react-native';
+// Aliased: expo-file-system's own `File` class would otherwise shadow the
+// DOM `File` type (what `UploadPhotoInput.webFile` below actually needs —
+// the object expo-image-picker's web implementation returns), even though
+// they're unrelated types that happen to share a name.
+import { File as ExpoFile, UploadType } from 'expo-file-system';
 import type {
   AuthTokensDto,
+  CollectionDto,
+  CollectionSummary,
   NearbyPokeLidDto,
-  PhotoMedal,
   PokeLidDto,
   ProgressDto,
   UserDto,
@@ -221,63 +228,133 @@ export async function fetchNearbyPokeLids(
   return request<NearbyPokeLidDto[]>(`/api/poke-lids/nearby?${params.toString()}`);
 }
 
-export interface CollectionPhoto {
-  id: string;
-  url: string;
-  thumbUrl: string;
-  isPrimary: boolean;
-  medal: PhotoMedal;
-  createdAt: string;
-}
-
-export interface CollectionSummary {
-  id: string;
-  pokeLidId: string;
-  visitedAt: string;
-  notes: string | null;
-  photos: CollectionPhoto[];
-}
-
 export async function fetchMyCollections() {
   if (!accessToken) return [];
-  return request<CollectionSummary[]>('/api/collections/me');
+  return request<CollectionDto[]>('/api/collections/me');
 }
 
-export async function uploadCollection(params: {
-  pokeLidId: string;
-  notes?: string;
-  visitedAt?: string;
-  photoUri?: string;
-  photoName?: string;
-  photoType?: string;
-}) {
-  await ensureFreshToken();
+export interface UploadCollectionResult {
+  collection: CollectionDto;
+  summary: CollectionSummary;
+}
 
-  const form = new FormData();
-  form.append('pokeLidId', params.pokeLidId);
-  if (params.notes) form.append('notes', params.notes);
-  if (params.visitedAt) form.append('visitedAt', params.visitedAt);
-  if (params.photoUri) {
-    form.append('photo', {
-      uri: params.photoUri,
-      name: params.photoName,
-      type: params.photoType,
-    } as unknown as Blob);
+// A picked-but-not-yet-uploaded photo. `webFile` is only present on web
+// (expo-image-picker's web implementation returns a real File alongside a
+// blob: uri — see readFile in its ExponentImagePicker.web.ts) and is what
+// actually carries the bytes there; on web, browser FormData.append() only
+// accepts a Blob/File as its value, so passing the {uri,name,type} object
+// RN's own FormData polyfill expects would silently coerce to the string
+// "[object Object]" and upload no image data at all.
+export interface UploadPhotoInput {
+  uri: string;
+  name: string;
+  type: string;
+  webFile?: File;
+}
+
+// Parses a raw HTTP response body the same way request() does, for the two
+// upload paths below that can't go through request() (they need transport
+// objects — XMLHttpRequest / expo-file-system's UploadTask — that expose
+// progress, which fetch does not).
+function parseUploadResponse<T>(bodyText: string, status: number): T {
+  const body = bodyText ? JSON.parse(bodyText) : {};
+  if (status < 200 || status >= 300) {
+    throw new ApiError(status, body.error ?? `Request failed with ${status}`);
   }
+  return body as T;
+}
 
-  return request<{
-    collectionId: string;
-    photoId: string | null;
-    visitedAt: string;
-    medal: PhotoMedal | null;
-  }>('/api/collections', {
-    method: 'POST',
-    body: form,
+function uploadViaXhr(
+  url: string,
+  fields: Record<string, string>,
+  photo: UploadPhotoInput,
+  onProgress?: (fraction: number) => void,
+): Promise<UploadCollectionResult> {
+  return new Promise((resolve, reject) => {
+    if (!photo.webFile) {
+      reject(new ApiError(0, '写真の読み込みに失敗しました'));
+      return;
+    }
+    const form = new FormData();
+    for (const [key, value] of Object.entries(fields)) form.append(key, value);
+    form.append('photo', photo.webFile, photo.webFile.name);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    if (accessToken) xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+    xhr.upload.onprogress = (event) => {
+      if (onProgress && event.lengthComputable) onProgress(event.loaded / event.total);
+    };
+    xhr.onload = () => {
+      try {
+        resolve(parseUploadResponse<UploadCollectionResult>(xhr.responseText, xhr.status));
+      } catch (err) {
+        reject(err);
+      }
+    };
+    xhr.onerror = () => reject(new ApiError(0, 'ネットワークエラーが発生しました'));
+    xhr.send(form);
   });
 }
 
-export async function deleteCollection(collectionId: string): Promise<void> {
-  await request<void>(`/api/collections/${collectionId}`, { method: 'DELETE' });
+async function uploadViaFileSystemTask(
+  url: string,
+  fields: Record<string, string>,
+  photo: UploadPhotoInput,
+  onProgress?: (fraction: number) => void,
+): Promise<UploadCollectionResult> {
+  const task = new ExpoFile(photo.uri).createUploadTask(url, {
+    httpMethod: 'POST',
+    uploadType: UploadType.MULTIPART,
+    fieldName: 'photo',
+    mimeType: photo.type,
+    parameters: fields,
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    onProgress: (progress) => {
+      if (onProgress && progress.totalBytes > 0) onProgress(progress.bytesSent / progress.totalBytes);
+    },
+  });
+  const result = await task.uploadAsync();
+  return parseUploadResponse<UploadCollectionResult>(result.body, result.status);
+}
+
+export async function uploadCollection(
+  params: {
+    pokeLidId: string;
+    notes?: string;
+    visitedAt?: string;
+    photo?: UploadPhotoInput;
+  },
+  onProgress?: (fraction: number) => void,
+): Promise<UploadCollectionResult> {
+  // The 401-retry path in request() re-sends the same RequestInit, which is
+  // unsafe for a FormData/file body in some environments — refresh ahead of
+  // time instead or the retry can't happen at all for the two transports
+  // below (neither goes through request()).
+  await ensureFreshToken();
+
+  const fields: Record<string, string> = { pokeLidId: params.pokeLidId };
+  if (params.notes) fields.notes = params.notes;
+  if (params.visitedAt) fields.visitedAt = params.visitedAt;
+
+  if (!params.photo) {
+    const form = new FormData();
+    for (const [key, value] of Object.entries(fields)) form.append(key, value);
+    return request<UploadCollectionResult>('/api/collections', { method: 'POST', body: form });
+  }
+
+  // fetch has no upload-progress API at all, so a >25MB photo on a slow
+  // mobile connection can take tens of seconds with no visible movement
+  // (see 4-4) — XMLHttpRequest (web) and expo-file-system's UploadTask
+  // (native) both expose real byte-level progress instead.
+  const url = `${getApiBaseUrl()}/api/collections`;
+  return Platform.OS === 'web'
+    ? uploadViaXhr(url, fields, params.photo, onProgress)
+    : uploadViaFileSystemTask(url, fields, params.photo, onProgress);
+}
+
+export async function deleteCollection(collectionId: string): Promise<{ summary: CollectionSummary }> {
+  return request(`/api/collections/${collectionId}`, { method: 'DELETE' });
 }
 
 export async function updateCollectionNotes(collectionId: string, notes: string | null): Promise<void> {
@@ -287,21 +364,23 @@ export async function updateCollectionNotes(collectionId: string, notes: string 
   });
 }
 
-// Both of these return the collection's full, updated photo list (rather
-// than 204/the single changed photo) so the caller never has to re-derive
-// which photo is now primary — the server, which enforces the "at most one
-// primary" constraint, is the source of truth for that.
+// Both of these return the collection's full, updated state (rather than
+// 204/just the changed photo) so the caller never has to re-derive which
+// photo is now primary, or re-fetch to refresh its collected-count UI — the
+// server, which enforces the "at most one primary" constraint and computes
+// `summary`, is the source of truth for both.
 export async function deleteCollectionPhoto(
   collectionId: string,
   photoId: string,
-): Promise<CollectionPhoto[]> {
-  return request<CollectionPhoto[]>(`/api/collections/${collectionId}/photos/${photoId}`, {
-    method: 'DELETE',
-  });
+): Promise<UploadCollectionResult> {
+  return request(`/api/collections/${collectionId}/photos/${photoId}`, { method: 'DELETE' });
 }
 
-export async function setPrimaryPhoto(collectionId: string, photoId: string): Promise<CollectionPhoto[]> {
-  return request<CollectionPhoto[]>(`/api/collections/${collectionId}/photos/${photoId}`, {
+export async function setPrimaryPhoto(
+  collectionId: string,
+  photoId: string,
+): Promise<UploadCollectionResult> {
+  return request(`/api/collections/${collectionId}/photos/${photoId}`, {
     method: 'PATCH',
     body: JSON.stringify({ isPrimary: true }),
   });

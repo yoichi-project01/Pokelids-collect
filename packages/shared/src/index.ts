@@ -111,6 +111,53 @@ export interface ProgressDto {
   }>;
 }
 
+// Returned alongside every collections mutation (create, delete, photo
+// delete/promote) so a client can update its "collected count" / prefecture
+// progress UI from that single response instead of re-fetching /progress
+// and /collections/me afterward. Nested under `prefecture` rather than
+// flattened because 7-4/7-5 are expected to add more fields here (nearest
+// uncollected poke lid, municipality-level progress) and a flat shape would
+// force a breaking rename at that point.
+export interface CollectionSummary {
+  collectedCount: number;
+  prefecture: {
+    id: number;
+    collected: number;
+    total: number;
+  };
+}
+
+// One prefecture's poke lids, each flagged with whether the requesting user
+// has collected it. Kept minimal (no id, no other fields) so the caller can
+// hand this pure function whatever it already fetched, in whatever shape,
+// without an extra mapping step just to satisfy a wider type.
+interface PrefectureLidCollectionStatus {
+  retiredAt: string | Date | null | undefined;
+  collected: boolean;
+}
+
+// `total` excludes retired lids (same rule as progress.ts's buildProgress —
+// a retired lid can no longer be visited, so it drops out of "how many are
+// there to collect"). `collected` does NOT exclude them: a collection record
+// is a memory of a real visit, and losing it from the count just because the
+// lid was later retired would contradict 2-1's "撤去済みでも収集済みの記録
+// は残す" policy. This asymmetry is exactly why it's a separate, tested
+// function rather than inline filtering at each call site.
+export function buildCollectionSummary(
+  collectedCount: number,
+  prefectureId: number,
+  prefectureLids: PrefectureLidCollectionStatus[],
+): CollectionSummary {
+  return {
+    collectedCount,
+    prefecture: {
+      id: prefectureId,
+      collected: prefectureLids.filter((l) => l.collected).length,
+      total: prefectureLids.filter((l) => countsTowardProgress(l.retiredAt)).length,
+    },
+  };
+}
+
 export interface NearbyPokeLidDto {
   id: string;
   municipality: string;

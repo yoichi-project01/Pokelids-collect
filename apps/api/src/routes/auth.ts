@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import rateLimit from 'express-rate-limit';
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import { sendPasswordResetEmail } from '../lib/email';
+import { removeFileBestEffort } from '../lib/fileCleanup';
 import { prisma } from '../lib/prisma';
 import {
   signAccessToken,
@@ -249,10 +249,18 @@ authRouter.get('/me', requireAuth, async (req: AuthedRequest, res) => {
 
 authRouter.delete('/me', requireAuth, async (req: AuthedRequest, res) => {
   const userId = req.userId!;
+  // File removal first, DB row second — the reverse of what this looked
+  // like before. If fs.rm fails partway through (permissions, a busy file)
+  // after the DB delete had already run, the response would 500 even
+  // though the account really is gone, and there'd be no user row left to
+  // account for the orphaned directory. Trying the (best-effort, logged)
+  // file removal first means the DB delete — the operation that actually
+  // defines "deleted" for the user — always runs last and unconditionally,
+  // so the response accurately reflects it.
+  await removeFileBestEffort(path.join(PHOTO_STORAGE_PATH, userId), { userId, recursive: true });
   // Cascades to refresh_tokens, collections, and photos at the DB level
   // (onDelete: Cascade in the schema); the photo files themselves aren't
-  // tracked by Postgres, so they're removed separately below.
+  // tracked by Postgres, which is why they're removed separately above.
   await prisma.user.delete({ where: { id: userId } });
-  await fs.rm(path.join(PHOTO_STORAGE_PATH, userId), { recursive: true, force: true });
   res.status(204).end();
 });

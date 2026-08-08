@@ -9,6 +9,7 @@ import sharp from 'sharp';
 import { z } from 'zod';
 import { PhotoMedal } from '@prisma/client';
 import { determinePhotoMedal, haversineDistanceMeters, isValidVisitedAt } from '@pokelids/shared';
+import { removeFileBestEffort } from '../lib/fileCleanup';
 import { prisma } from '../lib/prisma';
 import { signPhotoAccessToken } from '../lib/auth';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
@@ -131,24 +132,15 @@ function thumbPathFor(relativePath: string): string {
 }
 
 // Best-effort: file removal is tried before the DB row is touched, but a
-// failure here (e.g. a permissions issue) must not abort the request — an
-// orphaned file that's merely logged can be found and cleaned up later from
-// the filesystem side, whereas an orphaned DB row pointing at a file that's
-// actually gone cannot be recovered from at all. Same ordering/tolerance as
-// 2-5's account deletion.
+// failure here must not abort the request (see removeFileBestEffort). Same
+// ordering/tolerance as 2-5's account deletion.
 async function removePhotoFiles(photo: { id: string; userId: string; filePath: string }): Promise<void> {
-  const targets = [
-    path.join(PHOTO_STORAGE_PATH, photo.filePath),
-    path.join(PHOTO_STORAGE_PATH, thumbPathFor(photo.filePath)),
-  ];
-  const results = await Promise.allSettled(targets.map((p) => fs.rm(p, { force: true })));
-  results.forEach((result, i) => {
-    if (result.status === 'rejected') {
-      console.error(
-        `Failed to delete photo file for photo=${photo.id} user=${photo.userId} path=${targets[i]}: ${result.reason}`,
-      );
-    }
-  });
+  await Promise.all([
+    removeFileBestEffort(path.join(PHOTO_STORAGE_PATH, photo.filePath), { userId: photo.userId }),
+    removeFileBestEffort(path.join(PHOTO_STORAGE_PATH, thumbPathFor(photo.filePath)), {
+      userId: photo.userId,
+    }),
+  ]);
 }
 
 function serializePhoto(photo: { id: string; isPrimary: boolean; medal: PhotoMedal; createdAt: Date }) {

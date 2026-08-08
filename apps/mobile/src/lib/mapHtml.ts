@@ -5,6 +5,15 @@ export interface MapMarkerData {
   name: string;
   imageUrl: string | null;
   collected: boolean;
+  // Whether this pin's popup should offer "写真を撮って記録" (6-6) — true
+  // only when the device's current location is within
+  // QUICK_RECORD_RADIUS_METERS of this poke lid. Computed once, up front
+  // (see useMapMarkers), rather than left for leaflet-init.js to work out:
+  // it already has `currentLocation` in the same JSON payload, but keeping
+  // the threshold constant and the distance math on the TS side (where
+  // `@pokelids/shared` is a normal import) avoids re-deriving/duplicating
+  // both in the plain-JS map init script.
+  canQuickRecord: boolean;
 }
 
 // Leaflet + Leaflet.markercluster (and the map init logic itself) are
@@ -49,6 +58,21 @@ export function buildMapHtml(
     width: 16px; height: 16px; border-radius: 50%; background: #1a73e8;
     border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(26,115,232,0.4), 0 1px 4px rgba(0,0,0,0.4);
   }
+  .poke-lid-popup { min-width: 168px; }
+  .poke-lid-popup-name { font-size: 13px; font-weight: 600; color: #1C1C1E; margin: 0 0 8px; }
+  .poke-lid-popup-actions { display: flex; flex-direction: column; gap: 6px; }
+  /* min-height: 44px matches this app's own tap-target floor (3-3) — this
+     button lives in a Leaflet popup on a map meant to be used outdoors,
+     one-handed (6-6), not a React Native Pressable, so it needs its own
+     explicit sizing rather than inheriting a shared component's. */
+  .poke-lid-popup-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; box-sizing: border-box; min-height: 44px;
+    padding: 0 12px; border-radius: 12px; border: 1px solid #E5E5EA;
+    background: #fff; color: #1C1C1E; font-size: 14px; font-weight: 600;
+    cursor: pointer;
+  }
+  .poke-lid-popup-btn-primary { background: #0F766E; border-color: #0F766E; color: #fff; }
 </style>
 </head>
 <body>

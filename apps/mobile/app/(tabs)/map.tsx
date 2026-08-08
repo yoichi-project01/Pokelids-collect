@@ -1,21 +1,34 @@
 import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
+import { CelebrationModal } from '../../src/components/CelebrationModal';
 import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
 import { MapRefreshButton } from '../../src/components/MapRefreshButton';
+import { PhotoPreviewModal } from '../../src/components/PhotoPreviewModal';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
+import { UploadProgressBanner } from '../../src/components/UploadProgressBanner';
 import { getApiBaseUrl } from '../../src/lib/api';
 import { buildMapHtml } from '../../src/lib/mapHtml';
 import { useMapMarkers } from '../../src/lib/useMapMarkers';
+import { useQuickRecord } from '../../src/lib/useQuickRecord';
 import { colors, spacing } from '../../src/theme';
 
 export default function MapScreen() {
   const router = useRouter();
   const { markers, location, error, refreshing, reload } = useMapMarkers();
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
+  const webViewRef = useRef<WebView>(null);
+
+  // Patches the just-recorded pin to teal in place, via leaflet-init.js's
+  // reverse postMessage channel, instead of refetching/regenerating the
+  // whole map — which would reset pan/zoom right when the user most wants
+  // the map to hold still (6-6).
+  const quickRecord = useQuickRecord((pokeLidId) => {
+    webViewRef.current?.postMessage(JSON.stringify({ type: 'markCollected', id: pokeLidId }));
+  });
 
   function onMessage(event: WebViewMessageEvent) {
     let data: { type?: string; id?: string };
@@ -26,6 +39,8 @@ export default function MapScreen() {
     }
     if (data.type === 'select' && data.id) {
       router.push(`/poke-lids/${data.id}`);
+    } else if (data.type === 'quickRecord' && data.id) {
+      void quickRecord.startQuickRecord(data.id);
     }
   }
 
@@ -78,6 +93,7 @@ export default function MapScreen() {
         </View>
       ) : (
         <WebView
+          ref={webViewRef}
           style={{ flex: 1 }}
           originWhitelist={['*']}
           source={{
@@ -90,6 +106,25 @@ export default function MapScreen() {
           onMessage={onMessage}
         />
       )}
+      {quickRecord.uploading && <UploadProgressBanner progress={quickRecord.uploadProgress} />}
+      <PhotoPreviewModal
+        visible={quickRecord.pendingPhoto !== null}
+        uri={quickRecord.pendingPhoto?.uri ?? null}
+        source="camera"
+        onConfirm={quickRecord.confirmUpload}
+        onRetake={quickRecord.retakePhoto}
+        onDismiss={quickRecord.dismissPreview}
+      />
+      <CelebrationModal
+        visible={quickRecord.celebration !== null}
+        medal={quickRecord.celebration?.medal ?? null}
+        milestone={quickRecord.celebration?.milestone ?? null}
+        summary={quickRecord.celebration?.summary ?? null}
+        totalPokeLidsNationwide={quickRecord.totalPokeLidsNationwide}
+        onClose={quickRecord.closeCelebration}
+        onRetake={quickRecord.retakeFromCelebration}
+        onNavigateToNext={quickRecord.navigateToNext}
+      />
     </View>
   );
 }

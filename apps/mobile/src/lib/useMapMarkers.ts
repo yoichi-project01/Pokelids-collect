@@ -1,11 +1,17 @@
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { isPokeLidVisible } from '@pokelids/shared';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { haversineDistanceMeters, isPokeLidVisible, QUICK_RECORD_RADIUS_METERS } from '@pokelids/shared';
 import { fetchMyCollections, fetchPokeLids } from './api';
 import { useAuth } from './auth';
 import { getGuestCollectedIds } from './guestStorage';
 import { getCurrentLocation, type Coordinates } from './location';
 import type { MapMarkerData } from './mapHtml';
+
+// Bare marker data — everything except canQuickRecord, which depends on
+// `location` and is computed separately below (see `markers`) so a location
+// fix arriving after the poke lid fetch already resolved doesn't require
+// refetching or rebuilding this array.
+type RawMarkerData = Omit<MapMarkerData, 'canQuickRecord'>;
 
 export function useMapMarkers(): {
   markers: MapMarkerData[] | null;
@@ -19,7 +25,7 @@ export function useMapMarkers(): {
   reload: () => void;
 } {
   const { user, isLoading: authLoading } = useAuth();
-  const [markers, setMarkers] = useState<MapMarkerData[] | null>(null);
+  const [rawMarkers, setRawMarkers] = useState<RawMarkerData[] | null>(null);
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -43,7 +49,7 @@ export function useMapMarkers(): {
         .then(([lids, collections, guestIds]) => {
           if (cancelled) return;
           const collectedIds = new Set([...collections.map((c) => c.pokeLidId), ...guestIds]);
-          setMarkers(
+          setRawMarkers(
             lids
               .filter((l) => isPokeLidVisible(l.retiredAt, collectedIds.has(l.id)))
               .map((l) => ({
@@ -72,6 +78,22 @@ export function useMapMarkers(): {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [authLoading, user, reloadKey]),
   );
+
+  // Recomputed whenever either input changes — in particular, when `location`
+  // resolves after `rawMarkers` already loaded (the location fetch and the
+  // poke-lid fetch are two independent, differently-timed effects), this
+  // re-derives canQuickRecord for the existing markers instead of needing a
+  // refetch.
+  const markers = useMemo<MapMarkerData[] | null>(() => {
+    if (!rawMarkers) return null;
+    return rawMarkers.map((m) => ({
+      ...m,
+      canQuickRecord:
+        location !== null &&
+        haversineDistanceMeters(location.latitude, location.longitude, m.lat, m.lng) <=
+          QUICK_RECORD_RADIUS_METERS,
+    }));
+  }, [rawMarkers, location]);
 
   return { markers, location, error, refreshing, reload: () => setReloadKey((k) => k + 1) };
 }

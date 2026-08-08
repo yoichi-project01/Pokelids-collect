@@ -1,20 +1,45 @@
 import { useRouter } from 'expo-router';
 import Head from 'expo-router/head';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { CelebrationModal } from '../../src/components/CelebrationModal';
 import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
 import { MapRefreshButton } from '../../src/components/MapRefreshButton';
+import { PhotoPreviewModal } from '../../src/components/PhotoPreviewModal';
+import { UploadProgressBanner } from '../../src/components/UploadProgressBanner';
 import { getApiBaseUrl } from '../../src/lib/api';
 import { buildMapHtml } from '../../src/lib/mapHtml';
 import { useMapMarkers } from '../../src/lib/useMapMarkers';
+import { useQuickRecord } from '../../src/lib/useQuickRecord';
 import { colors, spacing } from '../../src/theme';
 
 export default function MapScreen() {
   const router = useRouter();
   const { markers, location, error, refreshing, reload } = useMapMarkers();
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Patches the just-recorded pin to teal in place, via leaflet-init.js's
+  // reverse postMessage channel, instead of refetching/regenerating the
+  // whole map — which would reset pan/zoom right when the user most wants
+  // the map to hold still (6-6).
+  const quickRecord = useQuickRecord((pokeLidId) => {
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ type: 'markCollected', id: pokeLidId }),
+      '*',
+    );
+  });
+  // useQuickRecord returns a fresh object every render, so the message
+  // listener effect below reads through this ref rather than depending on
+  // `quickRecord` directly — depending on it would tear down and re-add the
+  // window listener on every render for no benefit. Updated in its own
+  // effect (not during render) per react-hooks/refs.
+  const quickRecordRef = useRef(quickRecord);
+  useEffect(() => {
+    quickRecordRef.current = quickRecord;
+  });
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
@@ -26,6 +51,8 @@ export default function MapScreen() {
       }
       if (data.type === 'select' && data.id) {
         router.push(`/poke-lids/${data.id}`);
+      } else if (data.type === 'quickRecord' && data.id) {
+        void quickRecordRef.current.startQuickRecord(data.id);
       }
     }
     window.addEventListener('message', onMessage);
@@ -94,6 +121,7 @@ export default function MapScreen() {
         </View>
       ) : (
         <iframe
+          ref={iframeRef}
           title="poke-lids-map"
           srcDoc={buildMapHtml(
             visibleMarkers,
@@ -103,6 +131,25 @@ export default function MapScreen() {
           style={{ border: 'none', width: '100%', flex: 1 }}
         />
       )}
+      {quickRecord.uploading && <UploadProgressBanner progress={quickRecord.uploadProgress} />}
+      <PhotoPreviewModal
+        visible={quickRecord.pendingPhoto !== null}
+        uri={quickRecord.pendingPhoto?.uri ?? null}
+        source="camera"
+        onConfirm={quickRecord.confirmUpload}
+        onRetake={quickRecord.retakePhoto}
+        onDismiss={quickRecord.dismissPreview}
+      />
+      <CelebrationModal
+        visible={quickRecord.celebration !== null}
+        medal={quickRecord.celebration?.medal ?? null}
+        milestone={quickRecord.celebration?.milestone ?? null}
+        summary={quickRecord.celebration?.summary ?? null}
+        totalPokeLidsNationwide={quickRecord.totalPokeLidsNationwide}
+        onClose={quickRecord.closeCelebration}
+        onRetake={quickRecord.retakeFromCelebration}
+        onNavigateToNext={quickRecord.navigateToNext}
+      />
     </View>
   );
 }

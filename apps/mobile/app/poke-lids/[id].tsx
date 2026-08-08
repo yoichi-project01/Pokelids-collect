@@ -4,7 +4,7 @@ import Head from 'expo-router/head';
 import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
-  PREFECTURES,
+  computeCelebrationMilestone,
   countsTowardProgress,
   haversineDistanceMeters,
   type CollectionDto,
@@ -44,12 +44,6 @@ import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
 import { showToast } from '../../src/lib/toast';
 import { colors, radius, spacing, typography } from '../../src/theme';
-
-// Round-number milestones for the "N箇所達成" celebration. Starting with a
-// handful of well-spaced values (not every 10) so it stays a genuine treat
-// rather than firing constantly — tune this list based on how it actually
-// feels in use.
-const MILESTONE_COUNTS = [10, 50, 100, 150, 200, 250, 300, 350, 400, 450];
 
 // Evaluated in Node.js at build time, once per `expo export`. Without this,
 // `web.output: "static"` only ever generates one literal
@@ -240,24 +234,9 @@ export default function PokeLidDetailScreen() {
       // serializeCollection), so it's the last element.
       const newPhoto = updated.photos[updated.photos.length - 1] ?? null;
       if (newPhoto) {
-        let milestone: string | null = null;
-        const { prefecture, municipality } = summary;
-        if (prefecture.total > 0 && prefecture.collected === prefecture.total) {
-          const prefName = PREFECTURES.find((p) => p.id === prefecture.id)?.nameJa ?? '';
-          milestone = `${prefName}コンプリート！`;
-        } else if (
-          // total >= 2 guard matches the home screen's "もう少しで達成" shelf
-          // (7-5): a municipality with only one poke lid "completes" on every
-          // single visit there (it's ~91% of all municipalities — see the
-          // distribution survey behind this task), which would make this
-          // celebration fire almost constantly and stop feeling special.
-          municipality.total >= 2 &&
-          municipality.collected === municipality.total
-        ) {
-          milestone = `${municipality.municipality}コンプリート！`;
-        } else if (MILESTONE_COUNTS.includes(summary.collectedCount)) {
-          milestone = `${summary.collectedCount}箇所達成！`;
-        }
+        // Shared with the map's quick-record flow (6-6) — see its doc
+        // comment in packages/shared for the exact priority/guard logic.
+        const milestone = computeCelebrationMilestone(summary);
         setCelebration({ medal: newPhoto.medal, milestone, source, summary });
       }
     } catch (err) {

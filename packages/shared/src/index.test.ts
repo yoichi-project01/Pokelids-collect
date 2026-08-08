@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildCollectionSummary,
+  computeCelebrationMilestone,
   countsTowardProgress,
   determinePhotoMedal,
   haversineDistanceMeters,
   isPokeLidVisible,
   isValidVisitedAt,
   municipalityKey,
+  type CollectionSummary,
 } from './index';
 
 describe('haversineDistanceMeters', () => {
@@ -345,5 +347,75 @@ describe('buildCollectionSummary — municipality tally (7-5)', () => {
     expect(summary.municipality.prefectureId).toBe(34);
     expect(summary.municipality.total).toBe(1);
     expect(summary.municipality.collected).toBe(0);
+  });
+});
+
+describe('computeCelebrationMilestone', () => {
+  // Fills in every field of CollectionSummary so each test only has to
+  // spell out the one or two fields it's exercising.
+  function summaryOf(overrides: Partial<CollectionSummary> = {}): CollectionSummary {
+    return {
+      collectedCount: 1,
+      prefecture: { id: 28, collected: 0, total: 57 },
+      municipality: { prefectureId: 28, municipality: 'テスト市', collected: 0, total: 2 },
+      nearestUncollected: null,
+      isFirstCollection: false,
+      ...overrides,
+    };
+  }
+
+  it('celebrates a completed prefecture', () => {
+    const milestone = computeCelebrationMilestone(
+      summaryOf({ prefecture: { id: 28, collected: 57, total: 57 } }),
+    );
+    expect(milestone).toBe('兵庫県コンプリート！');
+  });
+
+  it('celebrates a completed municipality with 2+ poke lids', () => {
+    const milestone = computeCelebrationMilestone(
+      summaryOf({ municipality: { prefectureId: 28, municipality: '西宮市', collected: 4, total: 4 } }),
+    );
+    expect(milestone).toBe('西宮市コンプリート！');
+  });
+
+  // The exact case buildCollectionSummary's own municipality guard exists
+  // for: a single-lid municipality "completes" on every visit there, which
+  // would fire this constantly and stop feeling special (91% of all
+  // municipalities are single-lid — see 7-5's distribution survey).
+  it('does not celebrate a "completed" single-lid municipality', () => {
+    const milestone = computeCelebrationMilestone(
+      summaryOf({
+        municipality: { prefectureId: 28, municipality: 'ソロ町', collected: 1, total: 1 },
+        collectedCount: 7,
+      }),
+    );
+    expect(milestone).toBeNull();
+  });
+
+  it('prioritizes a completed prefecture over a completed municipality', () => {
+    const milestone = computeCelebrationMilestone(
+      summaryOf({
+        prefecture: { id: 28, collected: 57, total: 57 },
+        municipality: { prefectureId: 28, municipality: '西宮市', collected: 4, total: 4 },
+      }),
+    );
+    expect(milestone).toBe('兵庫県コンプリート！');
+  });
+
+  it('falls back to a round-number count milestone', () => {
+    const milestone = computeCelebrationMilestone(summaryOf({ collectedCount: 50 }));
+    expect(milestone).toBe('50箇所達成！');
+  });
+
+  it('returns null when nothing is complete and the count is not a milestone', () => {
+    const milestone = computeCelebrationMilestone(summaryOf({ collectedCount: 7 }));
+    expect(milestone).toBeNull();
+  });
+
+  it('treats a prefecture with zero total as not completable (avoids a false 0/0 celebration)', () => {
+    const milestone = computeCelebrationMilestone(
+      summaryOf({ prefecture: { id: 28, collected: 0, total: 0 }, collectedCount: 7 }),
+    );
+    expect(milestone).toBeNull();
   });
 });

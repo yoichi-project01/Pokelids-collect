@@ -278,6 +278,39 @@ export function buildCollectionSummary(
   };
 }
 
+// Round-number milestones for the "N箇所達成" celebration. Starting with a
+// handful of well-spaced values (not every 10) so it stays a genuine treat
+// rather than firing constantly — tune this list based on how it actually
+// feels in use.
+const MILESTONE_COUNTS = [10, 50, 100, 150, 200, 250, 300, 350, 400, 450];
+
+// The celebration text (if any) for a just-completed collections mutation —
+// shared between the poke-lid detail screen's upload flow and the map's
+// quick-record flow (6-6), which both need the exact same priority logic.
+// Checked in order, first match wins:
+//   1. Prefecture complete — the rarest, biggest achievement.
+//   2. Municipality complete, but only when it has 2+ poke lids. A
+//      single-lid municipality "completes" on every visit there (91% of all
+//      municipalities are single-lid — see 7-5's distribution survey), which
+//      would fire this constantly and stop feeling special.
+//   3. A round-number total count milestone.
+// Returns null when none apply — callers should treat that as "no
+// milestone", not an error.
+export function computeCelebrationMilestone(summary: CollectionSummary): string | null {
+  const { prefecture, municipality } = summary;
+  if (prefecture.total > 0 && prefecture.collected === prefecture.total) {
+    const prefName = PREFECTURES.find((p) => p.id === prefecture.id)?.nameJa ?? '';
+    return `${prefName}コンプリート！`;
+  }
+  if (municipality.total >= 2 && municipality.collected === municipality.total) {
+    return `${municipality.municipality}コンプリート！`;
+  }
+  if (MILESTONE_COUNTS.includes(summary.collectedCount)) {
+    return `${summary.collectedCount}箇所達成！`;
+  }
+  return null;
+}
+
 export interface NearbyPokeLidDto {
   id: string;
   municipality: string;
@@ -314,6 +347,31 @@ export function determinePhotoMedal(distanceMeters: number | null, radiusMeters:
   if (distanceMeters === null) return 'SILVER';
   return distanceMeters <= radiusMeters ? 'GOLD' : 'NONE';
 }
+
+// Client-side gate for the map's "写真を撮って記録" quick-record button
+// (6-6): only shown when the device's live GPS position is within this
+// distance of a poke lid's own coordinates.
+//
+// This is numerically the same 200m as apps/api/src/routes/collections.ts's
+// GEO_VERIFY_RADIUS_METERS, but deliberately a SEPARATE constant, not one
+// shared between server and client — because the two answer different
+// questions, checked against different data:
+//   - GEO_VERIFY_RADIUS_METERS asks "did the photo actually get taken
+//     there?", checked server-side against the photo's own EXIF GPS, after
+//     the fact.
+//   - QUICK_RECORD_RADIUS_METERS asks "is this device standing there right
+//     now?", checked client-side against a live GPS fix, before a photo even
+//     exists.
+// Because the measurements come from different sensors at different
+// moments, they can legitimately disagree: a phone's live fix might read
+// 180m (button shows) while the photo's own EXIF — captured moments later,
+// with a different fix — comes back at 220m server-side (SILVER/NONE, not
+// GOLD). Showing this button is never a promise of a medal.
+// Keeping them separate also means this one can be loosened or tightened
+// from real outdoor use (a GPS fix indoors/underground/between buildings can
+// easily be off by 100m+) without ever touching the medal threshold, which
+// should stay stable once users are relying on it to mean something.
+export const QUICK_RECORD_RADIUS_METERS = 200;
 
 // No poke lid was installed before this date; a Collection.visitedAt earlier
 // than it can only be bad client input, and would otherwise corrupt the

@@ -303,7 +303,11 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   heroLabel: { ...typography.caption },
-  heroStatRow: { flexDirection: 'row', alignItems: 'baseline', gap: spacing.xs },
+  // flexWrap: RN's Text defaults to allowFontScaling: true, so maxing out
+  // the OS font size setting can make heroCount + heroTotal + percentBadge
+  // wider than the screen. Wrapping lets the badge (marginLeft: 'auto')
+  // drop to its own line and still hug the right edge there.
+  heroStatRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', gap: spacing.xs },
   heroCount: { fontSize: 40, fontWeight: '800', color: colors.textPrimary },
   heroTotal: { ...typography.body, color: colors.textSecondary, marginRight: spacing.sm },
   percentBadge: {
@@ -315,7 +319,10 @@ const styles = StyleSheet.create({
   },
   percentBadgeText: { color: colors.white, fontWeight: '700', fontSize: 13 },
   guestNotice: { ...typography.footnote, color: colors.danger },
-  rowProgress: { width: 110 },
+  // flex: 1 with min/max caps instead of a fixed width: 320px screens need
+  // the bar to shrink so it doesn't crowd the prefecture name, and 720px
+  // (web's ScreenContainer cap) shouldn't stretch it into a thin sliver.
+  rowProgress: { flex: 1, maxWidth: 160, minWidth: 80 },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'baseline',

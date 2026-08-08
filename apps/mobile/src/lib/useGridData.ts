@@ -19,6 +19,14 @@ export function useResponsiveColumns(): number {
   return 2;
 }
 
+// Same breakpoint as the 2-column grid floor above: below it, a screen is
+// narrow enough that two-across layouts (e.g. stat cards) get cramped, so
+// callers stack to a single column instead.
+export function useIsNarrowScreen(): boolean {
+  const { width } = useWindowDimensions();
+  return width < THREE_COLUMN_MIN_WIDTH;
+}
+
 // FlatList's numColumns wraps each row in a bare View and gives every cell
 // flex: 1; when the last row has fewer items than `columns`, those flex: 1
 // cells absorb the row's leftover width and stretch — most visibly on

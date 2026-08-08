@@ -53,7 +53,10 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   row: {
-    height: HEADER_HEIGHT,
+    // minHeight, not height: at max OS font scaling the 17px title can
+    // exceed 56px, and a fixed height would clip it instead of letting the
+    // row (and its surrounding background) grow to fit.
+    minHeight: HEADER_HEIGHT,
     width: '100%',
     maxWidth: CONTENT_MAX_WIDTH,
     alignSelf: 'center',

@@ -15,6 +15,7 @@ import {
   GRID_CELL_PADDING,
   gridKeyExtractor,
   useGridData,
+  useIsNarrowScreen,
   useResponsiveColumns,
 } from '../../src/lib/useGridData';
 import { colors, radius, spacing, typography } from '../../src/theme';
@@ -29,6 +30,7 @@ export default function CollectionScreen() {
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const columns = useResponsiveColumns();
+  const isNarrow = useIsNarrowScreen();
 
   useEffect(() => {
     getCurrentLocation().then(setLocation);
@@ -143,11 +145,11 @@ export default function CollectionScreen() {
           ListHeaderComponent={
             stats && (
               <View style={styles.statsCard}>
-                <View style={styles.statsRow}>
+                <View style={[styles.statsRow, isNarrow && styles.statsRowNarrow]}>
                   <Stat label="訪問した都道府県" value={`${stats.prefectureCount} / 47`} />
                   <Stat label="🥇獲得数" value={String(stats.goldCount)} />
                 </View>
-                <View style={styles.statsRow}>
+                <View style={[styles.statsRow, isNarrow && styles.statsRowNarrow]}>
                   <Stat label="最初の記録" value={formatDateJST(stats.firstDate)} />
                   <Stat label="最新の記録" value={formatDateJST(stats.latestDate)} />
                 </View>
@@ -222,6 +224,10 @@ const styles = StyleSheet.create({
     margin: spacing.sm,
   },
   statsRow: { flexDirection: 'row', gap: spacing.lg },
+  // Below THREE_COLUMN_MIN_WIDTH a 2-column stat card leaves ~130px per
+  // cell — not enough for values like "稚内市（1,203.4km）" — so stack
+  // to one column instead of shrinking further.
+  statsRowNarrow: { flexDirection: 'column', gap: spacing.md },
   stat: { flex: 1 },
   statValue: { ...typography.bodyMedium, fontSize: 18 },
   statLabel: { ...typography.footnote },

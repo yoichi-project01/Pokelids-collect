@@ -8,6 +8,7 @@ import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchPokeLids, photoUrl } from '../../src/lib/api';
 import type { CollectionSummary } from '../../src/lib/api';
+import { formatDateJST } from '../../src/lib/date';
 import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import {
   GRID_CELL_PADDING,
@@ -121,8 +122,8 @@ export default function CollectionScreen() {
                   <Stat label="🥇獲得数" value={String(stats.goldCount)} />
                 </View>
                 <View style={styles.statsRow}>
-                  <Stat label="最初の記録" value={stats.firstDate.toLocaleDateString('ja-JP')} />
-                  <Stat label="最新の記録" value={stats.latestDate.toLocaleDateString('ja-JP')} />
+                  <Stat label="最初の記録" value={formatDateJST(stats.firstDate)} />
+                  <Stat label="最新の記録" value={formatDateJST(stats.latestDate)} />
                 </View>
                 {stats.farthest && (
                   <Stat
@@ -141,7 +142,7 @@ export default function CollectionScreen() {
             return (
               <PokeLidCard
                 title={lid?.municipality ?? '（不明）'}
-                subtitle={new Date(item.visitedAt).toLocaleDateString('ja-JP')}
+                subtitle={formatDateJST(item.visitedAt)}
                 imageUri={primaryPhoto ? photoUrl(primaryPhoto.thumbUrl) : lid?.officialImageUrl}
                 collected
                 badge={

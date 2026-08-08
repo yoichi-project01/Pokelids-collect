@@ -25,6 +25,7 @@ import {
 import type { CollectionSummary } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { confirmAsync } from '../../src/lib/confirm';
+import { formatDateJST } from '../../src/lib/date';
 import {
   getGuestCollection,
   removeGuestCollected,
@@ -312,9 +313,7 @@ export default function PokeLidDetailScreen() {
         <View style={styles.card}>
           {user && collection ? (
             <View>
-              <Text style={styles.collectedLabel}>
-                ✓ 収集済み（{new Date(collection.visitedAt).toLocaleDateString('ja-JP')}）
-              </Text>
+              <Text style={styles.collectedLabel}>✓ 収集済み（{formatDateJST(collection.visitedAt)}）</Text>
               <ScrollView horizontal style={styles.photoRow}>
                 {collection.photos.map((p) => (
                   <View key={p.id} style={styles.photoThumbWrapper}>
@@ -358,7 +357,7 @@ export default function PokeLidDetailScreen() {
             </View>
           ) : !user && guestCollection ? (
             <Text style={styles.collectedLabel}>
-              ✓ 収集済み（{new Date(guestCollection.visitedAt).toLocaleDateString('ja-JP')}・端末に保存中）
+              ✓ 収集済み（{formatDateJST(guestCollection.visitedAt)}・端末に保存中）
             </Text>
           ) : (
             <Text style={styles.notCollectedLabel}>まだ収集していません</Text>

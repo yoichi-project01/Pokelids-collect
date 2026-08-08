@@ -2,7 +2,11 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    include: ['apps/api/src/**/*.test.ts', 'packages/shared/src/**/*.test.ts'],
+    include: [
+      'apps/api/src/**/*.test.ts',
+      'apps/mobile/src/**/*.test.ts',
+      'packages/shared/src/**/*.test.ts',
+    ],
     env: {
       JWT_ACCESS_SECRET: 'test-access-secret',
       JWT_REFRESH_SECRET: 'test-refresh-secret',

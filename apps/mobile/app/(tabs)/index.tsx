@@ -1,7 +1,16 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Image, SectionList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import {
+  Image,
+  Platform,
+  SectionList,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import type { NearbyPokeLidDto, ProgressDto } from '@pokelids/shared';
 import { ErrorState } from '../../src/components/ErrorState';
 import { ListRow } from '../../src/components/ListRow';
@@ -10,7 +19,15 @@ import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchNearbyPokeLids, fetchPrefectureProgress } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { getGuestCollections, mergeGuestProgress } from '../../src/lib/guestStorage';
-import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
+import {
+  getCurrentLocation,
+  getLocationPermissionStatus,
+  openLocationSettings,
+  requestLocationPermission,
+  setLocationPermissionChangedListener,
+  type Coordinates,
+  type LocationPermissionStatus,
+} from '../../src/lib/location';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
 const NEXT_TO_COLLECT_COUNT = 12;
@@ -58,6 +75,47 @@ function groupByRegion(byPrefecture: PrefectureProgress[]) {
   return sections;
 }
 
+// Denied is a dead end for requestLocationPermission — iOS/Android won't
+// re-show the OS dialog once denied, so tapping "許可してください" again would
+// silently do nothing. Route that case to OS settings instead (native only;
+// there's no web equivalent, so that branch is guidance text, not a button).
+function LocationPermissionCta({
+  status,
+  onRequest,
+}: {
+  status: LocationPermissionStatus | null;
+  onRequest: () => void;
+}) {
+  if (status === 'denied') {
+    if (Platform.OS === 'web') {
+      return (
+        <View style={styles.locationCta}>
+          <Text style={styles.locationCtaText}>
+            📍ブラウザのサイト設定で位置情報を許可すると、近くのポケふたが表示されます
+          </Text>
+        </View>
+      );
+    }
+    return (
+      <TouchableOpacity style={styles.locationCta} onPress={openLocationSettings}>
+        <Text style={styles.locationCtaText}>
+          📍位置情報を許可すると近くのポケふたが表示されます。タップして設定を開く
+        </Text>
+      </TouchableOpacity>
+    );
+  }
+  if (status === 'undetermined') {
+    return (
+      <TouchableOpacity style={styles.locationCta} onPress={onRequest}>
+        <Text style={styles.locationCtaText}>📍近くのポケふたを表示するには位置情報を許可してください</Text>
+      </TouchableOpacity>
+    );
+  }
+  // null (still checking) or 'granted' (just waiting on a GPS fix) — no
+  // action for the user to take, so no CTA.
+  return null;
+}
+
 export default function PrefecturesScreen() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
@@ -65,10 +123,31 @@ export default function PrefecturesScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [location, setLocation] = useState<Coordinates | null>(null);
+  const [locationStatus, setLocationStatus] = useState<LocationPermissionStatus | null>(null);
 
-  useEffect(() => {
-    getCurrentLocation().then(setLocation);
+  const checkLocation = useCallback(async () => {
+    const status = await getLocationPermissionStatus();
+    setLocationStatus(status);
+    setLocation(status === 'granted' ? await getCurrentLocation() : null);
   }, []);
+
+  // useFocusEffect rather than useEffect: re-checks on every visit to this
+  // tab too, not just on mount, which is what actually shows a status
+  // change soon after the user grants or denies it (there's no navigation
+  // focus event for "returned from the OS settings app", but tapping
+  // between tabs is a common enough thing to do right after that this still
+  // catches it quickly in practice).
+  useFocusEffect(
+    useCallback(() => {
+      void checkLocation();
+      // Also re-checks immediately when permission changes elsewhere — the
+      // onboarding flow's location step, or this screen's own CTA below —
+      // both funnel through requestLocationPermission, which notifies this
+      // listener.
+      setLocationPermissionChangedListener(checkLocation);
+      return () => setLocationPermissionChangedListener(null);
+    }, [checkLocation]),
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -157,14 +236,10 @@ export default function PrefecturesScreen() {
                     {location && <Text style={styles.nextSortedLabel}>📍現在地から近い順</Text>}
                   </View>
                   {!location && (
-                    <TouchableOpacity
-                      style={styles.locationCta}
-                      onPress={() => getCurrentLocation().then(setLocation)}
-                    >
-                      <Text style={styles.locationCtaText}>
-                        📍近くのポケふたを表示するには位置情報を許可してください
-                      </Text>
-                    </TouchableOpacity>
+                    <LocationPermissionCta
+                      status={locationStatus}
+                      onRequest={() => requestLocationPermission()}
+                    />
                   )}
                   <ScrollView
                     horizontal

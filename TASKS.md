@@ -131,6 +131,22 @@ Web版で写真アップロードが失敗すると、スピナーが止まる�
 
 ---
 
+## 1-5. CI にマイグレーション検証を追加する（対応済み・2026-08-08）
+
+**背景**
+2026-08-08、`20260806121231_photo_exif_distance` が本番デプロイ時に失敗し、APIコンテナがクラッシュループに陥った。原因はリポジトリに存在しないマイグレーション `20260730133315_photo_exif_distance_only` が7/30にサーバー上で直接適用されており、同じ変更を二重に行おうとしたこと。開発環境に Postgres がないため全マイグレーションが `prisma migrate diff` による手作りで、この不整合は push 時点で検出できなかった。
+
+**変更内容**
+`.github/workflows/ci.yml` の `typecheck-lint` ジョブに Postgres 16 のサービスコンテナ（health check付き）を追加し、以下2つの検証ステップを既存ステップの前に追加した。
+- `prisma migrate deploy`：空DBに全マイグレーションを順番適用できるか
+- `prisma migrate diff --from-url ... --to-schema-datamodel ... --exit-code`：適用後のDBと `schema.prisma` に差分がないか（差分があれば非ゼロ終了）
+
+**受け入れ基準**
+- ✅ 意図的に壊したマイグレーション／未マイグレーションのスキーマ変更の両方で、対応するCIステップが実際に落ちることを確認した（後者はローカルでPostgres 16コンテナを立てて `migrate deploy` → `migrate diff --exit-code` を再現し確認。前者は検証中に実際に発生：`20260808100000_add_photo_original_filename` が空DB適用時に「列が既に存在する」で失敗するバグを本番修正の直後に検出し、`IF NOT EXISTS` 付きに直した）
+- ✅ 既存の typecheck / lint / prettier / test ステップは維持
+
+---
+
 # フェーズ2: データモデル
 
 ## 2-1. 撤去されたポケふたを論理削除で扱えるようにする

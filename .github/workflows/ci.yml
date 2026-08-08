@@ -8,6 +8,27 @@ on:
 jobs:
   typecheck-lint:
     runs-on: ubuntu-latest
+    services:
+      # Matches the major version of postgres:16-alpine used in docker-compose.yml.
+      # There's no Postgres in local dev, so every migration so far has been
+      # hand-written via `prisma migrate diff` — this is the only place that
+      # actually applies them to a real database before they reach production.
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Throwaway CI-only database, unrelated to .env / production.
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +43,17 @@ jobs:
       # produces for this schema location, so tsc sees an untyped stub client
       # (missing enums, `any` query results) without this.
       - run: npx prisma generate --schema apps/api/prisma/schema.prisma
+
+      # Applies every migration in order to an empty database, exactly like a
+      # fresh production deploy would. Catches migrations that reference
+      # columns/tables that don't actually exist in the DB the migrations
+      # before them produced (e.g. one written by hand against a DB state
+      # that had drifted from the migration history).
+      - run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+
+      # Catches the opposite drift: schema.prisma changed but no migration
+      # was generated for it. --exit-code makes a non-empty diff fail the build.
+      - run: npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel apps/api/prisma/schema.prisma --exit-code
 
       - run: npm run typecheck
 

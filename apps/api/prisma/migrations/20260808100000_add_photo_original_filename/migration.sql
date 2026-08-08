@@ -5,5 +5,11 @@
 --
 -- 現時点（2026-08-08確認）で photos テーブルは0行だが、行が存在する環境で
 -- 再実行されても壊れないよう、一時的な DEFAULT を付けてから外す。
-ALTER TABLE "photos" ADD COLUMN "original_filename" TEXT NOT NULL DEFAULT '';
+--
+-- IF NOT EXISTS が必須: このマイグレーションは「本番の壊れたDB」（列が
+-- 失われた状態）を直す前提で書いたが、init(20260728170409) 以降を
+-- 空DBに順番適用する経路（CIの migrate deploy 検証、新規環境構築）では
+-- init の CREATE TABLE の時点で original_filename 列がすでに存在するため、
+-- IF NOT EXISTS なしだと「列が既に存在する」で失敗する。
+ALTER TABLE "photos" ADD COLUMN IF NOT EXISTS "original_filename" TEXT NOT NULL DEFAULT '';
 ALTER TABLE "photos" ALTER COLUMN "original_filename" DROP DEFAULT;

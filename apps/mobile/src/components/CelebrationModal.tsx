@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Animated, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { PREFECTURES, type CollectionSummary, type PhotoMedal } from '@pokelids/shared';
+import { hapticEmphasis, hapticSuccess, isReduceMotionEnabled } from '../lib/haptics';
+import { colors, radius, spacing, typography } from '../theme';
 import { Button } from './Button';
 import { ListRow } from './ListRow';
-import { colors, radius, spacing, typography } from '../theme';
 
 const MEDAL_EMOJI: Record<PhotoMedal, string> = { GOLD: '🥇', SILVER: '🥈', NONE: '📍' };
 const MEDAL_TITLE: Record<PhotoMedal, string> = {
@@ -57,10 +58,14 @@ export function CelebrationModal({
 
   useEffect(() => {
     if (!visible) return;
-    if (!isCelebratory) {
-      // Skip the spring/rotate bounce for NONE — jump straight to the
-      // resting pose so the emoji just appears, calmly, with the modal's
-      // own fade.
+    // Skipped for NONE regardless of the OS setting (already a calm,
+    // non-celebratory result) and for GOLD/SILVER too when "reduce motion"
+    // is on (6-7) — the spring + rotate bounce is exactly the kind of motion
+    // that setting exists to suppress, and for someone with a vestibular
+    // disorder or motion sensitivity this isn't a style preference, it can
+    // make them physically ill. Jumps straight to the resting pose either
+    // way so the emoji still appears, just without the bounce.
+    if (!isCelebratory || isReduceMotionEnabled()) {
       scale.setValue(1);
       rotate.setValue(1);
       return;
@@ -72,6 +77,16 @@ export function CelebrationModal({
       Animated.timing(rotate, { toValue: 1, duration: 400, useNativeDriver: true }),
     ]).start();
   }, [visible, isCelebratory, scale, rotate]);
+
+  // Fired once per newly-shown celebration (see the module-level effect
+  // above for how `visible`/`medal` transition together) rather than at each
+  // of the two upload flows (poke-lids/[id].tsx, useQuickRecord) that create
+  // one — this is the single place both actually funnel through.
+  useEffect(() => {
+    if (!visible || !medal) return;
+    hapticSuccess();
+    if (medal === 'GOLD') hapticEmphasis();
+  }, [visible, medal]);
 
   if (!medal) return null;
 

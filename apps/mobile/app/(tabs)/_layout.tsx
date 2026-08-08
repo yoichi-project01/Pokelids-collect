@@ -2,7 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { AppHeader } from '../../src/components/AppHeader';
+import { hapticLight } from '../../src/lib/haptics';
 import { colors, CONTENT_MAX_WIDTH } from '../../src/theme';
+
+// Fires on every tab-bar button press, including re-tapping the already-
+// active tab (React Navigation's `tabPress` doesn't distinguish that from an
+// actual switch, and tracking "is this already focused" just to skip it
+// isn't worth the complexity for a Light-weight buzz — see 6-7's note to cut
+// this if it turns out to feel excessive in practice).
+const tabHapticListeners = { tabPress: () => hapticLight() };
 
 // On a wide desktop browser, the tab bar is drawn by the navigator itself
 // (outside ScreenContainer), so without this it stretches full-bleed while
@@ -43,6 +51,7 @@ export default function TabsLayout() {
           headerTitle: 'ポケふた収集進捗',
           tabBarIcon: ({ color, size }) => <Ionicons name="albums" color={color} size={size} />,
         }}
+        listeners={tabHapticListeners}
       />
       <Tabs.Screen
         name="map"
@@ -51,6 +60,7 @@ export default function TabsLayout() {
           headerTitle: '地図で見る',
           tabBarIcon: ({ color, size }) => <Ionicons name="map" color={color} size={size} />,
         }}
+        listeners={tabHapticListeners}
       />
       <Tabs.Screen
         name="collection"
@@ -59,6 +69,7 @@ export default function TabsLayout() {
           headerTitle: '自分の収集記録',
           tabBarIcon: ({ color, size }) => <Ionicons name="images" color={color} size={size} />,
         }}
+        listeners={tabHapticListeners}
       />
       <Tabs.Screen
         name="settings"
@@ -67,6 +78,7 @@ export default function TabsLayout() {
           headerTitle: '設定',
           tabBarIcon: ({ color, size }) => <Ionicons name="settings" color={color} size={size} />,
         }}
+        listeners={tabHapticListeners}
       />
     </Tabs>
   );

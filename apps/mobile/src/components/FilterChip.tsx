@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
+import { hapticLight } from '../lib/haptics';
 import { colors, radius, spacing, typography } from '../theme';
 
 // The old <Text onPress> pills had a tap target of just the text bounds plus
@@ -22,9 +23,18 @@ export function FilterChip({
   // screens) and need to contrast with whichever it is when unselected.
   inactiveBackgroundColor?: string;
 }) {
+  // Only buzzes when the tap actually changes something — tapping the
+  // already-selected chip is a no-op for the parent's state too, and firing
+  // the haptic anyway on every repeat tap would just be noise (6-7 calls out
+  // "触覚が過剰にならないよう注意する" specifically for this kind of control).
+  function onPressWithHaptic() {
+    if (!selected) hapticLight();
+    onPress();
+  }
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={onPressWithHaptic}
       hitSlop={HIT_SLOP}
       accessibilityRole="button"
       accessibilityState={{ selected }}

@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
 import { MapRefreshButton } from '../../src/components/MapRefreshButton';
@@ -82,15 +83,26 @@ export default function MapScreen() {
         />
         <MapRefreshButton refreshing={refreshing} onPress={reload} />
       </View>
-      <iframe
-        title="poke-lids-map"
-        srcDoc={buildMapHtml(
-          visibleMarkers,
-          getApiBaseUrl(),
-          location ? { lat: location.latitude, lng: location.longitude } : null,
-        )}
-        style={{ border: 'none', width: '100%', flex: 1 }}
-      />
+      {uncollectedOnly && visibleMarkers.length === 0 ? (
+        <View style={styles.fullWidthCenter}>
+          <EmptyState
+            title="この範囲はすべて集めました"
+            message="フィルタを「すべて」に戻すと、収集済みのポケふたも含めて確認できます。"
+            actionLabel="すべて表示"
+            onAction={() => setUncollectedOnly(false)}
+          />
+        </View>
+      ) : (
+        <iframe
+          title="poke-lids-map"
+          srcDoc={buildMapHtml(
+            visibleMarkers,
+            getApiBaseUrl(),
+            location ? { lat: location.latitude, lng: location.longitude } : null,
+          )}
+          style={{ border: 'none', width: '100%', flex: 1 }}
+        />
+      )}
     </View>
   );
 }

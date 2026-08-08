@@ -3,6 +3,7 @@ import Head from 'expo-router/head';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { haversineDistanceMeters, type PokeLidDto } from '@pokelids/shared';
+import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
@@ -131,7 +132,14 @@ export default function CollectionScreen() {
           refreshing={refreshing}
           onRefresh={onRefresh}
           contentContainerStyle={styles.listContent}
-          ListEmptyComponent={<Text style={styles.empty}>まだ収集記録がありません</Text>}
+          ListEmptyComponent={
+            <EmptyState
+              title="はじめての1枚を探しに行こう"
+              message="地図で近くのポケふたを探して、訪れた記録を残していきましょう。"
+              actionLabel="地図で探す"
+              onAction={() => router.push('/map')}
+            />
+          }
           ListHeaderComponent={
             stats && (
               <View style={styles.statsCard}>
@@ -193,7 +201,6 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   listContent: { padding: spacing.sm },
-  empty: { ...typography.caption, textAlign: 'center', color: colors.textTertiary, marginTop: 40 },
   // Matches PokeLidCard's own outer flex/padding so a trailing placeholder
   // cell takes up exactly as much row width as a real card would.
   placeholder: { flex: 1, padding: GRID_CELL_PADDING },

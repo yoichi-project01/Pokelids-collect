@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
+import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
 import { MapRefreshButton } from '../../src/components/MapRefreshButton';
@@ -66,18 +67,29 @@ export default function MapScreen() {
         />
         <MapRefreshButton refreshing={refreshing} onPress={reload} />
       </View>
-      <WebView
-        style={{ flex: 1 }}
-        originWhitelist={['*']}
-        source={{
-          html: buildMapHtml(
-            visibleMarkers,
-            getApiBaseUrl(),
-            location ? { lat: location.latitude, lng: location.longitude } : null,
-          ),
-        }}
-        onMessage={onMessage}
-      />
+      {uncollectedOnly && visibleMarkers.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <EmptyState
+            title="この範囲はすべて集めました"
+            message="フィルタを「すべて」に戻すと、収集済みのポケふたも含めて確認できます。"
+            actionLabel="すべて表示"
+            onAction={() => setUncollectedOnly(false)}
+          />
+        </View>
+      ) : (
+        <WebView
+          style={{ flex: 1 }}
+          originWhitelist={['*']}
+          source={{
+            html: buildMapHtml(
+              visibleMarkers,
+              getApiBaseUrl(),
+              location ? { lat: location.latitude, lng: location.longitude } : null,
+            ),
+          }}
+          onMessage={onMessage}
+        />
+      )}
     </View>
   );
 }
@@ -91,4 +103,5 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
+  emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

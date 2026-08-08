@@ -3,6 +3,7 @@ import Head from 'expo-router/head';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { isPokeLidVisible, PREFECTURES, type PokeLidDto } from '@pokelids/shared';
+import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
@@ -149,6 +150,21 @@ export default function PrefecturePokeLidsScreen() {
                 onPress={() => setUncollectedOnly(true)}
               />
             </View>
+          }
+          ListEmptyComponent={
+            !loading ? (
+              <EmptyState
+                title={prefectureName ? `${prefectureName}をコンプリート！` : 'コンプリートしました！'}
+                message="他の都道府県にもポケふたが待っています。"
+                actionLabel="他の都道府県を見る"
+                // "次の都道府県へ"（達成率が最も低い県など、具体的な1件へ直接
+                // 飛ばす）も考えたが、それには全都道府県分の進捗を追加取得する
+                // 必要があり、この画面は今その1県分のデータしか持っていない。
+                // 一覧に戻せばどのみち各県の達成率バッジが並んでいて自分で選べ
+                // るので、まずは一覧に戻す形にした。
+                onAction={() => router.push('/')}
+              />
+            ) : null
           }
           renderItem={({ item }) => {
             if (item === null) return <View style={styles.placeholder} />;

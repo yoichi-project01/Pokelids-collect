@@ -59,6 +59,26 @@ postinstall がスキーマを見つけられず型が生成されないまま `
 - **アクセストークンは1時間で失効する。** 401 時の自動リフレッシュは
   `src/lib/api.ts` に実装済み。並列リクエストで多重ローテーションが起きないよう
   進行中の Promise を共有しているので、この構造を壊さないこと。
+- **`react-native-web` の `RefreshControl`（`FlatList`/`SectionList` の
+  `refreshing`/`onRefresh`）は完全な no-op。** `View` を描画するだけでプルの
+  ジェスチャー自体を実装していないため、Web版ではユーザーが指で引っ張っても
+  何も起きない。ネイティブ版のみ機能する。Web版で「更新した」と伝えたいなら
+  `useFocusEffect`（画面に戻ってきたら自動再取得）か、明示的な更新ボタンに
+  頼ること。
+
+**Playwright でこのアプリをモックAPI相手にテストするときの落とし穴**
+（`apps/mobile` を `expo start --web` でローカル起動してテストする場合）:
+
+- 本番APIの `CORS_ORIGIN` は本番ドメイン固定なので、ローカルの `expo start --web`
+  から直接叩くとブロックされる。`EXPO_PUBLIC_API_BASE_URL` にdevサーバー自身の
+  オリジンを指定し、`page.route('**/api/**', ...)` で同一オリジンとしてモックする。
+- `public/sw.js`（Service Worker）はSWのスレッド内で直接 `fetch()` するため、
+  `page.route` のモックをすり抜けて実ネットワークに飛ぶ（ポケふたデータの
+  network-first戦略が原因）。テスト時は `navigator.serviceWorker.register` を
+  `addInitScript` で上書きして登録自体を無効化すること。
+- タブバーは `<a href="/...">` として描画されるため、`page.click('text=...')`
+  はヘッダーの見出し文言（例:「ポケふたコレクション」）と部分一致して誤クリック
+  しうる。`page.click('a[href="/collection"]')` のように href で狙うこと。
 
 ## 外部データ
 

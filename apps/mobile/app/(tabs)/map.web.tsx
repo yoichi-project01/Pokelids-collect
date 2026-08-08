@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
+import { MapRefreshButton } from '../../src/components/MapRefreshButton';
 import { getApiBaseUrl } from '../../src/lib/api';
 import { buildMapHtml } from '../../src/lib/mapHtml';
 import { useMapMarkers } from '../../src/lib/useMapMarkers';
@@ -11,7 +12,7 @@ import { colors, spacing } from '../../src/theme';
 
 export default function MapScreen() {
   const router = useRouter();
-  const { markers, location, error, reload } = useMapMarkers();
+  const { markers, location, error, refreshing, reload } = useMapMarkers();
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
 
   useEffect(() => {
@@ -79,6 +80,7 @@ export default function MapScreen() {
           onPress={() => setUncollectedOnly(true)}
           inactiveBackgroundColor={colors.background}
         />
+        <MapRefreshButton refreshing={refreshing} onPress={reload} />
       </View>
       <iframe
         title="poke-lids-map"

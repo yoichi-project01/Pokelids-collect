@@ -26,11 +26,18 @@ export default function CollectionScreen() {
   const [lidsById, setLidsById] = useState<Map<string, PokeLidDto>>(new Map());
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [error, setError] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
   const columns = useResponsiveColumns();
 
   useEffect(() => {
     getCurrentLocation().then(setLocation);
+  }, []);
+
+  // Single fetch used by both the focus refetch below and pull-to-refresh,
+  // so the two triggers can't drift into fetching different things.
+  const loadCollections = useCallback(async () => {
+    const [collectionsRes, lidsRes] = await Promise.all([fetchMyCollections(), fetchPokeLids()]);
+    return { collections: collectionsRes, lidsById: new Map(lidsRes.map((l) => [l.id, l])) };
   }, []);
 
   // Refetch on every focus, not just on mount: this screen lives in a
@@ -41,11 +48,11 @@ export default function CollectionScreen() {
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
-      Promise.all([fetchMyCollections(), fetchPokeLids()])
-        .then(([collectionsRes, lidsRes]) => {
+      loadCollections()
+        .then((result) => {
           if (cancelled) return;
-          setCollections(collectionsRes);
-          setLidsById(new Map(lidsRes.map((l) => [l.id, l])));
+          setCollections(result.collections);
+          setLidsById(result.lidsById);
           setError(false);
         })
         .catch(() => {
@@ -54,11 +61,20 @@ export default function CollectionScreen() {
       return () => {
         cancelled = true;
       };
-      // `reloadKey` isn't read in the body; it exists purely to force this
-      // effect to re-run when the retry button is pressed.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reloadKey]),
+    }, [loadCollections]),
   );
+
+  function onRefresh() {
+    setRefreshing(true);
+    loadCollections()
+      .then((result) => {
+        setCollections(result.collections);
+        setLidsById(result.lidsById);
+        setError(false);
+      })
+      .catch(() => setError(true))
+      .finally(() => setRefreshing(false));
+  }
 
   const stats = useMemo(() => {
     if (collections.length === 0) return null;
@@ -105,13 +121,15 @@ export default function CollectionScreen() {
         <title>収集記録 - ポケふた収集</title>
       </Head>
       {error && collections.length === 0 ? (
-        <ErrorState onRetry={() => setReloadKey((k) => k + 1)} />
+        <ErrorState onRetry={onRefresh} />
       ) : (
         <FlatList
           data={gridData}
           key={columns}
           numColumns={columns}
           keyExtractor={gridKeyExtractor((item) => item.id)}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={<Text style={styles.empty}>まだ収集記録がありません</Text>}
           ListHeaderComponent={

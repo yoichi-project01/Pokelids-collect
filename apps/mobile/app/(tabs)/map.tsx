@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
+import { MapRefreshButton } from '../../src/components/MapRefreshButton';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { getApiBaseUrl } from '../../src/lib/api';
 import { buildMapHtml } from '../../src/lib/mapHtml';
@@ -12,7 +13,7 @@ import { colors, spacing } from '../../src/theme';
 
 export default function MapScreen() {
   const router = useRouter();
-  const { markers, location, error, reload } = useMapMarkers();
+  const { markers, location, error, refreshing, reload } = useMapMarkers();
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
 
   function onMessage(event: WebViewMessageEvent) {
@@ -63,6 +64,7 @@ export default function MapScreen() {
           onPress={() => setUncollectedOnly(true)}
           inactiveBackgroundColor={colors.background}
         />
+        <MapRefreshButton refreshing={refreshing} onPress={reload} />
       </View>
       <WebView
         style={{ flex: 1 }}

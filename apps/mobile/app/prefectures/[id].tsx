@@ -1,6 +1,6 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { isPokeLidVisible, PREFECTURES, type PokeLidDto } from '@pokelids/shared';
 import { ErrorState } from '../../src/components/ErrorState';
@@ -39,32 +39,67 @@ export default function PrefecturePokeLidsScreen() {
   const [collectedIds, setCollectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [reloadKey, setReloadKey] = useState(0);
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
   const columns = useResponsiveColumns();
 
   const prefectureName = PREFECTURES.find((p) => p.id === Number(id))?.nameJa ?? null;
 
-  useEffect(() => {
-    if (authLoading) return;
-    let cancelled = false;
-    Promise.all([fetchPokeLids(Number(id)), fetchMyCollections(), getGuestCollectedIds()])
-      .then(([lidsRes, collectionsRes, guestIds]) => {
-        if (cancelled) return;
-        setLids(lidsRes);
-        setCollectedIds(new Set([...collectionsRes.map((c) => c.pokeLidId), ...guestIds]));
+  // Single fetch used by both the focus refetch below and pull-to-refresh.
+  const loadPrefectureData = useCallback(async () => {
+    const [lidsRes, collectionsRes, guestIds] = await Promise.all([
+      fetchPokeLids(Number(id)),
+      fetchMyCollections(),
+      getGuestCollectedIds(),
+    ]);
+    return {
+      lids: lidsRes,
+      collectedIds: new Set([...collectionsRes.map((c) => c.pokeLidId), ...guestIds]),
+    };
+  }, [id]);
+
+  // Refetch on every focus, not just on mount: this screen is pushed on top
+  // of the tab it was opened from and stays mounted while e.g. a poke-lid
+  // detail screen is on top of it, so without this, collecting a lid there
+  // and coming back here wouldn't update its card until the app restarted.
+  useFocusEffect(
+    useCallback(() => {
+      if (authLoading) return;
+      let cancelled = false;
+      setLoading(true);
+      loadPrefectureData()
+        .then((result) => {
+          if (cancelled) return;
+          setLids(result.lids);
+          setCollectedIds(result.collectedIds);
+          setError(false);
+        })
+        .catch(() => {
+          if (!cancelled) setError(true);
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+      return () => {
+        cancelled = true;
+      };
+      // `user` isn't read in the body, but its identity changes on
+      // login/logout and that's exactly when collections/guest-merge data
+      // needs to be refetched.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [authLoading, user, loadPrefectureData]),
+  );
+
+  function onRefresh() {
+    setLoading(true);
+    loadPrefectureData()
+      .then((result) => {
+        setLids(result.lids);
+        setCollectedIds(result.collectedIds);
         setError(false);
       })
-      .catch(() => {
-        if (!cancelled) setError(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [id, authLoading, user, reloadKey]);
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }
 
   const visibleLids = useMemo(() => {
     // A retired lid only stays in the list if it's already been collected
@@ -91,12 +126,7 @@ export default function PrefecturePokeLidsScreen() {
         )}
       </Head>
       {error && lids.length === 0 ? (
-        <ErrorState
-          onRetry={() => {
-            setLoading(true);
-            setReloadKey((k) => k + 1);
-          }}
-        />
+        <ErrorState onRetry={onRefresh} />
       ) : (
         <FlatList
           data={gridData}
@@ -104,6 +134,7 @@ export default function PrefecturePokeLidsScreen() {
           numColumns={columns}
           keyExtractor={gridKeyExtractor((item) => item.id)}
           refreshing={loading}
+          onRefresh={onRefresh}
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={
             <View style={styles.filterRow}>

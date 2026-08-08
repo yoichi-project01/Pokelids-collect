@@ -47,9 +47,17 @@ app.use(
 );
 app.use(express.json());
 
+// `SELECT 1` only proves Postgres is reachable, not that its schema matches
+// what Prisma Client expects — a migration that wasn't actually applied
+// (see 2026-08-08's missing `photos.original_filename` column) returns 200
+// here while every real query 500s. `findFirst()` with no `select` forces
+// Prisma to query every mapped column, so a missing/renamed column throws
+// here too. A narrow `select: { id: true }` would NOT catch this — it only
+// asks Postgres for the id column, so it stays silent about drift anywhere
+// else in the row (verified against the actual missing-column scenario).
 app.get('/health', async (_req, res) => {
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    await Promise.all([prisma.photo.findFirst(), prisma.collection.findFirst()]);
     res.json({ status: 'ok' });
   } catch {
     res.status(503).json({ status: 'error', error: 'Database unavailable' });

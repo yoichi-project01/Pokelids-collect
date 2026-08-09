@@ -5,7 +5,9 @@ import { colors, radius, spacing, typography } from '../theme';
 
 // Grayscale + dimmed for uncollected, full color once collected — same
 // "pokédex" metaphor as the games: color fills in as you actually visit.
-const grayscaleStyle = Platform.select<object>({
+// Exported so Onboarding's intro screen can preview the same effect on a
+// still-uncollected sample before the user has anything of their own to show.
+export const grayscaleStyle = Platform.select<object>({
   web: { filter: 'grayscale(1)' },
   default: { filter: [{ grayscale: 1 }] },
 });

@@ -11,7 +11,10 @@ export const colors = {
   black: '#000000',
   white: '#FFFFFF',
   danger: '#FF3B30',
-  overlay: 'rgba(0, 0, 0, 0.55)',
+  // 0.55 read as translucent enough that busy photo content behind a modal
+  // (poke lid photos, map tiles) showed through and competed for attention —
+  // bumped darker so the card is unambiguously the focus (6-1 rework).
+  overlay: 'rgba(0, 0, 0, 0.72)',
   // Deep teal — reads as "manhole iron / travel" without competing with the
   // poke lid artwork's own colors. Used for progress fills, primary actions,
   // and the collected badge.

@@ -21,6 +21,15 @@ const MEDAL_MESSAGE: Record<PhotoMedal, string> = {
   SILVER: '写真に位置情報がありませんでした',
   NONE: '写真の位置情報が現地と一致しませんでした',
 };
+// Onboarding (6-1) used to explain GOLD/SILVER up front, before a first-time
+// user had anything to relate it to. Explaining it here instead, right after
+// they've actually earned one, is the moment it's concrete — this only ever
+// shows once, gated on summary.isFirstCollection below. The settings screen
+// still carries the permanent legend for anyone who wants it again later.
+const MEDAL_FIRST_TIME_HINT: Partial<Record<PhotoMedal, string>> = {
+  GOLD: '🥇 GOLDは、位置情報が現地と一致した記録の印です',
+  SILVER: '🥈 SILVERは、位置情報のない記録の印です',
+};
 
 export function CelebrationModal({
   visible,
@@ -114,6 +123,9 @@ export function CelebrationModal({
             </Animated.Text>
             <Text style={styles.title}>{MEDAL_TITLE[medal]}</Text>
             <Text style={styles.message}>{MEDAL_MESSAGE[medal]}</Text>
+            {isCelebratory && summary?.isFirstCollection && MEDAL_FIRST_TIME_HINT[medal] && (
+              <Text style={styles.firstTimeHint}>{MEDAL_FIRST_TIME_HINT[medal]}</Text>
+            )}
             {!isCelebratory && (
               <Text style={styles.retakeHint}>
                 GPSがずれただけの可能性があります。もう一度撮影すると位置情報を確認できます。
@@ -190,6 +202,7 @@ const styles = StyleSheet.create({
   title: { ...typography.largeTitle, fontSize: 22 },
   message: { ...typography.body, textAlign: 'center', color: colors.textSecondary },
   retakeHint: { ...typography.footnote, textAlign: 'center' },
+  firstTimeHint: { ...typography.footnote, textAlign: 'center' },
   milestoneBadge: {
     backgroundColor: colors.accentLight,
     borderRadius: radius.pill,

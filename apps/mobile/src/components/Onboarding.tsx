@@ -1,19 +1,40 @@
 import { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { Image, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { countsTowardProgress, type PokeLidDto } from '@pokelids/shared';
+import POKE_LIDS from '../data/poke-lids.json';
 import { Button } from './Button';
+import { grayscaleStyle } from './PokeLidCard';
 import { requestLocationPermission } from '../lib/location';
 import { hasSeenOnboarding, markOnboardingSeen } from '../lib/onboarding';
 import { colors, radius, spacing, typography } from '../theme';
 
 type Step = 'intro' | 'location';
 
+// Static across the app's lifetime (bundled JSON, same source as 7-4's
+// totalPokeLidsNationwide) — computed once at module scope rather than
+// inside the component so it isn't redone on every mount.
+const TOTAL_POKE_LIDS_NATIONWIDE = (POKE_LIDS as PokeLidDto[]).filter((l) =>
+  countsTowardProgress(l.retiredAt),
+).length;
+
+// First three with an image, deterministic (not random) so the screen
+// doesn't shift between runs. Two are shown desaturated and one in full
+// color purely to illustrate "collecting fills it in" — which three doesn't
+// matter, since nothing here claims these specific ones are collected.
+const SAMPLE_IMAGES = (POKE_LIDS as PokeLidDto[])
+  .filter((l): l is PokeLidDto & { officialImageUrl: string } => Boolean(l.officialImageUrl))
+  .slice(0, 3)
+  .map((l) => l.officialImageUrl);
+
 // Shown once, on first launch (flag in AsyncStorage, same convention as
 // guestStorage.ts). Two short screens rather than a longer slideshow —
-// slideshows get swiped through unread — covering exactly what TASKS.md 6-1
-// calls out as currently unexplained: guest recording, that it carries over
-// on login, what the medals mean, and (separately, since it needs its own
-// justification) why the app wants location access, asked for *before* the
-// OS permission dialog rather than by it.
+// slideshows get swiped through unread. The intro screen sells the app's
+// scale and how little it asks of you; the medal system is explained later,
+// in CelebrationModal, right when a first-time user actually earns one —
+// explaining it here, before anyone has a single record, didn't land (6-1
+// rework). Location stays a separate screen since it needs its own
+// justification, asked for *before* the OS permission dialog rather than by
+// it.
 export function Onboarding() {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState<Step>('intro');
@@ -46,38 +67,44 @@ export function Onboarding() {
     <Modal visible transparent animationType="fade" onRequestClose={finish}>
       <View style={styles.overlay}>
         <View style={styles.card}>
-          {step === 'intro' ? (
-            <>
-              <Text style={styles.title}>ポケふたコレクトへようこそ</Text>
-              <View style={styles.pointList}>
-                <Text style={styles.point}>・ログインしなくても、記録を残せます</Text>
-                <Text style={styles.point}>・記録は端末に保存され、あとからログインすれば引き継げます</Text>
-                <Text style={styles.point}>
-                  ・🥇 GOLDは位置情報が現地と一致した記録、🥈 SILVERは位置情報のない記録です
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            {step === 'intro' ? (
+              <>
+                <Text style={styles.title}>全国{TOTAL_POKE_LIDS_NATIONWIDE}箇所のポケふたを集めよう</Text>
+                <View style={styles.sampleRow}>
+                  {SAMPLE_IMAGES.map((uri, index) => (
+                    <Image
+                      key={uri}
+                      source={{ uri }}
+                      style={[styles.sampleImage, index < 2 && grayscaleStyle]}
+                    />
+                  ))}
+                </View>
+                <Text style={styles.caption}>訪れて撮影すると、色がつきます</Text>
+                <Text style={styles.body}>写真を撮るだけで記録。ログインは後からで大丈夫です</Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.title}>位置情報の利用について</Text>
+                <Text style={styles.body}>
+                  近くのポケふたを探すために使います。並び替えのために一時的にサーバーへ送りますが、保存はされません。
                 </Text>
-              </View>
-              <Button title="次へ" onPress={() => setStep('location')} style={styles.primaryButton} />
-              <Text style={styles.skipLink} onPress={finish} accessibilityRole="button">
-                スキップ
-              </Text>
-            </>
-          ) : (
-            <>
-              <Text style={styles.title}>位置情報の利用について</Text>
-              <Text style={styles.body}>
-                近くのポケふたを探すために使います。並び替えのために一時的にサーバーへ送りますが、保存はされません。
-              </Text>
+              </>
+            )}
+          </ScrollView>
+          <View style={styles.actions}>
+            <Button title="あとで" onPress={finish} variant="secondary" style={styles.actionButton} />
+            {step === 'intro' ? (
+              <Button title="次へ" onPress={() => setStep('location')} style={styles.actionButton} />
+            ) : (
               <Button
                 title="位置情報を許可する"
                 onPress={handleAllowLocation}
                 loading={requesting}
-                style={styles.primaryButton}
+                style={styles.actionButton}
               />
-              <Text style={styles.skipLink} onPress={finish} accessibilityRole="button">
-                スキップ
-              </Text>
-            </>
-          )}
+            )}
+          </View>
         </View>
       </View>
     </Modal>
@@ -95,21 +122,29 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    padding: spacing.xl,
-    gap: spacing.md,
     width: '100%',
     maxWidth: 360,
+    // Bounded rather than sized to content so the ScrollView below can
+    // actually scroll on a small screen or with large system font sizes,
+    // instead of just overflowing the card (same approach as
+    // CelebrationModal).
+    maxHeight: '100%',
+    overflow: 'hidden',
   },
+  scrollContent: { alignItems: 'center', gap: spacing.md, padding: spacing.xl },
   title: { ...typography.title, textAlign: 'center' },
-  pointList: { gap: spacing.sm },
-  point: { ...typography.body, color: colors.textSecondary },
-  body: { ...typography.body, color: colors.textSecondary },
-  primaryButton: { marginTop: spacing.xs },
-  skipLink: {
-    ...typography.caption,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-    paddingVertical: spacing.md,
-    minHeight: 44,
+  sampleRow: { flexDirection: 'row', gap: spacing.sm, alignSelf: 'stretch' },
+  sampleImage: { flex: 1, aspectRatio: 1, borderRadius: radius.md, backgroundColor: colors.border },
+  caption: { ...typography.footnote, textAlign: 'center' },
+  body: { ...typography.body, color: colors.textPrimary, textAlign: 'center' },
+  actions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    alignSelf: 'stretch',
+    padding: spacing.xl,
+    paddingTop: spacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
+  actionButton: { flex: 1 },
 });

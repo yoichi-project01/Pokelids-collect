@@ -8,8 +8,136 @@ import {
   isPokeLidVisible,
   isValidVisitedAt,
   municipalityKey,
+  pickMunicipalityGoals,
+  PREFECTURES,
+  progressPercent,
+  regionNameJa,
   type CollectionSummary,
+  type MunicipalityProgressDto,
 } from './index';
+
+function municipality(overrides: Partial<MunicipalityProgressDto>): MunicipalityProgressDto {
+  return {
+    prefectureId: 1,
+    municipality: '札幌市',
+    total: 2,
+    collected: 0,
+    imageUrl: null,
+    latitude: 43.06,
+    longitude: 141.35,
+    ...overrides,
+  };
+}
+
+describe('progressPercent', () => {
+  it('floors an all-zero state at 0%, not 1%', () => {
+    expect(progressPercent(0, 481)).toBe(0);
+  });
+
+  it('rounds 1/481 up to 1% instead of the true 0.2%', () => {
+    expect(progressPercent(1, 481)).toBe(1);
+  });
+
+  it('still floors a single-lid collection at 1%, not 0%', () => {
+    expect(progressPercent(1, 1000)).toBe(1);
+  });
+
+  it('rounds normally once past the floor', () => {
+    expect(progressPercent(240, 481)).toBe(50);
+  });
+
+  it('reaches 100% at full completion', () => {
+    expect(progressPercent(481, 481)).toBe(100);
+  });
+
+  it('returns 0 for a zero total rather than dividing by zero', () => {
+    expect(progressPercent(0, 0)).toBe(0);
+  });
+});
+
+describe('regionNameJa', () => {
+  it('converts every region code actually used by PREFECTURES', () => {
+    const usedRegions = new Set(PREFECTURES.map((p) => p.region));
+    for (const region of usedRegions) {
+      expect(regionNameJa(region)).not.toBe(region);
+    }
+  });
+
+  it('groups Okinawa under the combined 九州・沖縄 label, not a separate region', () => {
+    const okinawa = PREFECTURES.find((p) => p.nameJa === '沖縄県');
+    expect(regionNameJa(okinawa!.region)).toBe('九州・沖縄');
+  });
+
+  it('falls back to the raw code for an unknown region rather than throwing', () => {
+    expect(regionNameJa('Mars')).toBe('Mars');
+  });
+});
+
+describe('pickMunicipalityGoals', () => {
+  it('excludes a municipality nobody has started, even with few remaining', () => {
+    const goals = pickMunicipalityGoals(
+      [municipality({ municipality: '大津市', total: 2, collected: 0 })],
+      null,
+    );
+    expect(goals).toEqual([]);
+  });
+
+  it('includes a municipality with at least one collected and few remaining', () => {
+    const goals = pickMunicipalityGoals(
+      [municipality({ municipality: '鈴鹿市', total: 2, collected: 1 })],
+      null,
+    );
+    expect(goals.map((g) => g.municipality)).toEqual(['鈴鹿市']);
+  });
+
+  it('excludes single-lid municipalities entirely', () => {
+    const goals = pickMunicipalityGoals(
+      [municipality({ municipality: '単独市', total: 1, collected: 1 })],
+      null,
+    );
+    expect(goals).toEqual([]);
+  });
+
+  it('excludes municipalities already fully collected', () => {
+    const goals = pickMunicipalityGoals(
+      [municipality({ municipality: '達成市', total: 2, collected: 2 })],
+      null,
+    );
+    expect(goals).toEqual([]);
+  });
+
+  it('excludes municipalities with too many remaining to be a near-term goal', () => {
+    const goals = pickMunicipalityGoals(
+      [municipality({ municipality: '遠い市', total: 10, collected: 1 })],
+      null,
+    );
+    expect(goals).toEqual([]);
+  });
+
+  it('sorts by remaining count first, then distance when a location is given', () => {
+    const goals = pickMunicipalityGoals(
+      [
+        municipality({ municipality: 'あと2つ', total: 3, collected: 1, latitude: 43.06, longitude: 141.35 }),
+        municipality({
+          municipality: 'あと1つ(遠い)',
+          total: 2,
+          collected: 1,
+          latitude: 45.0,
+          longitude: 141.35,
+        }),
+        municipality({
+          municipality: 'あと1つ(近い)',
+          total: 2,
+          collected: 1,
+          latitude: 43.07,
+          longitude: 141.35,
+        }),
+      ],
+      { latitude: 43.06, longitude: 141.35 },
+    );
+    expect(goals.map((g) => g.municipality)).toEqual(['あと1つ(近い)', 'あと1つ(遠い)', 'あと2つ']);
+  });
+});
 
 describe('haversineDistanceMeters', () => {
   it('returns 0 for identical coordinates', () => {

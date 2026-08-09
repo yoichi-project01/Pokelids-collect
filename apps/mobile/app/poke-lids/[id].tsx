@@ -314,7 +314,7 @@ export default function PokeLidDetailScreen() {
     return (
       <ScreenContainer style={error ? { alignItems: 'center', justifyContent: 'center' } : undefined}>
         <Head>
-          <title>ポケふた収集</title>
+          <title>ポケふたコレクト</title>
         </Head>
         {error && <ErrorState onRetry={() => setReloadKey((k) => k + 1)} />}
       </ScreenContainer>
@@ -328,7 +328,7 @@ export default function PokeLidDetailScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>{`${lid.municipality}｜${lid.pokemonFeatured.join('・')} - ポケふた収集`}</title>
+        <title>{`${lid.municipality}｜${lid.pokemonFeatured.join('・')} - ポケふたコレクト`}</title>
         <meta
           name="description"
           content={`${lid.address}にあるポケふた。${lid.pokemonFeatured.join('・')}が描かれています。`}
@@ -539,7 +539,9 @@ const styles = StyleSheet.create({
   distance: { ...typography.footnote, color: colors.accent, fontWeight: '600' },
   collectedLabel: { ...typography.bodyMedium, marginBottom: spacing.sm },
   notCollectedLabel: { ...typography.caption, marginBottom: spacing.sm },
-  guestHint: { ...typography.footnote, color: colors.danger, textAlign: 'center' },
+  // No color override (was colors.danger) — this is an informational note,
+  // not an error, so it falls back to typography.footnote's own textSecondary.
+  guestHint: { ...typography.footnote, textAlign: 'center' },
   photoRow: { flexDirection: 'row' },
   photoThumbWrapper: { marginRight: spacing.sm },
   photoThumb: { width: 100, height: 100, borderRadius: radius.sm },

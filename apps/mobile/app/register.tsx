@@ -40,7 +40,7 @@ export default function RegisterScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>新規登録 - ポケふた収集</title>
+        <title>新規登録 - ポケふたコレクト</title>
       </Head>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">

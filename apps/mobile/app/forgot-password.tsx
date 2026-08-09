@@ -37,7 +37,7 @@ export default function ForgotPasswordScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>パスワードをお忘れの方 - ポケふた収集</title>
+        <title>パスワードをお忘れの方 - ポケふたコレクト</title>
       </Head>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">

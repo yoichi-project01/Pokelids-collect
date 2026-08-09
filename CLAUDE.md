@@ -81,7 +81,7 @@ postinstall がスキーマを見つけられず型が生成されないまま `
   network-first戦略が原因）。テスト時は `navigator.serviceWorker.register` を
   `addInitScript` で上書きして登録自体を無効化すること。
 - タブバーは `<a href="/...">` として描画されるため、`page.click('text=...')`
-  はヘッダーの見出し文言（例:「ポケふたコレクション」）と部分一致して誤クリック
+  はヘッダーの見出し文言（例:「ポケふたコレクト」）と部分一致して誤クリック
   しうる。`page.click('a[href="/collection"]')` のように href で狙うこと。
 
 ## 外部データ

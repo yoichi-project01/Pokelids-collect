@@ -98,7 +98,7 @@ export function Onboarding() {
               <Button title="次へ" onPress={() => setStep('location')} style={styles.actionButton} />
             ) : (
               <Button
-                title="位置情報を許可する"
+                title="許可する"
                 onPress={handleAllowLocation}
                 loading={requesting}
                 style={styles.actionButton}

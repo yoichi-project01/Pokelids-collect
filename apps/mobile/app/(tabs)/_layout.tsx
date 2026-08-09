@@ -77,7 +77,7 @@ function TabsInner() {
         name="index"
         options={{
           title: '一覧',
-          headerTitle: 'ポケふた収集進捗',
+          headerTitle: '収集進捗',
           tabBarIcon: ({ color, size }) => <Ionicons name="albums" color={color} size={size} />,
         }}
         listeners={tabHapticListeners}

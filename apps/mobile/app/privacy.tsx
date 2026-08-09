@@ -11,7 +11,7 @@ export default function PrivacyPolicyScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>プライバシーポリシー - ポケふた収集</title>
+        <title>プライバシーポリシー - ポケふたコレクト</title>
       </Head>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.draftNotice}>
@@ -21,7 +21,7 @@ export default function PrivacyPolicyScreen() {
         <Text style={styles.updated}>最終更新日: {LAST_UPDATED}</Text>
 
         <Section title="1. 収集する情報">
-          本サービス（ポケふた収集）は、以下の情報を収集します。
+          本サービス（ポケふたコレクト）は、以下の情報を収集します。
           {'\n\n'}・アカウント情報：メールアドレス、パスワード（ハッシュ化して保存）、表示名
           {'\n'}・収集記録：訪問したポケふた、訪問日時、メモ
           {'\n'}

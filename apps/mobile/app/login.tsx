@@ -39,11 +39,11 @@ export default function LoginScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>ログイン - ポケふた収集</title>
+        <title>ログイン - ポケふたコレクト</title>
       </Head>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <Text style={styles.title}>ポケふた収集</Text>
+          <Text style={styles.title}>ポケふたコレクト</Text>
           {sessionExpired && (
             <View style={styles.sessionExpiredNotice}>
               <Text style={styles.sessionExpiredNoticeText}>

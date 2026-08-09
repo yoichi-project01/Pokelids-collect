@@ -66,7 +66,7 @@ export default function MapScreen() {
 
   const head = (
     <Head>
-      <title>地図 - ポケふた収集</title>
+      <title>地図 - ポケふたコレクト</title>
     </Head>
   );
 

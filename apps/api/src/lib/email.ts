@@ -15,9 +15,9 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
   }
 
   await resend.emails.send({
-    from: `ポケふた収集 <${RESEND_FROM_EMAIL}>`,
+    from: `ポケふたコレクト <${RESEND_FROM_EMAIL}>`,
     to,
-    subject: 'パスワードの再設定 - ポケふた収集',
+    subject: 'パスワードの再設定 - ポケふたコレクト',
     html: `
       <p>パスワード再設定のリクエストを受け付けました。</p>
       <p>以下のリンクから1時間以内に新しいパスワードを設定してください。</p>

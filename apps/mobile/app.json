@@ -2,7 +2,7 @@
   "expo": {
     "scheme": "pokelidscollect",
     "plugins": ["expo-router", "expo-secure-store"],
-    "name": "ポケふた収集",
+    "name": "ポケふたコレクト",
     "slug": "pokelids-collect",
     "web": {
       "bundler": "metro",

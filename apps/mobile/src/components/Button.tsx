@@ -35,7 +35,17 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={variant === 'primary' ? colors.white : colors.textPrimary} />
       ) : (
-        <Text style={[styles.text, variantTextStyles[variant]]}>{title}</Text>
+        // A defensive floor, not the primary fix — copy that's short enough
+        // to fit a half-width paired button (see PhotoPreviewModal,
+        // Onboarding) is the actual fix. adjustsFontSizeToFit was
+        // considered instead, but react-native-web doesn't implement it (a
+        // no-op on this app's primary platform), and auto-shrinking text
+        // would make button label size inconsistent across the app anyway.
+        // numberOfLines={1} just guarantees a stray long title truncates
+        // cleanly instead of wrapping into a squashed two-line button.
+        <Text style={[styles.text, variantTextStyles[variant]]} numberOfLines={1}>
+          {title}
+        </Text>
       )}
     </Pressable>
   );

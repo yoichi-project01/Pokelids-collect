@@ -148,7 +148,7 @@ export default function PrefecturePokeLidsScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>{prefectureName ? `${prefectureName} - ポケふた収集` : 'ポケふた収集'}</title>
+        <title>{prefectureName ? `${prefectureName} - ポケふたコレクト` : 'ポケふたコレクト'}</title>
         {prefectureName && (
           <meta
             name="description"

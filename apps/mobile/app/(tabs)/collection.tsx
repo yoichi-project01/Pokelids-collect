@@ -120,7 +120,7 @@ export default function CollectionScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>収集記録 - ポケふた収集</title>
+        <title>収集記録 - ポケふたコレクト</title>
       </Head>
       {error && collections.length === 0 ? (
         <ErrorState onRetry={onRefresh} />

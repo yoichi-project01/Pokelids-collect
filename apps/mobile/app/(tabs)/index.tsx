@@ -14,6 +14,9 @@ import {
 import {
   haversineDistanceMeters,
   municipalityKey,
+  pickMunicipalityGoals,
+  progressPercent,
+  regionNameJa,
   type NearbyPokeLidDto,
   type ProgressDto,
 } from '@pokelids/shared';
@@ -44,12 +47,6 @@ const NEXT_TO_COLLECT_COUNT = 12;
 const NEARBY_FETCH_COUNT = NEXT_TO_COLLECT_COUNT * 3;
 const NEARBY_RANGE_KM = 10;
 
-// A municipality worth surfacing as a near-term goal (7-5): at least 2 poke
-// lids (see pickMunicipalityGoals for why) and few enough left that visiting
-// is realistic this week, not "someday".
-const MUNICIPALITY_GOAL_MAX_REMAINING = 3;
-const MUNICIPALITY_GOAL_COUNT = 5;
-
 interface HomeData {
   progress: ProgressDto;
   // Unsliced — the horizontal card row below only shows the first
@@ -59,11 +56,6 @@ interface HomeData {
 }
 
 type PrefectureProgress = ProgressDto['byPrefecture'][number];
-type MunicipalityProgress = ProgressDto['byMunicipality'][number];
-interface MunicipalityGoal extends MunicipalityProgress {
-  remaining: number;
-  distanceMeters: number | null;
-}
 
 async function loadHomeData(location: Coordinates | null): Promise<HomeData> {
   const [progressRes, guestItems, collections, nearby] = await Promise.all([
@@ -92,47 +84,17 @@ function countWithinRange(uncollected: NearbyPokeLidDto[], location: Coordinates
   ).length;
 }
 
-// "あと1つ" municipalities, nearest first when location is known. Excludes
-// single-lid municipalities entirely: per the 7-5 distribution survey, 91%
-// of municipalities have exactly one poke lid, where "remaining" is always
-// indistinguishable from "haven't visited yet" — no different from what
-// 7-4's nearestUncollected already surfaces. Without this filter, this shelf
-// would just be a second copy of "次に集めよう" wearing a municipality name.
-function pickMunicipalityGoals(
-  byMunicipality: MunicipalityProgress[],
-  location: Coordinates | null,
-): MunicipalityGoal[] {
-  const candidates: MunicipalityGoal[] = byMunicipality
-    .filter((m) => m.total >= 2)
-    .map((m) => ({
-      ...m,
-      remaining: m.total - m.collected,
-      distanceMeters: location
-        ? haversineDistanceMeters(location.latitude, location.longitude, m.latitude, m.longitude)
-        : null,
-    }))
-    // "残り10個の市を出しても意味がない" — only genuinely near-term goals.
-    .filter((m) => m.remaining > 0 && m.remaining <= MUNICIPALITY_GOAL_MAX_REMAINING);
-
-  candidates.sort((a, b) => {
-    if (a.remaining !== b.remaining) return a.remaining - b.remaining;
-    if (a.distanceMeters !== null && b.distanceMeters !== null) return a.distanceMeters - b.distanceMeters;
-    return a.municipality.localeCompare(b.municipality, 'ja');
-  });
-
-  return candidates.slice(0, MUNICIPALITY_GOAL_COUNT);
-}
-
 function groupByRegion(byPrefecture: PrefectureProgress[]) {
   const sections: { title: string; total: number; collected: number; data: PrefectureProgress[] }[] = [];
   for (const pref of byPrefecture) {
+    const title = regionNameJa(pref.region);
     const last = sections[sections.length - 1];
-    if (last && last.title === pref.region) {
+    if (last && last.title === title) {
       last.data.push(pref);
       last.total += pref.total;
       last.collected += pref.collected;
     } else {
-      sections.push({ title: pref.region, total: pref.total, collected: pref.collected, data: [pref] });
+      sections.push({ title, total: pref.total, collected: pref.collected, data: [pref] });
     }
   }
   return sections;
@@ -251,10 +213,7 @@ export default function PrefecturesScreen() {
   }
 
   const progress = data?.progress ?? null;
-  const percent =
-    progress && progress.totalPokeLids > 0
-      ? Math.round((progress.collectedCount / progress.totalPokeLids) * 100)
-      : 0;
+  const percent = progress ? progressPercent(progress.collectedCount, progress.totalPokeLids) : 0;
   const nextToCollect = (data?.uncollected ?? []).slice(0, NEXT_TO_COLLECT_COUNT);
   const nearbyWithinRangeCount = useMemo(
     () => countWithinRange(data?.uncollected ?? [], location),
@@ -269,7 +228,7 @@ export default function PrefecturesScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>ポケふた収集</title>
+        <title>ポケふたコレクト</title>
       </Head>
       {error && !data ? (
         <ErrorState onRetry={onRefresh} />
@@ -284,7 +243,7 @@ export default function PrefecturesScreen() {
           ListHeaderComponent={
             <View>
               <View style={styles.hero}>
-                <Text style={styles.heroLabel}>ポケふたコレクション</Text>
+                <Text style={styles.heroLabel}>ポケふたコレクト</Text>
                 <View style={styles.heroStatRow}>
                   <Text style={styles.heroCount}>{progress?.collectedCount ?? 0}</Text>
                   <Text style={styles.heroTotal}>/ {progress?.totalPokeLids ?? '—'} 箇所</Text>
@@ -381,9 +340,7 @@ export default function PrefecturesScreen() {
           renderSectionHeader={({ section }) => (
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>{section.title}</Text>
-              <Text style={styles.sectionPercent}>
-                {section.total > 0 ? Math.round((section.collected / section.total) * 100) : 0}%
-              </Text>
+              <Text style={styles.sectionPercent}>{progressPercent(section.collected, section.total)}%</Text>
             </View>
           )}
           renderItem={({ item }) => (
@@ -429,7 +386,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
   },
   percentBadgeText: { color: colors.white, fontWeight: '700', fontSize: 13 },
-  guestNotice: { ...typography.footnote, color: colors.danger },
+  // Was colors.danger — that's reserved for errors and destructive actions
+  // (account deletion, etc.), not a plain informational nudge to log in.
+  guestNotice: { ...typography.footnote, color: colors.accent },
   rangeStat: { ...typography.footnote, color: colors.accent, fontWeight: '600' },
   // flex: 1 with min/max caps instead of a fixed width: 320px screens need
   // the bar to shrink so it doesn't crowd the prefecture name, and 720px

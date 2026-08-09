@@ -37,7 +37,7 @@ export function PhotoPreviewModal({
               variant="secondary"
               style={styles.actionButton}
             />
-            <Button title="これで記録する" onPress={onConfirm} style={styles.actionButton} />
+            <Button title="記録する" onPress={onConfirm} style={styles.actionButton} />
           </View>
         </View>
       </View>

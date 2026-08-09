@@ -40,7 +40,7 @@ export default function ResetPasswordScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>パスワードの再設定 - ポケふた収集</title>
+        <title>パスワードの再設定 - ポケふたコレクト</title>
       </Head>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">

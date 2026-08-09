@@ -58,6 +58,29 @@ export const PREFECTURES: readonly PrefectureDto[] = [
   { id: 47, nameJa: '沖縄県', nameEn: 'Okinawa', region: 'Kyushu' },
 ];
 
+// PrefectureDto.region (and everything derived from it, e.g. ProgressDto's
+// byPrefecture[].region) is an English code — convenient as a stable grouping
+// key, but wrong to render as-is in a Japanese-language UI. Okinawa is
+// grouped under 'Kyushu' rather than having its own region, matching the
+// common "九州・沖縄地方" convention, so that's rendered as one combined label.
+const REGION_NAMES_JA: Readonly<Record<string, string>> = {
+  Hokkaido: '北海道',
+  Tohoku: '東北',
+  Kanto: '関東',
+  Chubu: '中部',
+  Kansai: '近畿',
+  Chugoku: '中国',
+  Shikoku: '四国',
+  Kyushu: '九州・沖縄',
+};
+
+// Falls back to the raw code for a region that isn't in the map above rather
+// than throwing — safer for a display-only helper than crashing a screen
+// over a label mismatch.
+export function regionNameJa(region: string): string {
+  return REGION_NAMES_JA[region] ?? region;
+}
+
 export interface PokeLidDto {
   id: string;
   officialRef: string | null;
@@ -140,6 +163,67 @@ export interface MunicipalityProgressDto {
   // the client.
   latitude: number;
   longitude: number;
+}
+
+// A near-term goal (7-5): at least 2 poke lids (see pickMunicipalityGoals for
+// why) and few enough left that visiting is realistic this week, not
+// "someday".
+export const MUNICIPALITY_GOAL_MAX_REMAINING = 3;
+export const MUNICIPALITY_GOAL_COUNT = 5;
+
+export interface MunicipalityGoal extends MunicipalityProgressDto {
+  remaining: number;
+  distanceMeters: number | null;
+}
+
+// "あと1つ" municipalities, nearest first when a location is known. Excludes
+// single-lid municipalities entirely: per the 7-5 distribution survey, 91%
+// of municipalities have exactly one poke lid, where "remaining" is always
+// indistinguishable from "haven't visited yet" — no different from what
+// nearestUncollected (see buildCollectionSummary) already surfaces. Without
+// this filter, this shelf would just be a second copy of "次に集めよう"
+// wearing a municipality name.
+// Also requires collected >= 1 — a municipality nobody has started ("あと2つ"
+// on 0/2) isn't "もう少しで達成", it's just untouched, and showing it here
+// undercuts the shelf's whole promise. If that leaves nothing, the caller is
+// expected to hide the section entirely (7-5's "don't show an empty goal"
+// rule) rather than render it with zero cards — this function just returns
+// an empty array in that case.
+export function pickMunicipalityGoals(
+  byMunicipality: MunicipalityProgressDto[],
+  location: { latitude: number; longitude: number } | null,
+): MunicipalityGoal[] {
+  const candidates: MunicipalityGoal[] = byMunicipality
+    .filter((m) => m.total >= 2 && m.collected >= 1)
+    .map((m) => ({
+      ...m,
+      remaining: m.total - m.collected,
+      distanceMeters: location
+        ? haversineDistanceMeters(location.latitude, location.longitude, m.latitude, m.longitude)
+        : null,
+    }))
+    // "残り10個の市を出しても意味がない" — only genuinely near-term goals.
+    .filter((m) => m.remaining > 0 && m.remaining <= MUNICIPALITY_GOAL_MAX_REMAINING);
+
+  candidates.sort((a, b) => {
+    if (a.remaining !== b.remaining) return a.remaining - b.remaining;
+    if (a.distanceMeters !== null && b.distanceMeters !== null) return a.distanceMeters - b.distanceMeters;
+    return a.municipality.localeCompare(b.municipality, 'ja');
+  });
+
+  return candidates.slice(0, MUNICIPALITY_GOAL_COUNT);
+}
+
+// Rounds to a whole percent, but never down to 0 once the user has actually
+// collected something — a plain Math.round(1/481*100) gives 0%, and a first
+// record landing on the exact same "0%" the screen showed before anyone had
+// collected anything reads as if nothing happened. Collected and total both
+// being real progress counts (not free-form floats), any nonzero collected
+// count is real progress worth a visible "1%" floor.
+export function progressPercent(collected: number, total: number): number {
+  if (total <= 0) return 0;
+  const rounded = Math.round((collected / total) * 100);
+  return collected > 0 ? Math.max(rounded, 1) : rounded;
 }
 
 // The single nearest poke lid a user hasn't collected yet, surfaced right

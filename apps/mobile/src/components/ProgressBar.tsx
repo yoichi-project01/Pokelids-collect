@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { progressPercent } from '@pokelids/shared';
 import { colors, typography } from '../theme';
 
 // Muted while barely started, accent once meaningfully underway, gold at
@@ -9,13 +10,27 @@ function fillColor(ratio: number): string {
   return colors.textSecondary;
 }
 
+// A track a few dozen px wide multiplied by a 1%-floor percentage can still
+// round back down to a sub-pixel width — minWidth guarantees the fill is
+// actually visible the moment there's at least one collected item, same
+// motivation as progressPercent's own 1% floor.
+const MIN_FILL_WIDTH = 3;
+
 export function ProgressBar({ total, collected }: { total: number; collected: number }) {
   const ratio = total > 0 ? collected / total : 0;
+  const percent = progressPercent(collected, total);
   return (
     <View style={styles.row}>
       <View style={styles.track}>
         <View
-          style={[styles.fill, { width: `${Math.round(ratio * 100)}%`, backgroundColor: fillColor(ratio) }]}
+          style={[
+            styles.fill,
+            {
+              width: `${percent}%`,
+              minWidth: collected > 0 ? MIN_FILL_WIDTH : 0,
+              backgroundColor: fillColor(ratio),
+            },
+          ]}
         />
       </View>
       <Text style={styles.label}>

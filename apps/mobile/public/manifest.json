@@ -1,6 +1,6 @@
 {
-  "short_name": "ポケふた収集",
-  "name": "ポケふた収集",
+  "short_name": "ポケふたコレクト",
+  "name": "ポケふたコレクト",
   "icons": [
     { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
     { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }

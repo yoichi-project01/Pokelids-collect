@@ -11,7 +11,7 @@ export default function TermsScreen() {
   return (
     <ScreenContainer>
       <Head>
-        <title>利用規約 - ポケふた収集</title>
+        <title>利用規約 - ポケふたコレクト</title>
       </Head>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.draftNotice}>
@@ -21,7 +21,7 @@ export default function TermsScreen() {
         <Text style={styles.updated}>最終更新日: {LAST_UPDATED}</Text>
 
         <Section title="1. サービスについて">
-          本サービス（ポケふた収集）は、個人が「ポケふた」（ご当地ポケモンマンホール）の訪問記録を残すために提供する非商用の個人開発サービスです。
+          本サービス（ポケふたコレクト）は、個人が「ポケふた」（ご当地ポケモンマンホール）の訪問記録を残すために提供する非商用の個人開発サービスです。
         </Section>
 
         <Section title="2. コンテンツの著作権について">

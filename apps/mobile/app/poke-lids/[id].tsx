@@ -34,6 +34,13 @@ import {
 import { useAuth } from '../../src/lib/auth';
 import { confirmAsync } from '../../src/lib/confirm';
 import { formatDateJST } from '../../src/lib/date';
+import { captureGuestPhoto } from '../../src/lib/guestPhotoCapture';
+import {
+  getGuestPhotos,
+  removeGuestPhotosFor,
+  GuestPhotoLimitError,
+  type GuestPhotoWithUri,
+} from '../../src/lib/guestPhotoStorage';
 import {
   getGuestCollection,
   removeGuestCollected,
@@ -65,6 +72,16 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
   return POKE_LIDS.map((l) => ({ id: l.id }));
 }
 
+// Meter precision below 1km — a guest photo's distance is meant to read as
+// "close enough to prove it" (the example in 7-9 is "現地から12m"), which a
+// single decimal of km would round away entirely.
+function formatPhotoDistance(distanceMeters: number | null): string {
+  if (distanceMeters === null) return '位置情報なし';
+  return distanceMeters < 1000
+    ? `現地から${Math.round(distanceMeters)}m`
+    : `現地から${(distanceMeters / 1000).toFixed(1)}km`;
+}
+
 export default function PokeLidDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -73,6 +90,10 @@ export default function PokeLidDetailScreen() {
   const [lid, setLid] = useState<PokeLidDto | null>(staticLid);
   const [collection, setCollection] = useState<CollectionDto | null>(null);
   const [guestCollection, setGuestCollectionState] = useState<GuestCollection | null>(null);
+  // Photos a guest has saved to this device for this poke lid (7-9, phase
+  // 1) — separate from `collection.photos` (server-confirmed, with a real
+  // medal), never merged into it.
+  const [guestPhotos, setGuestPhotos] = useState<GuestPhotoWithUri[]>([]);
   const [notes, setNotes] = useState('');
   // A photo the user just picked (camera or library) but hasn't confirmed
   // yet — see PhotoPreviewModal (4-4). Not uploaded until onConfirmUpload.
@@ -109,13 +130,14 @@ export default function PokeLidDetailScreen() {
   useEffect(() => {
     if (authLoading) return;
     let cancelled = false;
-    Promise.all([fetchPokeLid(id), fetchMyCollections(), getGuestCollection(id)])
-      .then(([lidRes, collectionsRes, guestRes]) => {
+    Promise.all([fetchPokeLid(id), fetchMyCollections(), getGuestCollection(id), getGuestPhotos(id)])
+      .then(([lidRes, collectionsRes, guestRes, guestPhotosRes]) => {
         if (cancelled) return;
         setLid(lidRes);
         const existingCollection = collectionsRes.find((c) => c.pokeLidId === id) ?? null;
         setCollection(existingCollection);
         setGuestCollectionState(guestRes);
+        setGuestPhotos(guestPhotosRes);
         // Prefer the account's own saved notes; the guest-storage note (if
         // any) is only relevant before the record has synced to an account.
         const existingNotes = existingCollection?.notes ?? guestRes?.notes;
@@ -144,8 +166,13 @@ export default function PokeLidDetailScreen() {
   async function onRemoveGuestVisited() {
     setSavingGuest(true);
     try {
-      await removeGuestCollected(id);
+      // Also clears any locally-saved photos for this poke lid — otherwise
+      // they'd keep occupying storage (and counting toward
+      // MAX_GUEST_PHOTOS_TOTAL) with no remaining way to reach or remove
+      // them individually.
+      await Promise.all([removeGuestCollected(id), removeGuestPhotosFor(id)]);
       setGuestCollectionState(null);
+      setGuestPhotos([]);
     } finally {
       setSavingGuest(false);
     }
@@ -220,6 +247,12 @@ export default function PokeLidDetailScreen() {
     if (!pendingPhoto || !lid) return;
     const { source, ...photo } = pendingPhoto;
     setPendingPhoto(null);
+
+    if (!user) {
+      await onConfirmGuestPhoto(photo, lid);
+      return;
+    }
+
     setUploading(true);
     setUploadProgress(0);
     try {
@@ -247,6 +280,31 @@ export default function PokeLidDetailScreen() {
     } finally {
       setUploading(false);
       setUploadProgress(null);
+    }
+  }
+
+  // Guest path (7-9, phase 1) never touches the server — saves to this
+  // device only, via captureGuestPhoto's fixed EXIF-then-resize-then-save
+  // pipeline. No upload progress (there's no network transfer) and no
+  // CelebrationModal: captureGuestPhoto deliberately never resolves a
+  // confirmed medal (only a distance), and celebrating a medal that might
+  // read differently once this eventually syncs (phase 2) is exactly the
+  // "金メダルだったのに同期後に銀になった" experience this is meant to avoid.
+  async function onConfirmGuestPhoto(photo: UploadPhotoInput, currentLid: PokeLidDto) {
+    setUploading(true);
+    try {
+      const saved = await captureGuestPhoto(id, photo, currentLid);
+      await setGuestCollected(id, currentLid.prefectureId, notes || null);
+      setGuestCollectionState(await getGuestCollection(id));
+      setGuestPhotos((prev) => [...prev, saved]);
+      showToast('この端末に保存しました', 'ログインすると、他の端末でも見られます', 'success');
+    } catch (err) {
+      // Limit rejections (5枚/記録・30枚合計・空き容量不足) carry a specific
+      // Japanese message from GuestPhotoLimitError; anything else (resize
+      // failure, storage write failure) falls back to a generic one.
+      showToast('エラー', err instanceof GuestPhotoLimitError ? err.message : '写真の保存に失敗しました');
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -409,9 +467,32 @@ export default function PokeLidDetailScreen() {
               />
             </View>
           ) : !user && guestCollection ? (
-            <Text style={styles.collectedLabel}>
-              ✓ 収集済み（{formatDateJST(guestCollection.visitedAt)}・端末に保存中）
-            </Text>
+            <View>
+              <Text style={styles.collectedLabel}>
+                ✓ 収集済み（{formatDateJST(guestCollection.visitedAt)}・端末に保存中）
+              </Text>
+              {guestPhotos.length > 0 && (
+                <ScrollView horizontal style={styles.photoRow}>
+                  {guestPhotos.map((p) => (
+                    <View key={p.id} style={styles.photoThumbWrapper}>
+                      <Image
+                        source={{ uri: p.uri }}
+                        style={styles.photoThumb}
+                        accessibilityLabel={`${lid.municipality}で撮影した写真`}
+                      />
+                      {/* attention (7-9), not a confirmed medal color — this
+                          distance is a client-side EXIF read, not the
+                          server's final judgment (see captureGuestPhoto). */}
+                      <View style={[styles.geoBadge, { backgroundColor: colors.background }]}>
+                        <Text style={[styles.geoBadgeText, { color: colors.attention }]}>
+                          {formatPhotoDistance(p.distanceMeters)}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </ScrollView>
+              )}
+            </View>
           ) : (
             <Text style={styles.notCollectedLabel}>まだ収集していません</Text>
           )}
@@ -432,38 +513,42 @@ export default function PokeLidDetailScreen() {
             />
           )}
 
-          {user ? (
-            <>
-              {uploading && (
-                <View style={styles.uploadProgress}>
-                  <View style={styles.uploadProgressTrack}>
-                    <View
-                      style={[
-                        styles.uploadProgressFill,
-                        { width: `${Math.round((uploadProgress ?? 0) * 100)}%` },
-                      ]}
-                    />
-                  </View>
-                  <Text style={styles.uploadProgressLabel}>
-                    アップロード中… {Math.round((uploadProgress ?? 0) * 100)}%
-                  </Text>
-                </View>
-              )}
-              <Button
-                title="写真を撮って記録する"
-                onPress={() => onPickPhoto('camera')}
-                loading={uploading}
-                disabled={uploading}
-              />
-              <Button
-                title="ライブラリから選ぶ"
-                onPress={() => onPickPhoto('library')}
-                loading={uploading}
-                disabled={uploading}
-                variant="secondary"
-              />
-            </>
-          ) : (
+          {/* Photo capture (7-9): available to everyone now, not just
+              logged-in users — onPickPhoto/PhotoPreviewModal are already
+              user-neutral, and onConfirmUpload branches to the guest path
+              below when there's no `user`. Upload progress only applies to
+              the logged-in path (a real network transfer); the guest path
+              has no transfer to show progress for. */}
+          {user && uploading && (
+            <View style={styles.uploadProgress}>
+              <View style={styles.uploadProgressTrack}>
+                <View
+                  style={[
+                    styles.uploadProgressFill,
+                    { width: `${Math.round((uploadProgress ?? 0) * 100)}%` },
+                  ]}
+                />
+              </View>
+              <Text style={styles.uploadProgressLabel}>
+                アップロード中… {Math.round((uploadProgress ?? 0) * 100)}%
+              </Text>
+            </View>
+          )}
+          <Button
+            title="写真を撮って記録する"
+            onPress={() => onPickPhoto('camera')}
+            loading={uploading}
+            disabled={uploading}
+          />
+          <Button
+            title="ライブラリから選ぶ"
+            onPress={() => onPickPhoto('library')}
+            loading={uploading}
+            disabled={uploading}
+            variant="secondary"
+          />
+
+          {!user && (
             <>
               {guestCollection ? (
                 <Button
@@ -474,12 +559,13 @@ export default function PokeLidDetailScreen() {
                 />
               ) : (
                 <Button
-                  title="訪問済みにする（端末に保存）"
+                  title="写真なしで訪問済みにする（端末に保存）"
                   onPress={onMarkGuestVisited}
                   loading={savingGuest}
+                  variant="secondary"
                 />
               )}
-              <Text style={styles.guestHint}>写真の追加やアカウントへの保存にはログインが必要です</Text>
+              <Text style={styles.guestHint}>ログインすると、他の端末でも見られます</Text>
               <Button title="ログインする" onPress={() => router.push('/login')} variant="secondary" />
             </>
           )}

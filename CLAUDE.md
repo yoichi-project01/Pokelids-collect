@@ -82,6 +82,27 @@ postinstall がスキーマを見つけられず型が生成されないまま `
   React Context を共有する前提のコードを書くときは、`find . -path
   "*/node_modules/<pkg>/package.json" -not -path "*/node_modules/*/node_modules/*"`
   で複数バージョンが同居していないか確認すること。**
+- **`tabBarLabelStyle` を指定しないと、react-navigation のデフォルト
+  （`fontSize: 10` のみ・`lineHeight` 指定なし）が使われ、日本語ラベルの
+  下端が `numberOfLines={1}` の `overflow: hidden` で数px クリップされる。**
+  `Text` の `lineHeight: normal` は欧文フォントのメトリクスを前提にした値で、
+  日本語グリフの実際のインク（特に「ン」「ク」等の下端）はそれより下まで
+  はみ出す。目視・スクリーンショット比較では判別できないほど小さい
+  （後述の検証方法参照）。`(tabs)/_layout.tsx` の `tabBarLabelStyle:
+  { fontSize: 10, lineHeight: 14 }` で解消（2026-08-10）。`lineHeight` を
+  16 までさらに上げても効果は変わらなかった（14で頭打ち）ため、それ以上
+  増やす意味はない。
+- **数px単位のテキストクリップは、スクリーンショットの目視比較や
+  `Range.getBoundingClientRect()` の数値だけでは判定を誤る。**
+  前者は倍率を上げても人間の目では気づけないことがあり、後者はフォントの
+  メトリクス上の余白を含むため実際に描画されていない分まで「はみ出し」と
+  カウントしてしまう（今回、修正前の実測は3pxクリップだったが、目視では
+  修正前後の画像が同一にしか見えなかった）。確実に判定するには、対象要素の
+  `overflow` を一時的に `visible` に変えた状態としない状態でスクリーン
+  ショットを撮り、ピクセル単位で diff を取ること（`sharp` の `raw()` で
+  RGB を比較し、閾値を超える画素数を数える）。本物のクリップがあれば、
+  各文字の下端に揃った一貫した帯としてdiffが現れる（ランダムなアンチ
+  エイリアシングのノイズとは区別できる）。
 - **react-navigation の `BottomTabBar` は、safe-area 下端の余白を `[role="tablist"]`
   自身ではなく、その親の外側 `View`（背景色付き・高さ = コンテンツ高 + `insets.bottom`、
   `paddingBottom: insets.bottom`）に付与する。** `[role="tablist"]` はタブボタンの

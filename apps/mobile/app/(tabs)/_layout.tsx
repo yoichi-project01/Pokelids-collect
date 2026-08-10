@@ -62,6 +62,16 @@ function TabsInner() {
         tabBarActiveTintColor: colors.accent,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, ...webCenteredBar },
+        // react-navigation's default tabBarLabelStyle only sets fontSize: 10
+        // with no explicit lineHeight, so it falls back to the browser's
+        // `normal` line-height metric. That metric is derived from the font's
+        // ascent/descent hints, which for Latin text roughly match the actual
+        // glyph ink — but Japanese glyphs (measured directly via computed
+        // style: fontSize 10px, line-height normal computing to a 10px box)
+        // render taller than that, so numberOfLines=1's overflow:hidden clips
+        // ~3px off the bottom of every Japanese label. Raising lineHeight
+        // gives the line box enough headroom to contain the full glyph.
+        tabBarLabelStyle: { fontSize: 10, lineHeight: 14 },
         ...(Platform.OS === 'web' && {
           header: ({ options, route }) => (
             <AppHeader

@@ -65,23 +65,47 @@ postinstall がスキーマを見つけられず型が生成されないまま `
   何も起きない。ネイティブ版のみ機能する。Web版で「更新した」と伝えたいなら
   `useFocusEffect`（画面に戻ってきたら自動再取得）か、明示的な更新ボタンに
   頼ること。
-- **`react-native-safe-area-context` を npm workspaces で二重インストールすると、Context ベースの安全域上書きが黙って効かなくなる。**
+- **`react-native-safe-area-context` を npm workspaces で二重インストールすると、Context ベースの上書きが黙って効かなくなる。**
   `apps/mobile/package.json` は `~5.7.0` を指定しているが、`expo-router` の
   peerDependency（`>= 5.4.0`、上限なし）を npm が自動解決する際に最新の
   `5.8.0` をルート `node_modules` に先に確定させ、`~5.7.0` はそれを満たせず
   `apps/mobile/node_modules` に別インスタンスとしてネスト installされる、
   という初回 `npm install` 時からの潜在バグがあった（2026-08-10発見）。
-  `apps/mobile` 配下のコード（`WebSafeAreaFloor` 等）は近い方の
-  `apps/mobile/node_modules` を、`expo-router` に内蔵された
-  `BottomTabView.js` はルートの `node_modules` を解決するため、
-  同じ `SafeAreaInsetsContext` に見えて実体は別の React Context オブジェクトになり、
-  `Provider` で上書きした値が `Consumer` 側に一切届かない。エラーは出ず、
-  `Platform.OS==='web'` の分岐は正常に通り、値も正しく計算されるため発見しづらい。
-  `npm dedupe`（ルートで実行、`~5.7.0` の唯一のバージョンである `5.7.0` に収束させる）
-  で解消する。**モノレポで `expo-router` 経由のライブラリと自前コードが同じ
-  React Context を共有する前提のコードを書くときは、`find . -path
+  `apps/mobile` 配下のコードは近い方の `apps/mobile/node_modules` を、
+  `expo-router` に内蔵された `BottomTabView.js` はルートの `node_modules` を
+  解決するため、同じ `SafeAreaInsetsContext` に見えて実体は別の React
+  Context オブジェクトになり、`Provider` で上書きした値が `Consumer` 側に
+  一切届かない。エラーは出ず、`Platform.OS==='web'` の分岐は正常に通り、
+  値も正しく計算されるため発見しづらい。`npm dedupe`（ルートで実行、
+  `~5.7.0` の唯一のバージョンである `5.7.0` に収束させる）で解消する。
+  **モノレポで `expo-router` 経由のライブラリと自前コードが同じ React
+  Context を共有する前提のコードを書くときは、`find . -path
   "*/node_modules/<pkg>/package.json" -not -path "*/node_modules/*/node_modules/*"`
   で複数バージョンが同居していないか確認すること。**
+  （このdedupe自体は今も有効。ただし、これが解消しようとしていた
+  「WebSafeAreaFloorが効かない」という当時の症状そのものは、後述の通り
+  対処すべき問題ではなかったと判明している。）
+- **`env(safe-area-inset-bottom)` が Android Chrome で 0 を返すのは、
+  3ボタンナビゲーション端末では正しい挙動であり、バグではない。**
+  （旧: WebSafeAreaFloor、8318c21で導入・2026-08-10に問題ごと削除）
+  タブバーのラベルが「見切れている」という報告を受け、Android Chrome は
+  ジェスチャーナビ環境のホームバー分の余白を `env(safe-area-inset-bottom)`
+  で報告しないという仮説のもと、Web版で無条件に24pxの底上げを注入する
+  `WebSafeAreaFloor`（`SafeAreaInsetsContext.Provider`で`insets.bottom`を
+  `Math.max(insets.bottom, 24)`に上書き）を追加した。しかし実機の拡大
+  スクリーンショットで確認したところラベルは切れておらず、見えていたのは
+  この24pxの余白そのものだった。報告者の端末は**3ボタンナビゲーション**
+  （|||/○/<）で、この場合ブラウザの表示領域はナビゲーションバーの下まで
+  拡張されないため、`env(safe-area-inset-bottom)`が0を返すのはむしろ正しい
+  （余白を足す必要がある領域が実際に存在しない）。つまり存在しない問題への
+  対処が、「ラベルの下に不自然な白帯ができる」という新しい問題を生んでいた。
+  `WebSafeAreaFloor`と、それを `(tabs)/_layout.tsx` でラップしていた箇所は
+  削除済み。**Android端末で safe-area 関連の報告を受けたときは、まず
+  3ボタンナビかジェスチャーナビかを確認すること。** ジェスチャーナビ環境
+  （画面下端に細いピルが浮くタイプ）では、ブラウザの表示領域がナビ操作
+  エリアの下まで拡張される可能性があり、そちらは実際に対処が必要になり
+  うる。`9823682`の`viewport-fit=cover`+`100dvh`はその可能性に備えて
+  残してある。
 - **`tabBarLabelStyle` を指定しないと、react-navigation のデフォルト
   （`fontSize: 10` のみ・`lineHeight` 指定なし）が使われ、日本語ラベルの
   下端が `numberOfLines={1}` の `overflow: hidden` で数px クリップされる。**

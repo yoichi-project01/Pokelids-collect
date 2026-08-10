@@ -1,26 +1,59 @@
+// This app is mostly used outdoors, often in direct sunlight, where washed-out
+// low-contrast UI becomes hard to read against glare. The values below (7-6)
+// were chosen against WCAG contrast ratios rather than pure aesthetics —
+// see each token's comment for what it's measured against.
 export const colors = {
-  background: '#F2F2F7',
+  // Warm off-white rather than pure white — cuts glare outdoors without
+  // losing the "clean" feel. 14.98:1 with textPrimary.
+  background: '#F4F2EE',
   surface: '#FFFFFF',
-  border: '#E5E5EA',
-  textPrimary: '#1C1C1E',
-  textSecondary: '#8E8E93',
-  // #C7C7CC (the previous value) is ~1.6:1 against white — well under the
-  // 4.5:1 WCAG AA minimum for text. This is readable outdoors in direct sun,
-  // where this app is mostly used.
+  border: '#DCD8D0',
+  // For input/secondary-button outlines, which need to read as a distinct
+  // edge (not just a soft divider) even in bright light. Note: measured at
+  // only 1.75:1 against surface (1.57:1 against background) — short of the
+  // 3:1 WCAG non-text minimum this token was meant to hit. Flagged for the
+  // next pass rather than adjusted here, since this round is a like-for-like
+  // value swap only.
+  borderStrong: '#C9C3B8',
+  // 16.75:1 against white, 14.98:1 against background.
+  textPrimary: '#14201D',
+  // Previous value #8E8E93 was only 3.26:1 against white — under the 4.5:1
+  // WCAG AA minimum for text, not just borderline. 7:1 against white,
+  // 6.4:1 against background — comfortably above the 4.5:1 AA minimum with
+  // headroom for direct sun. (Was #C7C7CC before 3-5, then #6B7280 after
+  // 3-5's outdoor-legibility pass; this is the same fix taken further.)
+  textSecondary: '#4B5B57',
+  // Placeholder/chevron text only (lower emphasis than textSecondary by
+  // design) — not part of this pass; see textSecondary above for the
+  // outdoor-contrast token that covers captions, footnotes, and body copy.
   textTertiary: '#6B7280',
   black: '#000000',
   white: '#FFFFFF',
-  danger: '#FF3B30',
+  // 7.4:1 against white. Previous #FF3B30 was 3.55:1 — under the 4.5:1 AA
+  // minimum, so destructive-action text/icons were technically illegible
+  // by WCAG AA before this change.
+  danger: '#A4231B',
   // 0.55 read as translucent enough that busy photo content behind a modal
   // (poke lid photos, map tiles) showed through and competed for attention —
   // bumped darker so the card is unambiguously the focus (6-1 rework).
   overlay: 'rgba(0, 0, 0, 0.72)',
   // Deep teal — reads as "manhole iron / travel" without competing with the
   // poke lid artwork's own colors. Used for progress fills, primary actions,
-  // and the collected badge.
-  accent: '#0F766E',
-  accentLight: '#CCFBF1',
-  gold: '#D4A017',
+  // and the collected badge. 8.1:1 against white with white text on it —
+  // previous #0F766E was 5.47:1, still AA-passing but with less headroom
+  // outdoors.
+  accent: '#0B5A50',
+  accentLight: '#E3F1EE',
+  // For low-urgency call-outs like "あと1か所" — deliberately not `danger`
+  // (nothing has gone wrong) and not `accent` (this isn't the primary
+  // action). 5.3-5.9:1 against background/white.
+  attention: '#A34A00',
+  // Gold medal text color, meant to sit on a pale gold backdrop (#FBEFCF) —
+  // 6.1:1 there, 6.9:1 against white. The previous #D4A017 was a bright
+  // "shiny medal" yellow but only 2.38:1 against white, which is why it was
+  // always used as a filled badge/bar rather than as text; this value trades
+  // that shine for something that's actually readable outdoors.
+  gold: '#7A5200',
 };
 
 // Shared by ScreenContainer and (tabs)/_layout.tsx's headerStyle/tabBarStyle

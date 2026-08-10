@@ -1,4 +1,5 @@
 import type { PhotoMedal } from '@pokelids/shared';
+import { colors } from '../theme';
 
 // NONE used to read "未確認" — a photo badge that told the viewer something
 // was pending verification, not that the GPS simply didn't match the poke
@@ -12,7 +13,12 @@ export const MEDAL_LABEL: Record<PhotoMedal, string> = {
 };
 
 export const MEDAL_BADGE_COLOR: Record<PhotoMedal, string> = {
-  GOLD: 'rgba(212, 160, 23, 0.9)',
+  // Points at the theme token (7-6) rather than a hardcoded hex so this
+  // stays in sync with future palette changes. Unlike SILVER/NONE below,
+  // this isn't given extra translucency — colors.gold was chosen dark
+  // enough for outdoor contrast on its own (see theme.ts), so softening it
+  // further isn't needed the way it was for the old bright-yellow value.
+  GOLD: colors.gold,
   SILVER: 'rgba(148, 158, 168, 0.9)',
   NONE: 'rgba(153, 153, 153, 0.6)',
 };

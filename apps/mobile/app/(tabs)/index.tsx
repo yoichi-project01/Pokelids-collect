@@ -434,5 +434,12 @@ const styles = StyleSheet.create({
   nextImagePlaceholder: { backgroundColor: colors.border },
   nextCaption: { ...typography.footnote, textAlign: 'center' },
   // "あと1つ" (7-5) — the one number on this card worth calling attention to.
-  nextGoalRemaining: { ...typography.footnote, textAlign: 'center', color: colors.accent, fontWeight: '600' },
+  // `attention` (7-6) rather than `accent`, since this is a low-urgency
+  // nudge, not the screen's primary action.
+  nextGoalRemaining: {
+    ...typography.footnote,
+    textAlign: 'center',
+    color: colors.attention,
+    fontWeight: '600',
+  },
 });

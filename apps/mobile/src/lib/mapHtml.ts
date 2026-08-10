@@ -1,3 +1,5 @@
+import { colors } from '../theme';
+
 export interface MapMarkerData {
   id: string;
   lat: number;
@@ -59,7 +61,7 @@ export function buildMapHtml(
     border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(26,115,232,0.4), 0 1px 4px rgba(0,0,0,0.4);
   }
   .poke-lid-popup { min-width: 168px; }
-  .poke-lid-popup-name { font-size: 13px; font-weight: 600; color: #1C1C1E; margin: 0 0 8px; }
+  .poke-lid-popup-name { font-size: 13px; font-weight: 600; color: ${colors.textPrimary}; margin: 0 0 8px; }
   .poke-lid-popup-actions { display: flex; flex-direction: column; gap: 6px; }
   /* min-height: 44px matches this app's own tap-target floor (3-3) — this
      button lives in a Leaflet popup on a map meant to be used outdoors,
@@ -68,11 +70,11 @@ export function buildMapHtml(
   .poke-lid-popup-btn {
     display: flex; align-items: center; justify-content: center;
     width: 100%; box-sizing: border-box; min-height: 44px;
-    padding: 0 12px; border-radius: 12px; border: 1px solid #E5E5EA;
-    background: #fff; color: #1C1C1E; font-size: 14px; font-weight: 600;
+    padding: 0 12px; border-radius: 12px; border: 1px solid ${colors.border};
+    background: #fff; color: ${colors.textPrimary}; font-size: 14px; font-weight: 600;
     cursor: pointer;
   }
-  .poke-lid-popup-btn-primary { background: #0F766E; border-color: #0F766E; color: #fff; }
+  .poke-lid-popup-btn-primary { background: ${colors.accent}; border-color: ${colors.accent}; color: #fff; }
 </style>
 </head>
 <body>

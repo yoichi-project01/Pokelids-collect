@@ -259,8 +259,10 @@ const styles = StyleSheet.create({
   sectionTitle: { ...typography.bodyMedium },
   sectionCount: { ...typography.footnote, fontWeight: '600', color: colors.textSecondary },
   // "あと1つ" (7-5) — the one count worth calling out visually while
-  // scanning a 58-item prefecture for something achievable today.
-  sectionCountAlmost: { color: colors.accent },
+  // scanning a 58-item prefecture for something achievable today. `attention`
+  // (7-6) rather than `accent`, since this is a low-urgency nudge, not the
+  // screen's primary action.
+  sectionCountAlmost: { color: colors.attention },
   retiredBadge: {
     backgroundColor: colors.textSecondary,
     borderRadius: radius.sm,

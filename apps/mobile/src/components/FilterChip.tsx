@@ -56,7 +56,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.border,
+    // borderStrong (7-8), not border — an unselected chip is a tappable
+    // toggle, not a divider, so its edge needs to read that way.
+    borderColor: colors.borderStrong,
   },
   chipSelected: { borderColor: colors.accent },
   pressed: { opacity: 0.7 },

@@ -17,7 +17,9 @@ const styles = StyleSheet.create({
   field: {
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.border,
+    // borderStrong (7-8), not border — an input field's outline needs to
+    // read as a distinct edge, not a soft divider.
+    borderColor: colors.borderStrong,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,

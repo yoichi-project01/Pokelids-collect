@@ -67,7 +67,10 @@ const styles = StyleSheet.create({
 
 const variantStyles = StyleSheet.create({
   primary: { backgroundColor: colors.accent },
-  secondary: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  // borderStrong (7-8), not border — a secondary button's outline is what
+  // makes it read as tappable at all (no fill to lean on), so it needs a
+  // distinct edge, not a soft divider.
+  secondary: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderStrong },
   ghost: { backgroundColor: 'transparent', minHeight: 40 },
   danger: { backgroundColor: 'transparent', minHeight: 40 },
 });

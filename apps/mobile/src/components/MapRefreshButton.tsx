@@ -39,7 +39,9 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.border,
+    // borderStrong (7-8), not border — this is a tappable button, not a
+    // divider.
+    borderColor: colors.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.surface,

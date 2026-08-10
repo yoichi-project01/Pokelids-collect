@@ -9,12 +9,14 @@ export const colors = {
   surface: '#FFFFFF',
   border: '#DCD8D0',
   // For input/secondary-button outlines, which need to read as a distinct
-  // edge (not just a soft divider) even in bright light. Note: measured at
-  // only 1.75:1 against surface (1.57:1 against background) — short of the
-  // 3:1 WCAG non-text minimum this token was meant to hit. Flagged for the
-  // next pass rather than adjusted here, since this round is a like-for-like
-  // value swap only.
-  borderStrong: '#C9C3B8',
+  // edge (not just a soft divider) even in bright light. 3.68:1 against
+  // surface, 3.29:1 against background — both clear the 3:1 WCAG
+  // non-text-contrast minimum (1.4.11) this token exists for. (The previous
+  // #C9C3B8 only reached 1.75:1 / 1.57:1 — see 7-8.) Kept in the same warm
+  // beige-gray hue family as `border`, just darkened, rather than shifted
+  // toward a colder gray, so the two still read as "the same kind of line,
+  // one stronger" rather than as unrelated colors.
+  borderStrong: '#8A8578',
   // 16.75:1 against white, 14.98:1 against background.
   textPrimary: '#14201D',
   // Previous value #8E8E93 was only 3.26:1 against white — under the 4.5:1

@@ -32,7 +32,8 @@ const styles = StyleSheet.create({
   field: {
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.border,
+    // borderStrong (7-8), not border — matches TextField's outline.
+    borderColor: colors.borderStrong,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingRight: spacing.xxl,

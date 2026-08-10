@@ -1,5 +1,6 @@
 node_modules/
 dist/
+apps/mobile/dist-*/
 .env
 *.log
 apps/mobile/.expo/

@@ -9,10 +9,18 @@ module.exports = tseslint.config(
   {
     ignores: [
       '**/dist/**',
+      // Ad-hoc local `expo export --output-dir` builds used for manual
+      // debugging (e.g. dist-nomin, dist-sm) — not part of the normal build
+      // pipeline (that always outputs to plain `dist/`, matched above), but
+      // still just as much a generated bundle, so lint shouldn't crawl it.
+      'apps/mobile/dist-*/**',
       '**/node_modules/**',
       '**/.expo/**',
       'apps/api/etl/raw/**',
       'apps/mobile/public/**',
+      // Design-proposal exports (self-contained .dc.html mockups and their
+      // generated support.js) — reference material, not app source.
+      'docs/design/**',
     ],
   },
   js.configs.recommended,

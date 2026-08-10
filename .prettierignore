@@ -1,4 +1,6 @@
 dist
+apps/mobile/dist-*
+docs/design
 node_modules
 .expo
 apps/api/etl/raw

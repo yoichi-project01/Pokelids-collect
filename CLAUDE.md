@@ -80,7 +80,7 @@ postinstall がスキーマを見つけられず型が生成されないまま `
   `~5.7.0` の唯一のバージョンである `5.7.0` に収束させる）で解消する。
   **モノレポで `expo-router` 経由のライブラリと自前コードが同じ React
   Context を共有する前提のコードを書くときは、`find . -path
-  "*/node_modules/<pkg>/package.json" -not -path "*/node_modules/*/node_modules/*"`
+"*/node_modules/<pkg>/package.json" -not -path "*/node_modules/*/node_modules/*"`
   で複数バージョンが同居していないか確認すること。**
   （このdedupe自体は今も有効。ただし、これが解消しようとしていた
   「WebSafeAreaFloorが効かない」という当時の症状そのものは、後述の通り
@@ -113,7 +113,7 @@ postinstall がスキーマを見つけられず型が生成されないまま `
   日本語グリフの実際のインク（特に「ン」「ク」等の下端）はそれより下まで
   はみ出す。目視・スクリーンショット比較では判別できないほど小さい
   （後述の検証方法参照）。`(tabs)/_layout.tsx` の `tabBarLabelStyle:
-  { fontSize: 10, lineHeight: 14 }` で解消（2026-08-10）。`lineHeight` を
+{ fontSize: 10, lineHeight: 14 }` で解消（2026-08-10）。`lineHeight` を
   16 までさらに上げても効果は変わらなかった（14で頭打ち）ため、それ以上
   増やす意味はない。
 - **数px単位のテキストクリップは、スクリーンショットの目視比較や

@@ -6,7 +6,7 @@ import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { deleteAccount } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { confirmAsync } from '../../src/lib/confirm';
-import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
+import { MEDAL_BADGE_COLOR, MEDAL_LABEL, MEDAL_SHORT_LABEL } from '../../src/lib/medal';
 import { showToast } from '../../src/lib/toast';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
@@ -52,7 +52,11 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>メダルについて</Text>
         {(['GOLD', 'SILVER', 'NONE'] as const).map((medal) => (
           <View key={medal} style={styles.legendRow}>
-            <View style={[styles.legendDot, { backgroundColor: MEDAL_BADGE_COLOR[medal] }]} />
+            <View style={[styles.legendBadge, { backgroundColor: MEDAL_BADGE_COLOR[medal].bg }]}>
+              <Text style={[styles.legendBadgeText, { color: MEDAL_BADGE_COLOR[medal].fg }]}>
+                {MEDAL_SHORT_LABEL[medal]}
+              </Text>
+            </View>
             <Text style={styles.legendText}>
               {MEDAL_LABEL[medal]}
               {medal === 'GOLD' && '（写真の位置情報が現地と一致）'}
@@ -99,7 +103,18 @@ const styles = StyleSheet.create({
   guestText: { ...typography.body, marginBottom: spacing.xs },
   sectionTitle: { ...typography.bodyMedium, marginBottom: spacing.xs },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  legendDot: { width: 12, height: 12, borderRadius: 6 },
+  // Replaces a plain color dot (7-7) — a dot alone can't carry a `bg`+`fg`
+  // pair, and MEDAL_BADGE_COLOR's gold `bg` is pale enough that a same-sized
+  // dot on this card's white background would have been nearly invisible.
+  legendBadge: {
+    minWidth: 28,
+    paddingHorizontal: spacing.xs,
+    height: 20,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  legendBadgeText: { fontSize: 12, fontWeight: '700' },
   legendText: { ...typography.caption, flex: 1 },
   // Link must stay a Link (not a Pressable) so it renders as a real <a> on
   // web — expanded via paddingVertical/minHeight instead, to still meet the

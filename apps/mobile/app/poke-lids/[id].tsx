@@ -393,8 +393,10 @@ export default function PokeLidDetailScreen() {
                     >
                       <Text style={styles.photoDeleteButtonText}>✕</Text>
                     </Pressable>
-                    <View style={[styles.geoBadge, { backgroundColor: MEDAL_BADGE_COLOR[p.medal] }]}>
-                      <Text style={styles.geoBadgeText}>{MEDAL_LABEL[p.medal]}</Text>
+                    <View style={[styles.geoBadge, { backgroundColor: MEDAL_BADGE_COLOR[p.medal].bg }]}>
+                      <Text style={[styles.geoBadgeText, { color: MEDAL_BADGE_COLOR[p.medal].fg }]}>
+                        {MEDAL_LABEL[p.medal]}
+                      </Text>
                     </View>
                   </View>
                 ))}
@@ -554,7 +556,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     alignItems: 'center',
   },
-  geoBadgeText: { color: colors.white, fontSize: 10, fontWeight: '600' },
+  // color comes from MEDAL_BADGE_COLOR[medal].fg (7-7) — varies per medal,
+  // so it can't live in this static stylesheet entry.
+  geoBadgeText: { fontSize: 10, fontWeight: '600' },
   primaryToggle: {
     position: 'absolute',
     top: 4,

@@ -12,13 +12,32 @@ export const MEDAL_LABEL: Record<PhotoMedal, string> = {
   NONE: '📍 位置情報不一致',
 };
 
-export const MEDAL_BADGE_COLOR: Record<PhotoMedal, string> = {
-  // Points at the theme token (7-6) rather than a hardcoded hex so this
-  // stays in sync with future palette changes. Unlike SILVER/NONE below,
-  // this isn't given extra translucency — colors.gold was chosen dark
-  // enough for outdoor contrast on its own (see theme.ts), so softening it
-  // further isn't needed the way it was for the old bright-yellow value.
-  GOLD: colors.gold,
-  SILVER: 'rgba(148, 158, 168, 0.9)',
-  NONE: 'rgba(153, 153, 153, 0.6)',
+export interface MedalBadgeColor {
+  bg: string;
+  fg: string;
+}
+
+// A single dark `colors.gold` fill (tried in 8f5a480) reads as a muddy
+// bronze dot/bar, not a gold medal — accessible but visually deflating for
+// what ROADMAP.md calls the core of the app's payoff moment. Pairing a pale
+// backdrop with the dark text/fill color (7-7) gets the "gold medal" look
+// back without giving up the contrast fix; the backdrop itself is exempt
+// from WCAG text-contrast rules since nothing is printed on it directly.
+// SILVER/NONE are given the same {bg, fg} shape for one consistent badge
+// component, using the design proposal's own values rather than inventing
+// new ones.
+export const MEDAL_BADGE_COLOR: Record<PhotoMedal, MedalBadgeColor> = {
+  GOLD: { bg: colors.goldSurface, fg: colors.gold },
+  SILVER: { bg: '#EDEEF0', fg: '#454C52' },
+  // #4B5B57 is colors.textSecondary — reused rather than duplicated since
+  // "unmatched" isn't really its own color identity, just a neutral badge.
+  NONE: { bg: '#F1EFEA', fg: colors.textSecondary },
+};
+
+// Compact glyph for the settings screen's medal legend, where the badge is
+// small enough that the full MEDAL_LABEL text wouldn't fit legibly.
+export const MEDAL_SHORT_LABEL: Record<PhotoMedal, string> = {
+  GOLD: '金',
+  SILVER: '銀',
+  NONE: '—',
 };

@@ -48,12 +48,18 @@ export const colors = {
   // (nothing has gone wrong) and not `accent` (this isn't the primary
   // action). 5.3-5.9:1 against background/white.
   attention: '#A34A00',
-  // Gold medal text color, meant to sit on a pale gold backdrop (#FBEFCF) —
-  // 6.1:1 there, 6.9:1 against white. The previous #D4A017 was a bright
-  // "shiny medal" yellow but only 2.38:1 against white, which is why it was
-  // always used as a filled badge/bar rather than as text; this value trades
-  // that shine for something that's actually readable outdoors.
+  // Gold medal TEXT color — always pair with `goldSurface` below, never use
+  // as a solid fill on its own (a wide fill of this dark a brown reads as
+  // "dark bronze," not "gold"). 6.1:1 against goldSurface, 6.9:1 against
+  // white. The previous #D4A017 was a bright "shiny medal" yellow but only
+  // 2.38:1 against white, which is why it was always used as a filled
+  // badge/bar rather than as text; this value trades that shine for
+  // something that's actually readable outdoors — the shine comes back via
+  // the goldSurface pairing instead (see MEDAL_BADGE_COLOR in medal.ts).
   gold: '#7A5200',
+  // Pale gold backdrop `gold` text sits on — this pairing (not `gold` alone)
+  // is what actually reads as "gold medal."
+  goldSurface: '#FBEFCF',
 };
 
 // Shared by ScreenContainer and (tabs)/_layout.tsx's headerStyle/tabBarStyle

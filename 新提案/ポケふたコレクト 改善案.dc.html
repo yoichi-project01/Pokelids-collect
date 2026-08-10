@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.4.0/dist/ionicons/ionicons.esm.js"></script>
+<style>
+  body { margin: 0; background: #E8E8ED; }
+  a { color: #0F766E; }
+  a:hover { color: #0b5a54; }
+  .ph { background-image: repeating-linear-gradient(45deg, #E5E5EA 0 6px, #F2F2F7 6px 12px); }
+  .scr::-webkit-scrollbar { width: 0; height: 0; }
+</style>
+</helmet>
+
+<section style="padding: 40px; display: flex; flex-direction: column; gap: 40px; font-family: 'Zen Kaku Gothic New', -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;">
+
+  <div id="1b" style="display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 26px; padding: 0 10px; border-radius: 999px; background: #0B5A50; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.04em;">1b</span>
+      <span style="font-size: 22px; font-weight: 700; color: #14201D;">改善案：はじめての人でも、屋外で片手でも使える</span>
+      <span style="font-size: 14px; color: #4B5B57;">本文 17px 以上 / 状態は色以外でも判別 / タップ領域 56px 以上</span>
+    </div>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; max-width: 1240px;">
+      <div style="flex: 1; min-width: 240px; background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 16px; padding: 16px;">
+        <div style="font-size: 16px; font-weight: 700; color: #14201D; margin-bottom: 6px;">文字と余白を大きく</div>
+        <div style="font-size: 15px; line-height: 1.6; color: #4B5B57;">12px / 13px の補助テキストを廃止。本文 17px、補助 15px を下限に。数値は 52px まで拡大し、明るい屋外でも読める。</div>
+      </div>
+      <div style="flex: 1; min-width: 240px; background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 16px; padding: 16px;">
+        <div style="font-size: 16px; font-weight: 700; color: #14201D; margin-bottom: 6px;">未訪問を「薄く」しない</div>
+        <div style="font-size: 15px; line-height: 1.6; color: #4B5B57;">grayscale + opacity 0.4 をやめ、破線枠と「未訪問」ラベルで区別。訪問済みは実線枠とチェック。色が見えなくても伝わる。</div>
+      </div>
+      <div style="flex: 1; min-width: 240px; background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 16px; padding: 16px;">
+        <div style="font-size: 16px; font-weight: 700; color: #14201D; margin-bottom: 6px;">片手・その場で使える</div>
+        <div style="font-size: 15px; line-height: 1.6; color: #4B5B57;">主要な操作は画面下部の親指が届く位置に固定。地図からその場で撮影・記録まで到達できる。</div>
+      </div>
+      <div style="flex: 1; min-width: 240px; background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 16px; padding: 16px;">
+        <div style="font-size: 16px; font-weight: 700; color: #14201D; margin-bottom: 6px;">初めてでも迷わない</div>
+        <div style="font-size: 15px; line-height: 1.6; color: #4B5B57;">ホーム上部に「さがす → 行く → 撮る」の 3 ステップ。ログインしなくても始められることを最初に明示。</div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #4B5B57;">ホーム（収集進捗）</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #DCD8D0; border-radius: 24px; overflow: hidden; background: #F4F2EE; display: flex; flex-direction: column;">
+          <div style="min-height: 60px; background: #FFFFFF; border-bottom: 1px solid #DCD8D0; display: flex; align-items: center; padding: 0 20px;">
+            <div style="font-size: 20px; font-weight: 700; color: #14201D;">ポケふたコレクト</div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+              <div style="font-size: 15px; font-weight: 700; color: #4B5B57;">訪問した数</div>
+              <div style="display: flex; align-items: baseline; gap: 8px;">
+                <div style="font-size: 52px; font-weight: 900; line-height: 1; color: #14201D;">12</div>
+                <div style="font-size: 19px; font-weight: 700; color: #4B5B57;">/ 481 か所</div>
+                <div style="margin-left: auto; font-size: 19px; font-weight: 900; color: #0B5A50;">2%</div>
+              </div>
+              <div style="height: 14px; border-radius: 7px; background: #E7E3DC; overflow: hidden;">
+                <div style="height: 100%; width: 4%; background: #0B5A50; border-radius: 7px;"></div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; background: #E3F1EE; border-radius: 14px; padding: 14px 16px;">
+                <ion-icon name="navigate" style="font-size: 24px; color: #0B5A50;"></ion-icon>
+                <div style="font-size: 17px; font-weight: 700; color: #0B5A50; line-height: 1.4;">10km以内に 未訪問が 7 か所</div>
+              </div>
+            </div>
+
+            <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+              <div style="font-size: 18px; font-weight: 700; color: #14201D;">はじめての方へ</div>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 32px; height: 32px; border-radius: 999px; background: #0B5A50; color: #fff; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none;">1</div>
+                  <div style="font-size: 17px; color: #14201D;">地図で近くのポケふたを さがす</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 32px; height: 32px; border-radius: 999px; background: #0B5A50; color: #fff; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none;">2</div>
+                  <div style="font-size: 17px; color: #14201D;">現地まで 行く</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 32px; height: 32px; border-radius: 999px; background: #0B5A50; color: #fff; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none;">3</div>
+                  <div style="font-size: 17px; color: #14201D;">写真を 撮る（記録が残る）</div>
+                </div>
+              </div>
+              <div style="font-size: 15px; color: #4B5B57; line-height: 1.6;">ログインしなくても使えます。記録はこの端末に保存され、あとからアカウントに引き継げます。</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="font-size: 18px; font-weight: 700; color: #14201D;">あと少しで達成</div>
+              <div class="scr" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px;">
+                <sc-for list="{{ goals2 }}" as="g" hint-placeholder-count="3">
+                  <div style="width: 148px; flex: none; background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                    <div class="ph" style="width: 100%; aspect-ratio: 1; border-radius: 12px;"></div>
+                    <div style="font-size: 17px; font-weight: 700; color: #14201D;">{{ g.name }}</div>
+                    <div style="font-size: 15px; font-weight: 700; color: #A34A00;">{{ g.remain }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="font-size: 18px; font-weight: 700; color: #14201D; padding: 4px 0;">都道府県から探す</div>
+              <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; overflow: hidden;">
+                <sc-for list="{{ prefs2 }}" as="p" hint-placeholder-count="4">
+                  <div style="display: flex; align-items: center; gap: 14px; padding: 16px; border-bottom: 1px solid #EDEAE4; min-height: 64px;">
+                    <div class="ph" style="width: 52px; height: 52px; border-radius: 12px; flex: none;"></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                      <div style="font-size: 18px; font-weight: 700; color: #14201D;">{{ p.name }}</div>
+                      <div style="height: 10px; border-radius: 5px; background: #E7E3DC; overflow: hidden;">
+                        <div style="height: 100%; width: {{ p.w }}; background: {{ p.fill }};"></div>
+                      </div>
+                    </div>
+                    <div style="font-size: 17px; font-weight: 700; color: #4B5B57; min-width: 62px; text-align: right;">{{ p.count }}</div>
+                    <ion-icon name="chevron-forward" style="font-size: 22px; color: #4B5B57;"></ion-icon>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="padding: 12px 16px; background: #FFFFFF; border-top: 1px solid #DCD8D0;">
+            <div style="min-height: 60px; border-radius: 16px; background: #0B5A50; display: flex; align-items: center; justify-content: center; gap: 10px;">
+              <ion-icon name="map" style="font-size: 26px; color: #FFFFFF;"></ion-icon>
+              <span style="font-size: 19px; font-weight: 700; color: #FFFFFF;">近くのポケふたを探す</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px; background: #FFFFFF; border-top: 1px solid #DCD8D0; padding: 8px 10px 16px;">
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; background: #E3F1EE; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="albums" style="font-size: 26px; color: #0B5A50;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #0B5A50;">一覧</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="map" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">地図</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="images" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">記録</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="settings" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">設定</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #4B5B57;">都道府県別一覧</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #DCD8D0; border-radius: 24px; overflow: hidden; background: #F4F2EE; display: flex; flex-direction: column;">
+          <div style="min-height: 60px; background: #FFFFFF; border-bottom: 1px solid #DCD8D0; display: flex; align-items: center; gap: 8px; padding: 0 12px;">
+            <div style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;"><ion-icon name="chevron-back" style="font-size: 26px; color: #0B5A50;"></ion-icon></div>
+            <div style="font-size: 20px; font-weight: 700; color: #14201D;">神奈川県</div>
+          </div>
+          <div style="display: flex; gap: 10px; padding: 12px 16px; background: #FFFFFF; border-bottom: 1px solid #DCD8D0;">
+            <div style="min-height: 48px; padding: 0 18px; border-radius: 999px; background: #0B5A50; display: flex; align-items: center; gap: 6px;"><ion-icon name="checkmark" style="font-size: 20px; color: #fff;"></ion-icon><span style="font-size: 16px; font-weight: 700; color: #FFFFFF;">すべて</span></div>
+            <div style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid #C9C3B8; background: #FFFFFF; display: flex; align-items: center;"><span style="font-size: 16px; font-weight: 700; color: #14201D;">未訪問だけ</span></div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 20px;">
+            <sc-for list="{{ munis2 }}" as="m" hint-placeholder-count="2">
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="font-size: 19px; font-weight: 700; color: #14201D;">{{ m.title }}</div>
+                  <div style="font-size: 16px; font-weight: 700; color: #4B5B57;">{{ m.count }}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <sc-for list="{{ m.items }}" as="it" hint-placeholder-count="4">
+                    <div style="background: #FFFFFF; border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                      <div style="position: relative;">
+                        <div class="ph" style="width: 100%; aspect-ratio: 1; border-radius: 12px;"></div>
+                        <sc-if value="{{ it.done }}" hint-placeholder-val="{{ true }}">
+                          <div style="position: absolute; inset: 0; border: 3px solid #0B5A50; border-radius: 12px;"></div>
+                          <div style="position: absolute; left: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; background: #0B5A50; border-radius: 999px; padding: 4px 10px;"><ion-icon name="checkmark" style="font-size: 15px; color: #fff;"></ion-icon><span style="font-size: 14px; font-weight: 700; color: #FFFFFF;">訪問済</span></div>
+                        </sc-if>
+                        <sc-if value="{{ it.todo }}" hint-placeholder-val="{{ true }}">
+                          <div style="position: absolute; inset: 0; border: 3px dashed #9AA5A1; border-radius: 12px;"></div>
+                          <div style="position: absolute; left: 6px; bottom: 6px; background: #FFFFFF; border: 1px solid #9AA5A1; border-radius: 999px; padding: 4px 10px;"><span style="font-size: 14px; font-weight: 700; color: #3F4A47;">未訪問</span></div>
+                        </sc-if>
+                      </div>
+                      <div style="font-size: 17px; font-weight: 700; color: #14201D;">{{ it.name }}</div>
+                      <div style="font-size: 15px; color: #4B5B57;">{{ it.sub }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #4B5B57;">地図</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #DCD8D0; border-radius: 24px; overflow: hidden; background: #F4F2EE; display: flex; flex-direction: column;">
+          <div style="min-height: 60px; background: #FFFFFF; border-bottom: 1px solid #DCD8D0; display: flex; align-items: center; padding: 0 20px;">
+            <div style="font-size: 20px; font-weight: 700; color: #14201D;">地図で探す</div>
+          </div>
+          <div style="display: flex; gap: 10px; padding: 12px 16px; background: #FFFFFF; border-bottom: 1px solid #DCD8D0; align-items: center;">
+            <div style="min-height: 48px; padding: 0 18px; border-radius: 999px; background: #0B5A50; display: flex; align-items: center;"><span style="font-size: 16px; font-weight: 700; color: #FFFFFF;">すべて</span></div>
+            <div style="min-height: 48px; padding: 0 18px; border-radius: 999px; border: 1px solid #C9C3B8; background: #FFFFFF; display: flex; align-items: center;"><span style="font-size: 16px; font-weight: 700; color: #14201D;">未訪問だけ</span></div>
+            <div style="margin-left: auto; width: 48px; height: 48px; border-radius: 999px; border: 1px solid #C9C3B8; background: #FFFFFF; display: flex; align-items: center; justify-content: center;"><ion-icon name="refresh" style="font-size: 22px; color: #14201D;"></ion-icon></div>
+          </div>
+          <div class="ph" style="flex: 1; position: relative;">
+            <div style="position: absolute; left: 16px; top: 16px; background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 20px; height: 20px; border-radius: 999px; background: #0B5A50; display: flex; align-items: center; justify-content: center;"><ion-icon name="checkmark" style="font-size: 13px; color: #fff;"></ion-icon></div><span style="font-size: 15px; font-weight: 700; color: #14201D;">訪問済</span></div>
+              <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 20px; height: 20px; border-radius: 999px; background: #fff; border: 2px dashed #3F4A47;"></div><span style="font-size: 15px; font-weight: 700; color: #14201D;">未訪問</span></div>
+            </div>
+            <div style="position: absolute; left: 60px; top: 210px; width: 44px; height: 44px; border-radius: 50%; background: #0B5A50; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center;"><ion-icon name="checkmark" style="font-size: 24px; color: #fff;"></ion-icon></div>
+            <div style="position: absolute; left: 200px; top: 300px; width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px dashed #3F4A47; box-shadow: 0 2px 8px rgba(0,0,0,0.35); overflow: hidden;"><div class="ph" style="width: 100%; height: 100%;"></div></div>
+            <div style="position: absolute; left: 260px; top: 170px; width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 3px dashed #3F4A47; box-shadow: 0 2px 8px rgba(0,0,0,0.35); overflow: hidden;"><div class="ph" style="width: 100%; height: 100%;"></div></div>
+            <div style="position: absolute; left: 160px; top: 400px; width: 18px; height: 18px; border-radius: 50%; background: #1a73e8; border: 3px solid #fff; box-shadow: 0 0 0 3px rgba(26,115,232,0.35);"></div>
+          </div>
+          <div style="background: #FFFFFF; border-top: 1px solid #DCD8D0; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="ph" style="width: 56px; height: 56px; border-radius: 14px; flex: none;"></div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-size: 18px; font-weight: 700; color: #14201D;">横浜市（みなとみらい）</div>
+                <div style="font-size: 16px; color: #4B5B57;">ここから 120m ・ 未訪問</div>
+              </div>
+            </div>
+            <div style="min-height: 64px; border-radius: 16px; background: #0B5A50; display: flex; align-items: center; justify-content: center; gap: 10px;">
+              <ion-icon name="camera" style="font-size: 28px; color: #FFFFFF;"></ion-icon>
+              <span style="font-size: 20px; font-weight: 700; color: #FFFFFF;">写真を撮って記録する</span>
+            </div>
+            <div style="min-height: 56px; border-radius: 16px; border: 1px solid #C9C3B8; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 18px; font-weight: 700; color: #14201D;">詳細を見る</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px; background: #FFFFFF; border-top: 1px solid #DCD8D0; padding: 8px 10px 16px;">
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="albums" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">一覧</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; background: #E3F1EE; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="map" style="font-size: 26px; color: #0B5A50;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #0B5A50;">地図</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="images" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">記録</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="settings" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">設定</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #4B5B57;">コレクション（記録）</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #DCD8D0; border-radius: 24px; overflow: hidden; background: #F4F2EE; display: flex; flex-direction: column;">
+          <div style="min-height: 60px; background: #FFFFFF; border-bottom: 1px solid #DCD8D0; display: flex; align-items: center; padding: 0 20px;">
+            <div style="font-size: 20px; font-weight: 700; color: #14201D;">自分の記録</div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 18px;">
+              <div style="display: flex; gap: 16px;">
+                <div style="flex: 1;"><div style="font-size: 26px; font-weight: 900; color: #14201D;">4 / 47</div><div style="font-size: 15px; font-weight: 700; color: #4B5B57; margin-top: 2px;">訪問した都道府県</div></div>
+                <div style="flex: 1;"><div style="font-size: 26px; font-weight: 900; color: #14201D;">7</div><div style="font-size: 15px; font-weight: 700; color: #4B5B57; margin-top: 2px;">金メダルの数</div></div>
+              </div>
+              <div style="height: 1px; background: #EDEAE4;"></div>
+              <div><div style="font-size: 19px; font-weight: 700; color: #14201D;">稚内市（1,203.4km）</div><div style="font-size: 15px; font-weight: 700; color: #4B5B57; margin-top: 2px;">一番遠くまで行った記録</div></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <sc-for list="{{ records2 }}" as="r" hint-placeholder-count="4">
+                <div style="background: #FFFFFF; border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="position: relative;">
+                    <div class="ph" style="width: 100%; aspect-ratio: 1; border-radius: 12px;"></div>
+                    <div style="position: absolute; inset: 0; border: 3px solid #0B5A50; border-radius: 12px;"></div>
+                  </div>
+                  <div style="font-size: 17px; font-weight: 700; color: #14201D;">{{ r.name }}</div>
+                  <div style="font-size: 15px; color: #4B5B57;">{{ r.date }}</div>
+                  <div style="align-self: flex-start; border-radius: 999px; padding: 4px 10px; background: {{ r.mbg }};"><span style="font-size: 14px; font-weight: 700; color: {{ r.mfg }};">{{ r.medal }}</span></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px; background: #FFFFFF; border-top: 1px solid #DCD8D0; padding: 8px 10px 16px;">
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="albums" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">一覧</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="map" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">地図</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; background: #E3F1EE; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="images" style="font-size: 26px; color: #0B5A50;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #0B5A50;">記録</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="settings" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">設定</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #4B5B57;">ポケふた詳細</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #DCD8D0; border-radius: 24px; overflow: hidden; background: #F4F2EE; display: flex; flex-direction: column;">
+          <div style="min-height: 60px; background: #FFFFFF; border-bottom: 1px solid #DCD8D0; display: flex; align-items: center; gap: 8px; padding: 0 12px;">
+            <div style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;"><ion-icon name="chevron-back" style="font-size: 26px; color: #0B5A50;"></ion-icon></div>
+            <div style="font-size: 20px; font-weight: 700; color: #14201D;">横浜市</div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto;">
+            <div class="ph" style="width: 100%; height: 240px; position: relative;">
+              <div style="position: absolute; left: 16px; bottom: 16px; background: #FFFFFF; border: 1px solid #9AA5A1; border-radius: 999px; padding: 8px 16px;"><span style="font-size: 16px; font-weight: 700; color: #3F4A47;">未訪問</span></div>
+            </div>
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+              <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="font-size: 26px; font-weight: 900; color: #14201D;">横浜市</div>
+                <div style="font-size: 17px; color: #14201D;">ピカチュウ・イーブイ</div>
+                <div style="font-size: 17px; color: #4B5B57; line-height: 1.6;">神奈川県横浜市西区みなとみらい2-3-1</div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                  <ion-icon name="navigate" style="font-size: 22px; color: #0B5A50;"></ion-icon>
+                  <span style="font-size: 18px; font-weight: 700; color: #0B5A50;">現在地から 2.4km</span>
+                </div>
+                <div style="min-height: 56px; margin-top: 6px; border-radius: 16px; border: 1px solid #C9C3B8; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <ion-icon name="navigate-circle" style="font-size: 24px; color: #14201D;"></ion-icon>
+                  <span style="font-size: 18px; font-weight: 700; color: #14201D;">経路案内を開く</span>
+                </div>
+              </div>
+              <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="font-size: 18px; font-weight: 700; color: #14201D;">メモ（任意）</div>
+                <div style="border: 1px solid #C9C3B8; border-radius: 14px; padding: 14px; min-height: 88px; font-size: 17px; color: #6B7772;">駅の南口を出てすぐ左…</div>
+              </div>
+            </div>
+          </div>
+          <div style="background: #FFFFFF; border-top: 1px solid #DCD8D0; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="min-height: 64px; border-radius: 16px; background: #0B5A50; display: flex; align-items: center; justify-content: center; gap: 10px;">
+              <ion-icon name="camera" style="font-size: 28px; color: #FFFFFF;"></ion-icon>
+              <span style="font-size: 20px; font-weight: 700; color: #FFFFFF;">写真を撮って記録する</span>
+            </div>
+            <div style="min-height: 56px; border-radius: 16px; border: 1px solid #C9C3B8; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 18px; font-weight: 700; color: #14201D;">ライブラリから選ぶ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #4B5B57;">設定</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #DCD8D0; border-radius: 24px; overflow: hidden; background: #F4F2EE; display: flex; flex-direction: column;">
+          <div style="min-height: 60px; background: #FFFFFF; border-bottom: 1px solid #DCD8D0; display: flex; align-items: center; padding: 0 20px;">
+            <div style="font-size: 20px; font-weight: 700; color: #14201D;">設定</div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="font-size: 19px; font-weight: 700; color: #14201D;">せとやま</div>
+              <div style="font-size: 16px; color: #4B5B57;">setoyama@example.com</div>
+              <div style="min-height: 56px; border-radius: 16px; border: 1px solid #C9C3B8; display: flex; align-items: center; justify-content: center;"><span style="font-size: 18px; font-weight: 700; color: #14201D;">ログアウト</span></div>
+            </div>
+
+            <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+              <div style="font-size: 18px; font-weight: 700; color: #14201D;">見やすさ</div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="flex: 1; font-size: 17px; color: #14201D;">文字をさらに大きく</div>
+                <div style="width: 60px; height: 34px; border-radius: 999px; background: #0B5A50; display: flex; align-items: center; justify-content: flex-end; padding: 3px;"><div style="width: 28px; height: 28px; border-radius: 999px; background: #fff;"></div></div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="flex: 1; font-size: 17px; color: #14201D;">コントラストを強める</div>
+                <div style="width: 60px; height: 34px; border-radius: 999px; background: #D8D3CA; display: flex; align-items: center; padding: 3px;"><div style="width: 28px; height: 28px; border-radius: 999px; background: #fff;"></div></div>
+              </div>
+            </div>
+
+            <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+              <div style="font-size: 18px; font-weight: 700; color: #14201D;">メダルの意味</div>
+              <div style="display: flex; align-items: center; gap: 12px;"><div style="border-radius: 999px; padding: 5px 12px; background: #FBEFCF;"><span style="font-size: 15px; font-weight: 700; color: #7A5200;">金</span></div><div style="flex: 1; font-size: 16px; color: #14201D; line-height: 1.5;">写真の位置情報が現地と一致</div></div>
+              <div style="display: flex; align-items: center; gap: 12px;"><div style="border-radius: 999px; padding: 5px 12px; background: #EDEEF0;"><span style="font-size: 15px; font-weight: 700; color: #454C52;">銀</span></div><div style="flex: 1; font-size: 16px; color: #14201D; line-height: 1.5;">写真に位置情報がなかった</div></div>
+              <div style="display: flex; align-items: center; gap: 12px;"><div style="border-radius: 999px; padding: 5px 12px; background: #F1EFEA;"><span style="font-size: 15px; font-weight: 700; color: #4B5B57;">—</span></div><div style="flex: 1; font-size: 16px; color: #14201D; line-height: 1.5;">位置情報が現地と一致しなかった</div></div>
+            </div>
+
+            <div style="background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; overflow: hidden;">
+              <div style="min-height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #EDEAE4;"><span style="font-size: 17px; color: #14201D;">利用規約</span><ion-icon name="chevron-forward" style="font-size: 22px; color: #4B5B57;"></ion-icon></div>
+              <div style="min-height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px;"><span style="font-size: 17px; color: #14201D;">プライバシーポリシー</span><ion-icon name="chevron-forward" style="font-size: 22px; color: #4B5B57;"></ion-icon></div>
+            </div>
+
+            <div style="min-height: 56px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 17px; font-weight: 700; color: #A4231B;">アカウントを削除する</span></div>
+          </div>
+          <div style="display: flex; gap: 6px; background: #FFFFFF; border-top: 1px solid #DCD8D0; padding: 8px 10px 16px;">
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="albums" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">一覧</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="map" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">地図</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="images" style="font-size: 26px; color: #4B5B57;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #4B5B57;">記録</div></div>
+            <div style="flex: 1; min-height: 60px; border-radius: 16px; background: #E3F1EE; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;"><ion-icon name="settings" style="font-size: 26px; color: #0B5A50;"></ion-icon><div style="font-size: 13px; font-weight: 700; color: #0B5A50;">設定</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #4B5B57;">ログイン</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #DCD8D0; border-radius: 24px; overflow: hidden; background: #F4F2EE; display: flex; flex-direction: column;">
+          <div style="min-height: 60px; background: #FFFFFF; border-bottom: 1px solid #DCD8D0; display: flex; align-items: center; gap: 8px; padding: 0 12px;">
+            <div style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;"><ion-icon name="chevron-back" style="font-size: 26px; color: #0B5A50;"></ion-icon></div>
+            <div style="font-size: 20px; font-weight: 700; color: #14201D;">ログイン</div>
+          </div>
+          <div style="flex: 1; padding: 24px 20px; display: flex; flex-direction: column; gap: 20px;">
+            <div>
+              <div style="font-size: 26px; font-weight: 900; color: #14201D; margin-bottom: 8px;">記録を残しますか？</div>
+              <div style="font-size: 17px; line-height: 1.7; color: #4B5B57;">ログインすると、写真つきの記録が端末を変えても残ります。ログインしなくても、そのまま使い続けられます。</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div>
+                <div style="font-size: 16px; font-weight: 700; color: #14201D; margin-bottom: 6px;">メールアドレス</div>
+                <div style="background: #FFFFFF; border: 1px solid #C9C3B8; border-radius: 14px; min-height: 56px; display: flex; align-items: center; padding: 0 16px; font-size: 17px; color: #6B7772;">you@example.com</div>
+              </div>
+              <div>
+                <div style="font-size: 16px; font-weight: 700; color: #14201D; margin-bottom: 6px;">パスワード</div>
+                <div style="position: relative; background: #FFFFFF; border: 1px solid #C9C3B8; border-radius: 14px; min-height: 56px; display: flex; align-items: center; padding: 0 56px 0 16px; font-size: 17px; color: #6B7772;">••••••••<div style="position: absolute; right: 6px; top: 4px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center;"><ion-icon name="eye" style="font-size: 24px; color: #4B5B57;"></ion-icon></div></div>
+              </div>
+              <div style="min-height: 64px; border-radius: 16px; background: #0B5A50; display: flex; align-items: center; justify-content: center;"><span style="font-size: 20px; font-weight: 700; color: #FFFFFF;">ログイン</span></div>
+              <div style="min-height: 56px; border-radius: 16px; border: 1px solid #C9C3B8; display: flex; align-items: center; justify-content: center;"><span style="font-size: 18px; font-weight: 700; color: #14201D;">新規登録</span></div>
+              <div style="min-height: 56px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 17px; font-weight: 700; color: #0B5A50; text-decoration: underline;">パスワードをお忘れの方</span></div>
+            </div>
+            <div style="margin-top: auto; display: flex; justify-content: center; gap: 20px;">
+              <span style="font-size: 15px; color: #0B5A50; text-decoration: underline;">利用規約</span>
+              <span style="font-size: 15px; color: #0B5A50; text-decoration: underline;">プライバシーポリシー</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: stretch; margin-top: 8px;">
+      <div style="flex: 1; min-width: 380px; background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 24px;">
+        <div style="font-size: 19px; font-weight: 700; color: #14201D; margin-bottom: 16px;">colors（theme.ts 差し替え値）</div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <sc-for list="{{ tokenColors }}" as="c" hint-placeholder-count="8">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 28px; height: 28px; border-radius: 8px; border: 1px solid #DCD8D0; background: {{ c.hex }}; flex: none;"></div>
+              <div style="width: 130px; font-family: ui-monospace, monospace; font-size: 14px; color: #14201D;">{{ c.key }}</div>
+              <div style="width: 92px; font-family: ui-monospace, monospace; font-size: 14px; color: #4B5B57;">{{ c.hex }}</div>
+              <div style="flex: 1; font-size: 15px; color: #4B5B57;">{{ c.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="flex: 1; min-width: 380px; background: #FFFFFF; border: 1px solid #DCD8D0; border-radius: 20px; padding: 24px;">
+        <div style="font-size: 19px; font-weight: 700; color: #14201D; margin-bottom: 16px;">typography（下限 15px）</div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <sc-for list="{{ tokenType }}" as="t" hint-placeholder-count="6">
+            <div style="display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid #EDEAE4; padding-bottom: 10px;">
+              <div style="width: 130px; font-family: ui-monospace, monospace; font-size: 14px; color: #14201D;">{{ t.key }}</div>
+              <div style="width: 118px; font-family: ui-monospace, monospace; font-size: 14px; color: #4B5B57;">{{ t.spec }}</div>
+              <div style="flex: 1; font-size: 15px; color: #4B5B57;">{{ t.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size: 19px; font-weight: 700; color: #14201D; margin: 22px 0 12px;">タップ領域・状態の原則</div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 15px; line-height: 1.6; color: #4B5B57;">・タップ可能な要素は最小 56px（hitSlop ではなく実寸で確保）。タブは 60px、主要アクションは 64px。</div>
+          <div style="font-size: 15px; line-height: 1.6; color: #4B5B57;">・状態は必ず 2 つ以上の手がかりで表す（枠線の実線／破線 ＋ 文字ラベル ＋ 色）。grayscale と opacity は状態表現に使わない。</div>
+          <div style="font-size: 15px; line-height: 1.6; color: #4B5B57;">・進捗はバーの色だけでなく「5 / 11」と「%」を必ず併記する。</div>
+          <div style="font-size: 15px; line-height: 1.6; color: #4B5B57;">・絵文字（📍🥇）は装飾ではなく意味を担わせない。意味は文字ラベルで持たせる。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="1a" style="display: none; flex-direction: column; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 26px; padding: 0 10px; border-radius: 999px; background: #1C1C1E; color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.04em;">1a</span>
+      <span style="font-size: 22px; font-weight: 700; color: #1C1C1E;">現状のUI（master ブランチの再現）</span>
+      <span style="font-size: 14px; color: #6B7280;">apps/mobile — theme.ts / (tabs) / prefectures / poke-lids</span>
+    </div>
+
+    <div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #6B7280;">ホーム（収集進捗）</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #D5D5DA; border-radius: 24px; overflow: hidden; background: #F2F2F7; display: flex; flex-direction: column;">
+          <div style="min-height: 56px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA; display: flex; align-items: center; padding: 0 12px;">
+            <div style="min-width: 32px;"></div>
+            <div style="flex: 1; font-size: 17px; font-weight: 600; color: #1C1C1E;">収集進捗</div>
+            <div style="min-width: 32px;"></div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto;">
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA;">
+              <div style="font-size: 13px; color: #8E8E93;">ポケふたコレクト</div>
+              <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px;">
+                <div style="font-size: 40px; font-weight: 800; color: #1C1C1E;">12</div>
+                <div style="font-size: 16px; color: #8E8E93; margin-right: 8px;">/ 481 箇所</div>
+                <div style="margin-left: auto; background: #0F766E; border-radius: 999px; padding: 4px 12px;">
+                  <span style="color: #FFFFFF; font-weight: 700; font-size: 13px;">2%</span>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="flex: 1; height: 6px; border-radius: 3px; background: #E5E5EA; overflow: hidden;">
+                  <div style="height: 100%; width: 2%; min-width: 3px; background: #8E8E93;"></div>
+                </div>
+                <div style="font-size: 12px; color: #8E8E93; min-width: 56px; text-align: right;">12/481</div>
+              </div>
+              <div style="font-size: 12px; color: #0F766E;">ログインすると収集記録を保存できます</div>
+              <div style="font-size: 12px; color: #0F766E; font-weight: 600;">📍現在地から10km以内に未収集が7個</div>
+            </div>
+
+            <div style="background: #FFFFFF; border-bottom: 1px solid #E5E5EA;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 8px;">
+                <div style="font-size: 13px; color: #8E8E93; text-transform: uppercase;">もう少しで達成</div>
+              </div>
+              <div class="scr" style="display: flex; gap: 12px; padding: 0 16px 16px; overflow-x: auto;">
+                <sc-for list="{{ goals }}" as="g" hint-placeholder-count="3">
+                  <div style="width: 96px; display: flex; flex-direction: column; gap: 4px; flex: none;">
+                    <div class="ph" style="width: 96px; height: 96px; border-radius: 12px;"></div>
+                    <div style="font-size: 12px; color: #8E8E93; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ g.name }}</div>
+                    <div style="font-size: 12px; color: #0F766E; font-weight: 600; text-align: center;">{{ g.remain }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background: #FFFFFF; border-bottom: 1px solid #E5E5EA;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 8px;">
+                <div style="font-size: 13px; color: #8E8E93; text-transform: uppercase;">次に集めよう</div>
+                <div style="font-size: 12px; color: #8E8E93;">📍現在地から近い順</div>
+              </div>
+              <div class="scr" style="display: flex; gap: 12px; padding: 0 16px 16px; overflow-x: auto;">
+                <sc-for list="{{ nearby }}" as="n" hint-placeholder-count="4">
+                  <div style="width: 96px; display: flex; flex-direction: column; gap: 4px; flex: none;">
+                    <div class="ph" style="width: 96px; height: 96px; border-radius: 12px;"></div>
+                    <div style="font-size: 12px; color: #8E8E93; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ n.name }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <sc-for list="{{ regions }}" as="sec" hint-placeholder-count="2">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 16px 16px 8px; background: #F2F2F7;">
+                <div style="font-size: 13px; color: #8E8E93; text-transform: uppercase;">{{ sec.title }}</div>
+                <div style="font-size: 12px; font-weight: 600; color: #0F766E;">{{ sec.pct }}</div>
+              </div>
+              <sc-for list="{{ sec.items }}" as="p" hint-placeholder-count="3">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA;">
+                  <div class="ph" style="width: 48px; height: 48px; border-radius: 8px; flex: none;"></div>
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                    <div style="font-size: 16px; font-weight: 600; color: #1C1C1E;">{{ p.name }}</div>
+                  </div>
+                  <div style="flex: 1; max-width: 160px; min-width: 80px; display: flex; align-items: center; gap: 8px;">
+                    <div style="flex: 1; height: 6px; border-radius: 3px; background: #E5E5EA; overflow: hidden;">
+                      <div style="height: 100%; width: {{ p.w }}; background: {{ p.fill }};"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #8E8E93; min-width: 56px; text-align: right;">{{ p.label }}</div>
+                  </div>
+                  <div style="font-size: 20px; color: #6B7280; margin-left: 4px;">›</div>
+                </div>
+              </sc-for>
+            </sc-for>
+          </div>
+          <div style="display: flex; background: #FFFFFF; border-top: 1px solid #E5E5EA; padding: 6px 0 10px;">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+              <ion-icon name="albums" style="font-size: 24px; color: #0F766E;"></ion-icon>
+              <div style="font-size: 10px; line-height: 14px; color: #0F766E;">一覧</div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+              <ion-icon name="map" style="font-size: 24px; color: #8E8E93;"></ion-icon>
+              <div style="font-size: 10px; line-height: 14px; color: #8E8E93;">地図</div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+              <ion-icon name="images" style="font-size: 24px; color: #8E8E93;"></ion-icon>
+              <div style="font-size: 10px; line-height: 14px; color: #8E8E93;">コレクション</div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+              <ion-icon name="settings" style="font-size: 24px; color: #8E8E93;"></ion-icon>
+              <div style="font-size: 10px; line-height: 14px; color: #8E8E93;">設定</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #6B7280;">都道府県別一覧</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #D5D5DA; border-radius: 24px; overflow: hidden; background: #F2F2F7; display: flex; flex-direction: column;">
+          <div style="min-height: 56px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA; display: flex; align-items: center; padding: 0 12px;">
+            <div style="min-width: 32px; display: flex; align-items: center;"><span style="font-size: 28px; color: #0F766E; margin-top: -2px; padding: 4px;">‹</span></div>
+            <div style="flex: 1; font-size: 17px; font-weight: 600; color: #1C1C1E;">都道府県別一覧</div>
+            <div style="min-width: 32px;"></div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto; padding: 8px;">
+            <div style="display: flex; gap: 8px; padding: 8px;">
+              <div style="padding: 4px 12px; border-radius: 999px; border: 1px solid #0F766E; background: #0F766E;">
+                <span style="font-size: 12px; font-weight: 600; color: #FFFFFF;">すべて</span>
+              </div>
+              <div style="padding: 4px 12px; border-radius: 999px; border: 1px solid #E5E5EA; background: #FFFFFF;">
+                <span style="font-size: 12px; font-weight: 600; color: #8E8E93;">未収集のみ</span>
+              </div>
+            </div>
+            <sc-for list="{{ munis }}" as="m" hint-placeholder-count="3">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 12px 8px 4px;">
+                <div style="font-size: 16px; font-weight: 600; color: #1C1C1E;">{{ m.title }}</div>
+                <div style="font-size: 12px; font-weight: 600; color: {{ m.countColor }};">{{ m.count }}</div>
+              </div>
+              <div style="display: flex;">
+                <sc-for list="{{ m.items }}" as="it" hint-placeholder-count="3">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; padding: 4px; min-width: 0;">
+                    <div class="ph" style="width: 100%; aspect-ratio: 1; border-radius: 12px; opacity: {{ it.op }}; filter: {{ it.filter }};"></div>
+                    <div style="font-size: 12px; font-weight: 600; color: #1C1C1E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ it.name }}</div>
+                    <div style="font-size: 12px; color: #8E8E93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ it.sub }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #6B7280;">地図</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #D5D5DA; border-radius: 24px; overflow: hidden; background: #F2F2F7; display: flex; flex-direction: column;">
+          <div style="min-height: 56px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA; display: flex; align-items: center; padding: 0 12px;">
+            <div style="min-width: 32px;"></div>
+            <div style="flex: 1; font-size: 17px; font-weight: 600; color: #1C1C1E;">地図で見る</div>
+            <div style="min-width: 32px;"></div>
+          </div>
+          <div style="display: flex; gap: 8px; padding: 8px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA; align-items: center;">
+            <div style="padding: 4px 12px; border-radius: 999px; border: 1px solid #0F766E; background: #0F766E;">
+              <span style="font-size: 12px; font-weight: 600; color: #FFFFFF;">すべて</span>
+            </div>
+            <div style="padding: 4px 12px; border-radius: 999px; border: 1px solid #E5E5EA; background: #F2F2F7;">
+              <span style="font-size: 12px; font-weight: 600; color: #8E8E93;">未収集のみ</span>
+            </div>
+            <div style="margin-left: auto; width: 32px; height: 32px; border-radius: 999px; border: 1px solid #E5E5EA; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #8E8E93;">⟳</div>
+          </div>
+          <div class="ph" style="flex: 1; position: relative;">
+            <div style="position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 12px;">
+              <span style="font-family: ui-monospace, monospace; font-size: 11px; color: #6B7280; background: rgba(255,255,255,0.85); padding: 4px 8px; border-radius: 6px;">leaflet map (iframe srcDoc)</span>
+            </div>
+            <div style="position: absolute; left: 70px; top: 200px; width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 3px solid #0F766E; box-shadow: 0 1px 4px rgba(0,0,0,0.45); overflow: hidden;"><div class="ph" style="width: 100%; height: 100%;"></div></div>
+            <div style="position: absolute; left: 190px; top: 300px; width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 3px solid #8E8E93; box-shadow: 0 1px 4px rgba(0,0,0,0.45); overflow: hidden;"><div class="ph" style="width: 100%; height: 100%;"></div></div>
+            <div style="position: absolute; left: 250px; top: 160px; width: 34px; height: 34px; border-radius: 50%; background: #fff; border: 3px solid #8E8E93; box-shadow: 0 1px 4px rgba(0,0,0,0.45); overflow: hidden;"><div class="ph" style="width: 100%; height: 100%;"></div></div>
+            <div style="position: absolute; left: 150px; top: 420px; width: 16px; height: 16px; border-radius: 50%; background: #1a73e8; border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(26,115,232,0.4), 0 1px 4px rgba(0,0,0,0.4);"></div>
+            <div style="position: absolute; left: 100px; top: 250px; background: #fff; border-radius: 12px; box-shadow: 0 3px 14px rgba(0,0,0,0.4); padding: 12px; min-width: 168px;">
+              <p style="font-size: 13px; font-weight: 600; color: #1C1C1E; margin: 0 0 8px;">横浜市（みなとみらい）</p>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #0F766E; background: #0F766E; color: #fff; font-size: 14px; font-weight: 600;">写真を撮って記録</div>
+                <div style="display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #E5E5EA; background: #fff; color: #1C1C1E; font-size: 14px; font-weight: 600;">詳細を見る</div>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; background: #FFFFFF; border-top: 1px solid #E5E5EA; padding: 6px 0 10px;">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="albums" style="font-size: 24px; color: #8E8E93;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #8E8E93;">一覧</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="map" style="font-size: 24px; color: #0F766E;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #0F766E;">地図</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="images" style="font-size: 24px; color: #8E8E93;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #8E8E93;">コレクション</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="settings" style="font-size: 24px; color: #8E8E93;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #8E8E93;">設定</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #6B7280;">コレクション</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #D5D5DA; border-radius: 24px; overflow: hidden; background: #F2F2F7; display: flex; flex-direction: column;">
+          <div style="min-height: 56px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA; display: flex; align-items: center; padding: 0 12px;">
+            <div style="min-width: 32px;"></div>
+            <div style="flex: 1; font-size: 17px; font-weight: 600; color: #1C1C1E;">自分の収集記録</div>
+            <div style="min-width: 32px;"></div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto; padding: 8px;">
+            <div style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E5E5EA; padding: 16px; display: flex; flex-direction: column; gap: 12px; margin: 8px;">
+              <div style="display: flex; gap: 16px;">
+                <div style="flex: 1;"><div style="font-size: 18px; font-weight: 600; color: #1C1C1E;">4 / 47</div><div style="font-size: 12px; color: #8E8E93;">訪問した都道府県</div></div>
+                <div style="flex: 1;"><div style="font-size: 18px; font-weight: 600; color: #1C1C1E;">7</div><div style="font-size: 12px; color: #8E8E93;">🥇獲得数</div></div>
+              </div>
+              <div style="display: flex; gap: 16px;">
+                <div style="flex: 1;"><div style="font-size: 18px; font-weight: 600; color: #1C1C1E;">2025年4月12日</div><div style="font-size: 12px; color: #8E8E93;">最初の記録</div></div>
+                <div style="flex: 1;"><div style="font-size: 18px; font-weight: 600; color: #1C1C1E;">2026年8月2日</div><div style="font-size: 12px; color: #8E8E93;">最新の記録</div></div>
+              </div>
+              <div style="flex: 1;"><div style="font-size: 18px; font-weight: 600; color: #1C1C1E;">稚内市（1203.4km）</div><div style="font-size: 12px; color: #8E8E93;">一番遠くまで行った記録</div></div>
+            </div>
+            <sc-for list="{{ collectionRows }}" as="row" hint-placeholder-count="3">
+              <div style="display: flex;">
+                <sc-for list="{{ row }}" as="c" hint-placeholder-count="3">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; padding: 4px; min-width: 0;">
+                    <div style="position: relative;">
+                      <div class="ph" style="width: 100%; aspect-ratio: 1; border-radius: 12px;"></div>
+                      <div style="position: absolute; bottom: 4px; right: 4px; font-size: 20px;">{{ c.medal }}</div>
+                    </div>
+                    <div style="font-size: 12px; font-weight: 600; color: #1C1C1E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ c.name }}</div>
+                    <div style="font-size: 12px; color: #8E8E93;">{{ c.date }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display: flex; background: #FFFFFF; border-top: 1px solid #E5E5EA; padding: 6px 0 10px;">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="albums" style="font-size: 24px; color: #8E8E93;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #8E8E93;">一覧</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="map" style="font-size: 24px; color: #8E8E93;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #8E8E93;">地図</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="images" style="font-size: 24px; color: #0F766E;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #0F766E;">コレクション</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="settings" style="font-size: 24px; color: #8E8E93;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #8E8E93;">設定</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #6B7280;">ポケふた詳細</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #D5D5DA; border-radius: 24px; overflow: hidden; background: #F2F2F7; display: flex; flex-direction: column;">
+          <div style="min-height: 56px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA; display: flex; align-items: center; padding: 0 12px;">
+            <div style="min-width: 32px; display: flex; align-items: center;"><span style="font-size: 28px; color: #0F766E; margin-top: -2px; padding: 4px;">‹</span></div>
+            <div style="flex: 1; font-size: 17px; font-weight: 600; color: #1C1C1E;">ポケふた詳細</div>
+            <div style="min-width: 32px;"></div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div class="ph" style="width: 100%; height: 220px; border-radius: 16px;"></div>
+            <div style="background: #FFFFFF; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 8px; border: 1px solid #E5E5EA;">
+              <div style="font-size: 20px; font-weight: 600; color: #1C1C1E;">横浜市</div>
+              <div style="font-size: 13px; color: #8E8E93;">ピカチュウ・イーブイ</div>
+              <div style="font-size: 13px; color: #8E8E93; margin-bottom: 4px;">神奈川県横浜市西区みなとみらい2-3-1</div>
+              <div style="font-size: 12px; color: #0F766E; font-weight: 600;">現在地から 2.4km</div>
+              <div style="min-height: 48px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E5E5EA; display: flex; align-items: center; justify-content: center;"><span style="font-size: 16px; font-weight: 600; color: #1C1C1E;">経路案内を開く</span></div>
+            </div>
+            <div style="background: #FFFFFF; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 8px; border: 1px solid #E5E5EA;">
+              <div style="font-size: 13px; color: #8E8E93; margin-bottom: 8px;">まだ収集していません</div>
+              <div style="background: #FFFFFF; border: 1px solid #E5E5EA; border-radius: 12px; padding: 12px; min-height: 60px; font-size: 16px; color: #6B7280;">メモ（任意）</div>
+              <div style="min-height: 48px; border-radius: 12px; background: #0F766E; display: flex; align-items: center; justify-content: center;"><span style="font-size: 16px; font-weight: 600; color: #FFFFFF;">写真を撮って記録する</span></div>
+              <div style="min-height: 48px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E5E5EA; display: flex; align-items: center; justify-content: center;"><span style="font-size: 16px; font-weight: 600; color: #1C1C1E;">ライブラリから選ぶ</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #6B7280;">設定</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #D5D5DA; border-radius: 24px; overflow: hidden; background: #F2F2F7; display: flex; flex-direction: column;">
+          <div style="min-height: 56px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA; display: flex; align-items: center; padding: 0 12px;">
+            <div style="min-width: 32px;"></div>
+            <div style="flex: 1; font-size: 17px; font-weight: 600; color: #1C1C1E;">設定</div>
+            <div style="min-width: 32px;"></div>
+          </div>
+          <div class="scr" style="flex: 1; overflow: auto; padding: 16px;">
+            <div style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E5E5EA; padding: 16px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+              <div style="font-size: 16px; font-weight: 600; color: #1C1C1E;">せとやま</div>
+              <div style="font-size: 13px; color: #8E8E93; margin-bottom: 4px;">setoyama@example.com</div>
+              <div style="min-height: 48px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E5E5EA; display: flex; align-items: center; justify-content: center;"><span style="font-size: 16px; font-weight: 600; color: #1C1C1E;">ログアウト</span></div>
+            </div>
+            <div style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E5E5EA; padding: 16px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+              <div style="font-size: 16px; font-weight: 600; color: #1C1C1E; margin-bottom: 4px;">メダルについて</div>
+              <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: rgba(212,160,23,0.9);"></div><div style="font-size: 13px; color: #8E8E93; flex: 1;">🥇 位置情報一致（写真の位置情報が現地と一致）</div></div>
+              <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: rgba(148,158,168,0.9);"></div><div style="font-size: 13px; color: #8E8E93; flex: 1;">🥈 位置情報なし（写真に位置情報がなかった）</div></div>
+              <div style="display: flex; align-items: center; gap: 8px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: rgba(153,153,153,0.6);"></div><div style="font-size: 13px; color: #8E8E93; flex: 1;">📍 位置情報不一致（写真の位置情報が現地と一致しなかった）</div></div>
+            </div>
+            <div style="background: #FFFFFF; border-radius: 16px; border: 1px solid #E5E5EA; padding: 16px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+              <div style="font-size: 16px; color: #0F766E; text-decoration: underline; padding: 12px 0; min-height: 44px;">利用規約</div>
+              <div style="font-size: 16px; color: #0F766E; text-decoration: underline; padding: 12px 0; min-height: 44px;">プライバシーポリシー</div>
+            </div>
+            <div style="min-height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 16px; font-weight: 600; color: #FF3B30;">アカウントを削除する</span></div>
+          </div>
+          <div style="display: flex; background: #FFFFFF; border-top: 1px solid #E5E5EA; padding: 6px 0 10px;">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="albums" style="font-size: 24px; color: #8E8E93;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #8E8E93;">一覧</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="map" style="font-size: 24px; color: #8E8E93;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #8E8E93;">地図</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="images" style="font-size: 24px; color: #8E8E93;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #8E8E93;">コレクション</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;"><ion-icon name="settings" style="font-size: 24px; color: #0F766E;"></ion-icon><div style="font-size: 10px; line-height: 14px; color: #0F766E;">設定</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="font-size: 13px; font-weight: 700; color: #6B7280;">ログイン</div>
+        <div style="width: 390px; height: 800px; border: 1px solid #D5D5DA; border-radius: 24px; overflow: hidden; background: #F2F2F7; display: flex; flex-direction: column;">
+          <div style="min-height: 56px; background: #FFFFFF; border-bottom: 1px solid #E5E5EA; display: flex; align-items: center; padding: 0 12px;">
+            <div style="min-width: 32px; display: flex; align-items: center;"><span style="font-size: 28px; color: #0F766E; margin-top: -2px; padding: 4px;">‹</span></div>
+            <div style="flex: 1; font-size: 17px; font-weight: 600; color: #1C1C1E;">ログイン</div>
+            <div style="min-width: 32px;"></div>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 16px;">
+            <div style="font-size: 28px; font-weight: 700; color: #1C1C1E; text-align: center; margin-bottom: 32px;">ポケふたコレクト</div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="background: #FFFFFF; border: 1px solid #E5E5EA; border-radius: 12px; padding: 12px; font-size: 16px; color: #6B7280;">メールアドレス</div>
+              <div style="position: relative; background: #FFFFFF; border: 1px solid #E5E5EA; border-radius: 12px; padding: 12px 32px 12px 12px; font-size: 16px; color: #6B7280;">パスワード<ion-icon name="eye" style="position: absolute; right: 12px; top: 14px; font-size: 20px; color: #8E8E93;"></ion-icon></div>
+              <div style="min-height: 48px; border-radius: 12px; background: #0F766E; display: flex; align-items: center; justify-content: center;"><span style="font-size: 16px; font-weight: 600; color: #FFFFFF;">ログイン</span></div>
+              <div style="min-height: 40px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 16px; font-weight: 600; color: #8E8E93;">パスワードをお忘れの方</span></div>
+              <div style="min-height: 40px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 16px; font-weight: 600; color: #8E8E93;">新規登録はこちら</span></div>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 16px; margin-top: 24px;">
+              <span style="font-size: 12px; color: #0F766E; text-decoration: underline;">利用規約</span>
+              <span style="font-size: 12px; color: #0F766E; text-decoration: underline;">プライバシーポリシー</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const bar = (collected, total) => {
+      const r = total > 0 ? collected / total : 0;
+      return {
+        w: Math.max(1, Math.round(r * 100)) + '%',
+        fill: r >= 1 ? '#D4A017' : r >= 0.3 ? '#0F766E' : '#8E8E93',
+        label: collected + '/' + total,
+      };
+    };
+    const pref = (name, collected, total) => ({ name, ...bar(collected, total) });
+    const pref2 = (name, collected, total) => ({
+      name, collected, total,
+      w: Math.max(2, Math.round((collected / total) * 100)) + '%',
+      fill: collected === total ? '#8A6100' : '#0B5A50',
+      count: collected + ' / ' + total,
+    });
+    return {
+      tokenColors: [
+        { key: 'background', hex: '#F4F2EE', note: '画面の背景。屋外での眩しさを抑えた温かみのある白' },
+        { key: 'surface', hex: '#FFFFFF', note: 'カード・ヘッダー・タブバー' },
+        { key: 'border', hex: '#DCD8D0', note: '面の境界。1px hairline ではなく実線 1px' },
+        { key: 'borderStrong', hex: '#C9C3B8', note: '入力欄・第二ボタンの枠（3:1 以上）' },
+        { key: 'textPrimary', hex: '#14201D', note: '本文。白背景に対して 15:1' },
+        { key: 'textSecondary', hex: '#4B5B57', note: '補助テキスト。白背景に対して 7:1（旧 #8E8E93 は 3.5:1）' },
+        { key: 'accent', hex: '#0B5A50', note: '主要アクション・進捗。白文字との比 7.3:1' },
+        { key: 'accentLight', hex: '#E3F1EE', note: '選択中タブ・情報バナーの下地' },
+        { key: 'attention', hex: '#A34A00', note: '「あと1か所」など、急かさない注意喚起' },
+        { key: 'gold', hex: '#7A5200', note: '金メダルの文字色（下地 #FBEFCF）' },
+        { key: 'danger', hex: '#A4231B', note: '破壊的操作。旧 #FF3B30 は白背景に 3.7:1 で不足' },
+      ],
+      tokenType: [
+        { key: 'display', spec: '52 / 900', note: '収集数など、遠目で読む数値' },
+        { key: 'largeTitle', spec: '26 / 900', note: '画面の主題' },
+        { key: 'title', spec: '20 / 700', note: 'ヘッダー・セクション見出し' },
+        { key: 'body', spec: '17 / 400', note: '本文の下限' },
+        { key: 'bodyStrong', spec: '17-19 / 700', note: 'リスト項目名・ボタン' },
+        { key: 'caption', spec: '15 / 400', note: '補助情報の下限。12px / 13px は廃止' },
+      ],
+      prefs2: [
+        pref2('神奈川県', 5, 11), pref2('東京都', 4, 12), pref2('茨城県', 2, 7), pref2('北海道', 2, 39),
+      ],
+      goals2: [
+        { name: '西宮市', remain: 'あと 1 か所' },
+        { name: '藤沢市', remain: 'あと 1 か所' },
+        { name: '前橋市', remain: 'あと 2 か所' },
+      ],
+      munis2: [
+        {
+          title: '横浜市', count: '2 / 4',
+          items: [
+            { name: '横浜市', sub: 'イーブイ', done: true, todo: false },
+            { name: '横浜市', sub: 'ピカチュウ', done: true, todo: false },
+            { name: '横浜市', sub: 'コダック', done: false, todo: true },
+            { name: '横浜市', sub: 'ラプラス', done: false, todo: true },
+          ],
+        },
+        {
+          title: '鎌倉市', count: '1 / 2',
+          items: [
+            { name: '鎌倉市', sub: 'ピカチュウ', done: true, todo: false },
+            { name: '鎌倉市', sub: 'ラプラス', done: false, todo: true },
+          ],
+        },
+      ],
+      records2: [
+        { name: '横浜市', date: '2026年8月2日', medal: '金 位置情報一致', mbg: '#FBEFCF', mfg: '#7A5200' },
+        { name: '鎌倉市', date: '2026年7月20日', medal: '金 位置情報一致', mbg: '#FBEFCF', mfg: '#7A5200' },
+        { name: '藤沢市', date: '2026年6月8日', medal: '銀 位置情報なし', mbg: '#EDEEF0', mfg: '#454C52' },
+        { name: '稚内市', date: '2026年5月3日', medal: '金 位置情報一致', mbg: '#FBEFCF', mfg: '#7A5200' },
+      ],
+      goals: [
+        { name: '西宮市', remain: 'あと1つ' },
+        { name: '藤沢市', remain: 'あと1つ' },
+        { name: '前橋市', remain: 'あと2つ' },
+      ],
+      nearby: [
+        { name: '横浜市' }, { name: '川崎市' }, { name: '鎌倉市' },
+        { name: '藤沢市' }, { name: '厚木市' }, { name: '小田原市' },
+      ],
+      regions: [
+        {
+          title: '北海道・東北', pct: '5%',
+          items: [pref('北海道', 2, 39), pref('青森県', 1, 8), pref('岩手県', 0, 9)],
+        },
+        {
+          title: '関東', pct: '18%',
+          items: [pref('茨城県', 2, 7), pref('東京都', 4, 12), pref('神奈川県', 5, 11)],
+        },
+      ],
+      munis: [
+        {
+          title: '鎌倉市', count: '1/2', countColor: '#0F766E',
+          items: [
+            { name: '鎌倉市', sub: 'ピカチュウ', op: '1', filter: 'none' },
+            { name: '鎌倉市', sub: 'ラプラス', op: '0.4', filter: 'grayscale(1)' },
+            { name: '', sub: '', op: '0', filter: 'none' },
+          ],
+        },
+        {
+          title: '横浜市', count: '2/4', countColor: '#8E8E93',
+          items: [
+            { name: '横浜市', sub: 'イーブイ', op: '1', filter: 'none' },
+            { name: '横浜市', sub: 'ピカチュウ', op: '1', filter: 'none' },
+            { name: '横浜市', sub: 'コダック', op: '0.4', filter: 'grayscale(1)' },
+          ],
+        },
+        {
+          title: '藤沢市', count: '1/2', countColor: '#0F766E',
+          items: [
+            { name: '藤沢市', sub: 'ヒトカゲ', op: '0.4', filter: 'grayscale(1)' },
+            { name: '藤沢市', sub: 'ゼニガメ', op: '1', filter: 'none' },
+            { name: '', sub: '', op: '0', filter: 'none' },
+          ],
+        },
+      ],
+      collectionRows: [
+        [
+          { name: '横浜市', date: '2026年8月2日', medal: '🥇' },
+          { name: '鎌倉市', date: '2026年7月20日', medal: '🥇' },
+          { name: '藤沢市', date: '2026年6月8日', medal: '🥈' },
+        ],
+        [
+          { name: '稚内市', date: '2026年5月3日', medal: '🥇' },
+          { name: '前橋市', date: '2026年4月29日', medal: '' },
+          { name: '東京都', date: '2026年4月12日', medal: '🥈' },
+        ],
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

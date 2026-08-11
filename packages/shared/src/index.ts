@@ -415,6 +415,48 @@ export interface UserDto {
   displayName: string;
 }
 
+// Guards against invalid GPS coordinates reaching haversineDistanceMeters,
+// which happily returns NaN (or a nonsense distance) for bad input rather
+// than erroring. `?? null` alone (the pattern both apps/api's and
+// apps/mobile's EXIF extraction used before this) only catches
+// null/undefined — NaN sails right through, since `NaN ?? null` is NaN, not
+// null. exifr can produce NaN GPS values on its own: some Android camera/
+// gallery apps write a GPSLatitude/GPSLongitude tag as an incomplete
+// degrees/minutes/seconds rational array (missing the seconds component),
+// and exifr's DMS-to-decimal conversion doesn't validate array length
+// before doing the arithmetic — a missing component is `undefined`, and
+// `undefined / 3600` is NaN, which then propagates through the whole sum.
+// (A *missing* GPSLatitudeRef/GPSLongitudeRef, by contrast, does NOT
+// produce NaN in exifr — it silently defaults to positive/N-E instead,
+// which happens to be correct for this app's userbase since Japan is
+// entirely N/E anyway, so that particular exifr quirk isn't a real-world
+// problem here.)
+//
+// The single source of truth for "is this coordinate pair usable at all,"
+// shared by apps/api's and apps/mobile's EXIF extraction — previously
+// these two independently reimplemented (and one of them was documented as
+// merely "mirroring" the other) the same `?? null` logic, which is exactly
+// how a shared bug like this stays a *shared* bug instead of one place
+// noticing and the other not.
+export function validateCoordinates(
+  latitude: number | null | undefined,
+  longitude: number | null | undefined,
+): { latitude: number; longitude: number } | null {
+  if (
+    typeof latitude !== 'number' ||
+    typeof longitude !== 'number' ||
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    latitude < -90 ||
+    latitude > 90 ||
+    longitude < -180 ||
+    longitude > 180
+  ) {
+    return null;
+  }
+  return { latitude, longitude };
+}
+
 export function haversineDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const earthRadiusMeters = 6371000;
   const toRad = (deg: number) => (deg * Math.PI) / 180;

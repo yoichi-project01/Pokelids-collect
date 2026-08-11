@@ -1,6 +1,7 @@
 import { File as ExpoFile } from 'expo-file-system';
 import { Platform } from 'react-native';
 import exifr from 'exifr';
+import { validateCoordinates } from '@pokelids/shared';
 
 export interface PhotoExifResult {
   latitude: number | null;
@@ -8,9 +9,15 @@ export interface PhotoExifResult {
   capturedAt: string | null;
 }
 
-// Mirrors apps/api/src/routes/collections.ts's extractPhotoExif exactly —
-// same two exifr calls, same fallback shape — so a guest's client-side
-// preview and the server's eventual (phase 2) re-derivation agree.
+// Mirrors apps/api/src/routes/collections.ts's extractPhotoExif — same two
+// exifr calls, same fallback shape, and (critically) the same
+// validateCoordinates call from @pokelids/shared rather than each
+// reimplementing its own null-handling — so a guest's client-side preview
+// and the server's eventual (phase 2) re-derivation actually agree, instead
+// of merely being intended to. (Before this used a shared validator, this
+// file and collections.ts each did their own `?? null`, which both missed
+// that exifr can return NaN for a malformed GPS tag — a bug fixed in both
+// places at once specifically because it now only exists in one place.)
 //
 // Deliberately does NOT use ImagePicker's own `exif: true` option: per
 // Expo's docs, that option is iOS/Android only (no web), and on iOS
@@ -34,9 +41,10 @@ export async function extractPhotoExif(photo: { uri: string; webFile?: File }): 
       exifr.gps(input),
       exifr.parse(input, ['DateTimeOriginal']),
     ]);
+    const coords = validateCoordinates(gps?.latitude, gps?.longitude);
     return {
-      latitude: gps?.latitude ?? null,
-      longitude: gps?.longitude ?? null,
+      latitude: coords?.latitude ?? null,
+      longitude: coords?.longitude ?? null,
       capturedAt: dateTimeOriginal?.DateTimeOriginal
         ? new Date(dateTimeOriginal.DateTimeOriginal).toISOString()
         : null,

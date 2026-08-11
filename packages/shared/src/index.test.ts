@@ -12,6 +12,7 @@ import {
   PREFECTURES,
   progressPercent,
   regionNameJa,
+  validateCoordinates,
   type CollectionSummary,
   type MunicipalityProgressDto,
 } from './index';
@@ -136,6 +137,50 @@ describe('pickMunicipalityGoals', () => {
       { latitude: 43.06, longitude: 141.35 },
     );
     expect(goals.map((g) => g.municipality)).toEqual(['あと1つ(近い)', 'あと1つ(遠い)', 'あと2つ']);
+  });
+});
+
+describe('validateCoordinates', () => {
+  it('passes through an ordinary coordinate pair unchanged', () => {
+    expect(validateCoordinates(35.681236, 139.767125)).toEqual({
+      latitude: 35.681236,
+      longitude: 139.767125,
+    });
+  });
+
+  it('rejects NaN latitude', () => {
+    expect(validateCoordinates(NaN, 139.767125)).toBeNull();
+  });
+
+  it('rejects NaN longitude', () => {
+    expect(validateCoordinates(35.681236, NaN)).toBeNull();
+  });
+
+  it('rejects Infinity', () => {
+    expect(validateCoordinates(Infinity, 139.767125)).toBeNull();
+    expect(validateCoordinates(35.681236, -Infinity)).toBeNull();
+  });
+
+  it('rejects latitude just past the poles', () => {
+    expect(validateCoordinates(90.0001, 0)).toBeNull();
+    expect(validateCoordinates(-90.0001, 0)).toBeNull();
+  });
+
+  it('rejects longitude just past the antimeridian', () => {
+    expect(validateCoordinates(0, 180.0001)).toBeNull();
+    expect(validateCoordinates(0, -180.0001)).toBeNull();
+  });
+
+  it('accepts the exact boundary values', () => {
+    expect(validateCoordinates(90, 0)).toEqual({ latitude: 90, longitude: 0 });
+    expect(validateCoordinates(-90, 0)).toEqual({ latitude: -90, longitude: 0 });
+    expect(validateCoordinates(0, 180)).toEqual({ latitude: 0, longitude: 180 });
+    expect(validateCoordinates(0, -180)).toEqual({ latitude: 0, longitude: -180 });
+  });
+
+  it('rejects null or undefined (missing EXIF GPS)', () => {
+    expect(validateCoordinates(null, null)).toBeNull();
+    expect(validateCoordinates(undefined, undefined)).toBeNull();
   });
 });
 

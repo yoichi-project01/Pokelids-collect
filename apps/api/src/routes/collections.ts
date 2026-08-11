@@ -13,6 +13,7 @@ import {
   determinePhotoMedal,
   haversineDistanceMeters,
   isValidVisitedAt,
+  validateCoordinates,
   type CollectionSummary,
 } from '@pokelids/shared';
 import { removeFileBestEffort } from '../lib/fileCleanup';
@@ -88,9 +89,14 @@ async function extractPhotoExif(buffer: Buffer) {
       exifr.gps(buffer),
       exifr.parse(buffer, ['DateTimeOriginal']),
     ]);
+    // validateCoordinates (@pokelids/shared) — not `?? null` — since exifr
+    // can return NaN for a malformed GPS tag, and `NaN ?? null` is still
+    // NaN. See its doc comment for exactly how that happens and why this
+    // must be the same shared function apps/mobile's photoExif.ts uses.
+    const coords = validateCoordinates(gps?.latitude, gps?.longitude);
     return {
-      latitude: gps?.latitude ?? null,
-      longitude: gps?.longitude ?? null,
+      latitude: coords?.latitude ?? null,
+      longitude: coords?.longitude ?? null,
       capturedAt: dateTimeOriginal?.DateTimeOriginal ?? null,
     };
   } catch {

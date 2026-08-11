@@ -76,7 +76,11 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 // "close enough to prove it" (the example in 7-9 is "現地から12m"), which a
 // single decimal of km would round away entirely.
 function formatPhotoDistance(distanceMeters: number | null): string {
-  if (distanceMeters === null) return '位置情報なし';
+  // !Number.isFinite, not `=== null` alone — validateCoordinates
+  // (@pokelids/shared) should already keep NaN out of distanceMeters
+  // upstream, but this is the display layer's own backstop against ever
+  // rendering "現地からNaNkm" again, whatever produced the bad value.
+  if (distanceMeters === null || !Number.isFinite(distanceMeters)) return '位置情報なし';
   return distanceMeters < 1000
     ? `現地から${Math.round(distanceMeters)}m`
     : `現地から${(distanceMeters / 1000).toFixed(1)}km`;

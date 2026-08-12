@@ -13,6 +13,7 @@ import { ErrorState } from '../../src/components/ErrorState';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchMyCollections, fetchPokeLids, photoUrl } from '../../src/lib/api';
+import { useAuth } from '../../src/lib/auth';
 import { formatDateJST } from '../../src/lib/date';
 import { getAllGuestPhotos, type GuestPhotoWithUri } from '../../src/lib/guestPhotoStorage';
 import { getGuestCollections, type GuestCollection } from '../../src/lib/guestStorage';
@@ -45,6 +46,7 @@ const MEDAL_EMOJI: Record<'GOLD' | 'SILVER', string> = { GOLD: '🥇', SILVER: '
 
 export default function CollectionScreen() {
   const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   const [collections, setCollections] = useState<CollectionDto[]>([]);
   const [lidsById, setLidsById] = useState<Map<string, PokeLidDto>>(new Map());
   // Guest-local data (7-9) — kept separate from `collections`/server state
@@ -91,8 +93,30 @@ export default function CollectionScreen() {
   // records added from the map tab, and eventually serving photo thumbnail
   // URLs whose signed access tokens have expired. The same staleness risk
   // applies to guest photos now too (added on the poke-lid detail screen).
+  //
+  // The authLoading gate (and authLoading/user in the deps below) mirrors
+  // (tabs)/index.tsx and useMapMarkers.ts, and fixes a real bug: a direct
+  // hard reload of /collection (not navigated to from another tab) always
+  // showed the empty state, even fully logged in with real records on the
+  // server. Root cause — on a cold load of a non-default tab, expo-router's
+  // web output resolves the actual URL's route slightly after the tab
+  // navigator's own initial mount, so the 'focus' event useFocusEffect
+  // relies on can fire (or be subscribed to) before that correction lands,
+  // and gets missed. (tabs)/index.tsx never hit this because it *is* the
+  // default tab, so it's already focused at mount with nothing to correct.
+  // Without a dependency that changes after mount, a missed focus event is
+  // final — nothing re-invokes this effect until an actual subsequent
+  // in-app tab switch. Depending on authLoading gives it exactly that
+  // second chance: once token restoration finishes, the callback's identity
+  // changes, and useFocusEffect re-runs it for an already-focused screen —
+  // independent of whether the original focus event was ever caught. This
+  // also incidentally fixes a second, latent bug: without the gate, a fetch
+  // could fire before token restoration completed and be treated as a
+  // logged-out guest (fetchMyCollections silently returns [] with no
+  // token), flashing an empty account state for an actually-logged-in user.
   useFocusEffect(
     useCallback(() => {
+      if (authLoading) return;
       let cancelled = false;
       loadCollections()
         .then((result) => {
@@ -109,7 +133,12 @@ export default function CollectionScreen() {
       return () => {
         cancelled = true;
       };
-    }, [loadCollections]),
+      // `user` isn't read in the body, but its identity changes on
+      // login/logout and that's exactly when server-side collections need
+      // to be refetched (see the block comment above for the other reason
+      // this dependency matters).
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [authLoading, user, loadCollections]),
   );
 
   function onRefresh() {

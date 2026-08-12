@@ -187,11 +187,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSessionExpired(false);
   }
 
+  // Deliberately does NOT early-return on `!user` — this function used to
+  // check that first as a "why bother, we're logged out" optimization, but
+  // `user` here is a render-scoped closure value, not something read fresh
+  // at call time. verify-email.tsx calls refreshUser from a one-shot effect
+  // (deps intentionally just [token], so it never re-runs and re-captures a
+  // newer closure) that typically fires in a FRESH tab opened straight from
+  // an email client — at that point AuthProvider's own async boot restore
+  // (the effect above) usually hasn't resolved `user` yet, so the closure
+  // refreshUser() ends up calling has `user` frozen at `null` from initial
+  // render, and the guard skipped the refetch even when the tab really was
+  // logged in by the time the confirm actually completed. Concretely: this
+  // was why the settings screen's "未確認" notice only ever cleared after a
+  // manual reload, never right after confirming — refreshUser() was
+  // silently returning early instead of re-fetching. Skipping the guard
+  // makes this correct in all cases: fetchMe() itself already fails
+  // harmlessly (a caught ApiError, no state change) when truly logged out,
+  // since api.ts's `accessToken` module state — not this closure's `user`
+  // — is what actually determines whether the request even carries a token.
   async function refreshUser() {
-    // A no-op while logged out (nothing to refresh) rather than throwing —
-    // verify-email.tsx calls this unconditionally after a successful
-    // confirm, whether or not the confirming tab happens to be logged in.
-    if (!user) return;
     try {
       setUser(await fetchMe());
     } catch {

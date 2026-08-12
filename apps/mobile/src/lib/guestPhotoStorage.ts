@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Directory, File as ExpoFile, Paths } from 'expo-file-system';
 import { Platform } from 'react-native';
+import type { UploadPhotoInput } from './api';
 
 // 7-9 (phase 1): lets a guest keep a photo on their own device, with no
 // server round trip. Metadata (which poke lid, computed distance, when) is
@@ -253,4 +254,49 @@ export async function removeGuestPhotosFor(pokeLidId: string): Promise<void> {
     }),
   );
   await writeAllMeta(meta.filter((m) => m.pokeLidId !== pokeLidId));
+}
+
+// 7-9 phase 2: reads a single photo's actual bytes back out for upload —
+// distinct from resolveUri/getAllGuestPhotos above, which only ever needed
+// a *displayable* uri (an object URL is fine for an <Image>, but browser
+// FormData.append() needs the real Blob/File, not just a URL pointing at
+// one — see UploadPhotoInput's own doc comment in api.ts). Native's stable
+// file:// uri is already upload-ready as-is; no re-read needed there.
+export async function getGuestPhotoForUpload(id: string): Promise<UploadPhotoInput | null> {
+  if (Platform.OS === 'web') {
+    const blob = await getBlobWeb(id);
+    if (!blob) return null;
+    const name = `${id}.jpg`;
+    const file = new File([blob], name, { type: blob.type || 'image/jpeg' });
+    return { uri: URL.createObjectURL(file), name, type: file.type, webFile: file };
+  }
+  const file = nativeFileFor(id);
+  if (!file.exists) return null;
+  return { uri: file.uri, name: `${id}.jpg`, type: 'image/jpeg' };
+}
+
+// Removes exactly one photo by id — distinct from removeGuestPhotosFor
+// above (which clears *every* photo for a poke lid, for un-marking a
+// visit entirely). This is what the sync in guestStorage.ts calls as each
+// individual photo is confirmed synced, immediately, one at a time — not
+// batched until the whole sync finishes — so a sync interrupted partway
+// through (tab closed, network dropped) leaves only the photos that
+// genuinely didn't make it for the next login's retry, rather than
+// re-sending ones the server already has (which would create duplicate
+// Photo rows, since unlike the text-only sync, a photo upload isn't an
+// upsert).
+export async function removeGuestPhoto(id: string): Promise<void> {
+  const meta = await readAllMeta();
+  if (!meta.some((m) => m.id === id)) return;
+
+  if (Platform.OS === 'web') {
+    await deleteBlobWeb(id);
+  } else {
+    try {
+      nativeFileFor(id).delete();
+    } catch {
+      // already gone — fine, metadata cleanup below still proceeds.
+    }
+  }
+  await writeAllMeta(meta.filter((m) => m.id !== id));
 }

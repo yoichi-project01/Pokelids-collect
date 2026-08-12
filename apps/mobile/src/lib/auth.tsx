@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import type { UserDto } from '@pokelids/shared';
+import type { PhotoMedal, UserDto } from '@pokelids/shared';
+import { SyncCompleteModal } from '../components/SyncCompleteModal';
+import { UploadProgressBanner } from '../components/UploadProgressBanner';
 import {
   fetchMe,
   login as apiLogin,
@@ -9,9 +11,13 @@ import {
   setTokensChangedListener,
 } from './api';
 import { confirmAsync } from './confirm';
-import { getGuestCollections, syncGuestCollectionsToAccount } from './guestStorage';
+import { getGuestCollections, syncGuestCollectionsToAccount, type GuestSyncResult } from './guestStorage';
 import { getStoredTokens, removeStoredTokens, setStoredTokens } from './tokenStorage';
 import { showToast } from './toast';
+
+function totalMedalCount(medalCounts: Record<PhotoMedal, number>): number {
+  return medalCounts.GOLD + medalCounts.SILVER + medalCounts.NONE;
+}
 
 const STORAGE_KEY = 'pokelids_auth_tokens';
 
@@ -36,6 +42,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
+  // Local to this provider, not exposed via AuthContextValue: unlike
+  // showToast (toast.ts), which needs to be callable from many unrelated
+  // call sites across the app and so uses a module-level listener, sync
+  // status only ever originates from maybeSyncGuestCollections below — plain
+  // component state is enough, and keeps the public auth context free of UI
+  // concerns no other screen needs to read.
+  const [syncProgress, setSyncProgress] = useState<number | null>(null);
+  const [syncCelebration, setSyncCelebration] = useState<GuestSyncResult | null>(null);
 
   useEffect(() => {
     // Registered before the initial fetchMe() call below so that if the
@@ -106,19 +120,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!confirmed) return;
 
     try {
-      const synced = await syncGuestCollectionsToAccount();
-      if (synced < guestItems.length) {
+      setSyncProgress(0);
+      const result = await syncGuestCollectionsToAccount((fraction) => setSyncProgress(fraction));
+      const medalTotal = totalMedalCount(result.medalCounts);
+
+      // Partial-failure / limit-hit messaging stays on this same 4-5-style
+      // toast regardless of whether any photos synced — it's reporting sync
+      // mechanics ("what didn't make it, and why"), which is a different
+      // concern from SyncCompleteModal below (which only ever talks about
+      // what *did* sync, so it can stay unambiguously celebratory — see that
+      // component's own doc comment for why the two aren't merged).
+      if (result.recordsSyncedCount < result.recordsTotalCount) {
+        const reasonSuffix = result.stoppedByLimit && result.limitMessage ? `（${result.limitMessage}）` : '';
         showToast(
           '一部を保存できませんでした',
-          `${synced}/${guestItems.length}件を保存しました。残りは次回ログイン時に再試行します。`,
+          `${result.recordsSyncedCount}/${result.recordsTotalCount}件を保存しました。残りは次回ログイン時に再試行します。${reasonSuffix}`,
         );
-      } else {
-        showToast('保存しました', `${synced}件の記録をアカウントに保存しました。`, 'success');
+      } else if (medalTotal === 0) {
+        // No photos were part of this sync (or none produced a medal) —
+        // nothing new to celebrate, so the plain toast is the whole story,
+        // same as this looked before phase 2 added photos at all.
+        showToast(
+          '保存しました',
+          `${result.recordsSyncedCount}件の記録をアカウントに保存しました。`,
+          'success',
+        );
+      }
+
+      // Shown whenever at least one photo actually got a medal this sync,
+      // even alongside the partial-failure toast above — celebrating what
+      // succeeded and reporting what didn't aren't mutually exclusive here.
+      if (medalTotal > 0) {
+        setSyncCelebration(result);
       }
     } catch {
       // Login/register already succeeded at this point; a sync failure here
       // must not surface as a login error. The records stay in local
       // storage and will be offered again on the next login.
+    } finally {
+      setSyncProgress(null);
     }
   }
 
@@ -143,6 +183,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
+      {syncProgress !== null && <UploadProgressBanner progress={syncProgress} label="同期中" />}
+      {syncCelebration && (
+        <SyncCompleteModal
+          visible
+          recordsSyncedCount={syncCelebration.recordsSyncedCount}
+          medalCounts={syncCelebration.medalCounts}
+          onClose={() => setSyncCelebration(null)}
+        />
+      )}
     </AuthContext.Provider>
   );
 }

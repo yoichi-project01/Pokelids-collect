@@ -44,6 +44,24 @@ const uploadRateLimit = rateLimit({
   keyGenerator: (req: AuthedRequest) => req.userId!,
 });
 
+// Separate pool from uploadRateLimit above, not a share of it (7-9 phase
+// 2): a guest syncing a full device's worth of photos at login sends
+// several /bulk requests in a row, and if that shared the single-photo
+// route's 60/hour budget, one login could burn through half of it before
+// the user has done anything else that session. "同期1回の単位で数える"
+// — counted per *request* (each carrying up to MAX_BULK_PHOTOS photos),
+// not per photo, the same way uploadRateLimit counts per single-photo
+// request. 20/hour covers a fully-maxed guest (30 photos ÷ 5/request = 6
+// requests) with room for retries, without needing to wait out the whole
+// window if a sync gets interrupted partway.
+const bulkUploadRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: Number(process.env.BULK_UPLOAD_RATE_LIMIT_PER_HOUR ?? '20'),
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: AuthedRequest) => req.userId!,
+});
+
 // Client-reported filenames/extensions are attacker-controlled; only trust
 // the multer-detected MIME type, and only for a fixed whitelist. Anything
 // else (in particular text/html, which would run as script when served from
@@ -69,6 +87,35 @@ const upload = multer({
 
 function handleUpload(req: AuthedRequest, res: Response, next: NextFunction) {
   upload.single('photo')(req, res, (err: unknown) => {
+    if (err) return res.status(400).json({ error: err instanceof Error ? err.message : 'Invalid upload' });
+    next();
+  });
+}
+
+// 7-9 phase 2. Same 25MB-per-file ceiling as the single route (an
+// abuse-guard, not a realistic size — phase 1's client-side resize to a
+// 2000px long edge means a real photo here is typically well under 2MB, so
+// 5 of them is a few MB in practice, not the 125MB the ceiling alone would
+// suggest). Chosen over a smaller batch size (e.g. 3) since the realistic
+// body size is small regardless — see the sync design notes in
+// apps/mobile's guestStorage.ts for where this was actually reasoned about
+// against real resized-photo sizes, not just the theoretical max.
+const MAX_BULK_PHOTOS = 5;
+
+const bulkUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024, files: MAX_BULK_PHOTOS },
+  fileFilter: (_req, file, cb) => {
+    if (!ALLOWED_IMAGE_TYPES[file.mimetype]) {
+      cb(new Error('Unsupported image type'));
+      return;
+    }
+    cb(null, true);
+  },
+});
+
+function handleBulkUpload(req: AuthedRequest, res: Response, next: NextFunction) {
+  bulkUpload.array('photos', MAX_BULK_PHOTOS)(req, res, (err: unknown) => {
     if (err) return res.status(400).json({ error: err instanceof Error ? err.message : 'Invalid upload' });
     next();
   });
@@ -141,6 +188,79 @@ async function generateThumbnail(buffer: Buffer): Promise<Buffer | null> {
 function thumbPathFor(relativePath: string): string {
   const ext = path.extname(relativePath);
   return `${relativePath.slice(0, -ext.length)}_thumb.jpg`;
+}
+
+// EXIF → distance → medal → resize/thumbnail → disk → DB row, for exactly
+// one photo. Shared by the single-photo route (POST /) and the bulk sync
+// route (POST /bulk, 7-9 phase 2) — this used to exist only inline in the
+// single-photo handler, and duplicating it for bulk rather than extracting
+// it is exactly the kind of "mirrored, not shared" logic that let the NaN
+// coordinate bug (8986b8a) exist in two places at once undetected. Neither
+// caller here does its own EXIF/medal math; both call this.
+//
+// Caller's responsibility: check MAX_PHOTOS_PER_COLLECTION and
+// MAX_USER_STORAGE_BYTES *before* calling this (this function does the
+// storage write unconditionally) — the two routes track those running
+// totals differently (bulk needs a running total across several photos in
+// one request; the single route only ever adds one), so enforcing them
+// here would mean passing that running-total state through anyway with no
+// real simplification.
+async function processAndStorePhoto(params: {
+  userId: string;
+  pokeLidId: string;
+  collectionId: string;
+  buffer: Buffer;
+  mimeType: string;
+  originalFilename: string;
+  isPrimary: boolean;
+  pokeLidLatitude: number;
+  pokeLidLongitude: number;
+}): Promise<{ photoId: string; medal: PhotoMedal; fileSizeBytes: number }> {
+  const exif = await extractPhotoExif(params.buffer);
+  const hasLocation = exif.latitude !== null && exif.longitude !== null;
+  const distanceMeters = hasLocation
+    ? haversineDistanceMeters(
+        exif.latitude!,
+        exif.longitude!,
+        params.pokeLidLatitude,
+        params.pokeLidLongitude,
+      )
+    : null;
+  const medal = determinePhotoMedal(distanceMeters, GEO_VERIFY_RADIUS_METERS) as PhotoMedal;
+
+  const ext = ALLOWED_IMAGE_TYPES[params.mimeType];
+  const photoId = crypto.randomUUID();
+  const relativePath = path.join(params.userId, params.pokeLidId, `${photoId}${ext}`);
+  const absolutePath = path.join(PHOTO_STORAGE_PATH, relativePath);
+
+  const [storedBuffer, thumbBuffer] = await Promise.all([
+    resizeForStorage(params.buffer),
+    generateThumbnail(params.buffer),
+  ]);
+
+  await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+  await fs.writeFile(absolutePath, storedBuffer);
+  if (thumbBuffer) {
+    await fs.writeFile(path.join(PHOTO_STORAGE_PATH, thumbPathFor(relativePath)), thumbBuffer);
+  }
+
+  await prisma.photo.create({
+    data: {
+      id: photoId,
+      collectionId: params.collectionId,
+      userId: params.userId,
+      filePath: relativePath,
+      originalFilename: params.originalFilename,
+      mimeType: params.mimeType,
+      fileSizeBytes: storedBuffer.length,
+      exifCapturedAt: exif.capturedAt,
+      exifDistanceMeters: distanceMeters,
+      medal,
+      isPrimary: params.isPrimary,
+    },
+  });
+
+  return { photoId, medal, fileSizeBytes: storedBuffer.length };
 }
 
 // Best-effort: file removal is tried before the DB row is touched, but a
@@ -316,48 +436,16 @@ collectionsRouter.post('/', requireAuth, uploadRateLimit, handleUpload, async (r
     });
   }
 
-  const exif = await extractPhotoExif(req.file.buffer);
-  const hasLocation = exif.latitude !== null && exif.longitude !== null;
-  const distanceMeters = hasLocation
-    ? haversineDistanceMeters(
-        exif.latitude!,
-        exif.longitude!,
-        Number(pokeLid.latitude),
-        Number(pokeLid.longitude),
-      )
-    : null;
-  const medal = determinePhotoMedal(distanceMeters, GEO_VERIFY_RADIUS_METERS) as PhotoMedal;
-
-  const ext = ALLOWED_IMAGE_TYPES[req.file.mimetype];
-  const photoId = crypto.randomUUID();
-  const relativePath = path.join(userId, pokeLidId, `${photoId}${ext}`);
-  const absolutePath = path.join(PHOTO_STORAGE_PATH, relativePath);
-
-  const [storedBuffer, thumbBuffer] = await Promise.all([
-    resizeForStorage(req.file.buffer),
-    generateThumbnail(req.file.buffer),
-  ]);
-
-  await fs.mkdir(path.dirname(absolutePath), { recursive: true });
-  await fs.writeFile(absolutePath, storedBuffer);
-  if (thumbBuffer) {
-    await fs.writeFile(path.join(PHOTO_STORAGE_PATH, thumbPathFor(relativePath)), thumbBuffer);
-  }
-
-  await prisma.photo.create({
-    data: {
-      id: photoId,
-      collectionId: collection.id,
-      userId,
-      filePath: relativePath,
-      originalFilename: req.file.originalname,
-      mimeType: req.file.mimetype,
-      fileSizeBytes: storedBuffer.length,
-      exifCapturedAt: exif.capturedAt,
-      exifDistanceMeters: distanceMeters,
-      medal,
-      isPrimary: existingPhotoCount === 0,
-    },
+  await processAndStorePhoto({
+    userId,
+    pokeLidId,
+    collectionId: collection.id,
+    buffer: req.file.buffer,
+    mimeType: req.file.mimetype,
+    originalFilename: req.file.originalname,
+    isPrimary: existingPhotoCount === 0,
+    pokeLidLatitude: Number(pokeLid.latitude),
+    pokeLidLongitude: Number(pokeLid.longitude),
   });
 
   // Re-fetched (rather than appending the just-created row to a prior list)
@@ -376,6 +464,141 @@ collectionsRouter.post('/', requireAuth, uploadRateLimit, handleUpload, async (r
     summary,
   });
 });
+
+// 7-9 phase 2: syncs a guest's locally-saved photos to their account after
+// login. Each array element in `items` (a JSON string field, parsed below)
+// describes the photo at the same index in `photos` — deliberately a flat
+// per-photo list, not grouped by collection, since a guest's photos for the
+// same poke lid can legitimately span this and the *next* bulk request
+// (apps/mobile's guestStorage.ts chunks by MAX_BULK_PHOTOS regardless of
+// which collection each belongs to) and this endpoint has to handle either
+// shape the same way anyway.
+//
+// No `summary`/nearestUncollected in the response, unlike POST / — that's
+// the 7-4 "what to do next" feature, which is about *one* just-recorded
+// visit having a natural "nearest uncollected from here" anchor. A batch
+// of photos for several different poke lids has no single anchor, and this
+// endpoint isn't meant to feed that UI anyway (see TASKS.md 7-9 phase 2:
+// the sync completion celebration is a different, separate surface from
+// 7-4/7-5's "next" nudge). Each result's `medal` is what the client tallies
+// into its own sync-completion summary instead.
+const bulkItemSchema = z.object({
+  pokeLidId: z.string().uuid(),
+  notes: notesSchema.optional(),
+  visitedAt: visitedAtSchema.optional(),
+});
+const bulkItemsSchema = z.array(bulkItemSchema).min(1).max(MAX_BULK_PHOTOS);
+
+interface BulkResultItem {
+  pokeLidId: string;
+  photoId?: string;
+  medal?: PhotoMedal;
+  error?: string;
+}
+
+collectionsRouter.post(
+  '/bulk',
+  requireAuth,
+  bulkUploadRateLimit,
+  handleBulkUpload,
+  async (req: AuthedRequest, res) => {
+    const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+    if (files.length === 0) {
+      return res.status(400).json({ error: '写真が送信されていません' });
+    }
+
+    let items: z.infer<typeof bulkItemsSchema>;
+    try {
+      items = bulkItemsSchema.parse(JSON.parse(String(req.body.items ?? '[]')));
+    } catch (err) {
+      const message =
+        err instanceof z.ZodError ? firstValidationError(err) : 'リクエストの形式が正しくありません';
+      return res.status(400).json({ error: message });
+    }
+    if (items.length !== files.length) {
+      return res.status(400).json({ error: '写真の件数と情報の件数が一致しません' });
+    }
+
+    const userId = req.userId!;
+
+    const pokeLids = await prisma.pokeLid.findMany({
+      where: { id: { in: [...new Set(items.map((item) => item.pokeLidId))] } },
+    });
+    const pokeLidsById = new Map(pokeLids.map((lid) => [lid.id, lid]));
+
+    // Running totals, tracked across this request's items in order (not
+    // parallelized — see the per-item loop below) so two photos for the
+    // same poke lid in one batch, or several photos pushing this user
+    // toward MAX_USER_STORAGE_BYTES, are each checked against the true
+    // count *including* what this same request already committed, not just
+    // what was true when the request started.
+    const { _sum } = await prisma.photo.aggregate({ where: { userId }, _sum: { fileSizeBytes: true } });
+    let userStorageBytes = _sum.fileSizeBytes ?? 0;
+    const collectionState = new Map<string, { id: string; photoCount: number }>();
+
+    const results: BulkResultItem[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const file = files[i];
+      const pokeLid = pokeLidsById.get(item.pokeLidId);
+      if (!pokeLid) {
+        results.push({ pokeLidId: item.pokeLidId, error: 'ポケふたが見つかりません' });
+        continue;
+      }
+
+      let state = collectionState.get(item.pokeLidId);
+      if (!state) {
+        const visitedAt = item.visitedAt ? new Date(item.visitedAt) : new Date();
+        const notes = item.notes ?? null;
+        // The collection upsert happens here, on this item's first photo —
+        // there's no separate "sync the text" step for a photo-bearing
+        // record (see guestStorage.ts's partitionGuestRecordsForSync doc
+        // comment for why that's deliberate, not an oversight).
+        const collection = await prisma.collection.upsert({
+          where: { userId_pokeLidId: { userId, pokeLidId: item.pokeLidId } },
+          update: { visitedAt, notes },
+          create: { userId, pokeLidId: item.pokeLidId, visitedAt, notes },
+        });
+        const existingPhotoCount = await prisma.photo.count({ where: { collectionId: collection.id } });
+        state = { id: collection.id, photoCount: existingPhotoCount };
+        collectionState.set(item.pokeLidId, state);
+      }
+
+      if (state.photoCount >= MAX_PHOTOS_PER_COLLECTION) {
+        results.push({
+          pokeLidId: item.pokeLidId,
+          error: `1件の収集記録に登録できる写真は${MAX_PHOTOS_PER_COLLECTION}枚までです。`,
+        });
+        continue;
+      }
+      if (userStorageBytes + file.size > MAX_USER_STORAGE_BYTES) {
+        results.push({
+          pokeLidId: item.pokeLidId,
+          error: '写真の保存容量が上限に達しました。不要な写真を削除してから再度お試しください。',
+        });
+        continue;
+      }
+
+      const stored = await processAndStorePhoto({
+        userId,
+        pokeLidId: item.pokeLidId,
+        collectionId: state.id,
+        buffer: file.buffer,
+        mimeType: file.mimetype,
+        originalFilename: file.originalname,
+        isPrimary: state.photoCount === 0,
+        pokeLidLatitude: Number(pokeLid.latitude),
+        pokeLidLongitude: Number(pokeLid.longitude),
+      });
+      state.photoCount += 1;
+      userStorageBytes += stored.fileSizeBytes;
+      results.push({ pokeLidId: item.pokeLidId, photoId: stored.photoId, medal: stored.medal });
+    }
+
+    res.status(201).json({ results });
+  },
+);
 
 collectionsRouter.get('/me', requireAuth, async (req: AuthedRequest, res) => {
   const collections = await prisma.collection.findMany({

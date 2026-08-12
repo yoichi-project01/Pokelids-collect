@@ -474,6 +474,74 @@ export function determinePhotoMedal(distanceMeters: number | null, radiusMeters:
   return distanceMeters <= radiusMeters ? 'GOLD' : 'NONE';
 }
 
+// 7-9 phase 2: splits a batch of items into fixed-size groups, in order.
+// Used to keep each bulk-sync HTTP request to a handful of photos (see
+// apps/mobile's guestStorage.ts and apps/api's collections.ts bulk route) —
+// generic rather than upload-specific since there's nothing upload-specific
+// about it.
+export function chunk<T>(items: readonly T[], size: number): T[][] {
+  if (size <= 0) throw new Error('chunk size must be positive');
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
+// A guest's locally-recorded visits (GuestCollection, guestStorage.ts) and
+// locally-saved photos (GuestPhoto, guestPhotoStorage.ts) are two separate
+// stores, joined only by pokeLidId — this decides, for the sync in
+// guestStorage.ts's syncGuestCollectionsToAccount, which of two very
+// different paths each record needs:
+//
+// - `textOnly`: no local photo at all. Synced via the plain POST
+//   /api/collections (notes/visitedAt, no file) — cheap, and safe to keep
+//   doing in one big Promise.allSettled batch the way this already worked
+//   before phase 2.
+// - `withPhotos`: has at least one local photo. Synced via POST
+//   /api/collections/bulk, which upserts the Collection (notes/visitedAt)
+//   as a side effect of attaching its first successfully-synced photo — so
+//   these records must NOT also go through the plain endpoint, or the
+//   Collection would be redundantly upserted twice per sync for no reason.
+//
+// Generic over the exact record shape (rather than importing
+// apps/mobile's GuestCollection/GuestPhoto types, which this package can't
+// see) so both apps/mobile's real types and this file's own test fixtures
+// satisfy it structurally.
+export function partitionGuestRecordsForSync<C extends { pokeLidId: string }>(
+  collections: readonly C[],
+  photoPokeLidIds: readonly string[],
+): { textOnly: C[]; withPhotos: C[] } {
+  const withPhotoIds = new Set(photoPokeLidIds);
+  const textOnly: C[] = [];
+  const withPhotos: C[] = [];
+  for (const collection of collections) {
+    (withPhotoIds.has(collection.pokeLidId) ? withPhotos : textOnly).push(collection);
+  }
+  return { textOnly, withPhotos };
+}
+
+export function tallyMedalCounts(medals: readonly PhotoMedal[]): Record<PhotoMedal, number> {
+  const counts: Record<PhotoMedal, number> = { GOLD: 0, SILVER: 0, NONE: 0 };
+  for (const medal of medals) counts[medal] += 1;
+  return counts;
+}
+
+// Whether a *chunk-level* HTTP failure (not a per-photo item error inside
+// an otherwise-successful response — those are always skip-and-continue)
+// should stop the whole bulk sync rather than just skip this chunk and try
+// the next: 429 (bulk sync's own rate limit, apps/api's
+// bulkUploadRateLimit) and 413 (apps/api's MAX_USER_STORAGE_BYTES) both
+// mean every remaining chunk would fail the same way too, so continuing
+// would just burn through the guest's remaining photos' worth of retries
+// for nothing. Anything else (a transient network error, a 5xx) is treated
+// as this chunk's problem, not a systemic one — see guestStorage.ts for
+// where a non-stopping failure still leaves the chunk's photos in local
+// storage for the next login's retry either way.
+export function isBulkSyncStopStatus(status: number): boolean {
+  return status === 429 || status === 413;
+}
+
 // Client-side gate for the map's "写真を撮って記録" quick-record button
 // (6-6): only shown when the device's live GPS position is within this
 // distance of a poke lid's own coordinates.

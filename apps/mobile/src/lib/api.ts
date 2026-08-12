@@ -9,6 +9,7 @@ import type {
   CollectionDto,
   CollectionSummary,
   NearbyPokeLidDto,
+  PhotoMedal,
   PokeLidDto,
   ProgressDto,
   UserDto,
@@ -351,6 +352,105 @@ export async function uploadCollection(
   return Platform.OS === 'web'
     ? uploadViaXhr(url, fields, params.photo, onProgress)
     : uploadViaFileSystemTask(url, fields, params.photo, onProgress);
+}
+
+// 7-9 phase 2.
+export interface BulkUploadItem {
+  pokeLidId: string;
+  notes?: string;
+  visitedAt?: string;
+  photo: UploadPhotoInput;
+}
+
+export interface BulkUploadResultItem {
+  pokeLidId: string;
+  photoId?: string;
+  medal?: PhotoMedal;
+  error?: string;
+}
+
+export interface BulkUploadResponse {
+  results: BulkUploadResultItem[];
+}
+
+function bulkItemsField(items: BulkUploadItem[]): string {
+  return JSON.stringify(items.map(({ pokeLidId, notes, visitedAt }) => ({ pokeLidId, notes, visitedAt })));
+}
+
+function uploadBulkViaXhr(
+  url: string,
+  items: BulkUploadItem[],
+  onProgress?: (fraction: number) => void,
+): Promise<BulkUploadResponse> {
+  return new Promise((resolve, reject) => {
+    const form = new FormData();
+    form.append('items', bulkItemsField(items));
+    for (const item of items) {
+      if (!item.photo.webFile) {
+        reject(new ApiError(0, '写真の読み込みに失敗しました'));
+        return;
+      }
+      form.append('photos', item.photo.webFile, item.photo.webFile.name);
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    if (accessToken) xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+    // Byte-level progress within this one chunk — a bonus XHR happens to
+    // give for free here, not the primary progress signal for the sync as
+    // a whole (guestStorage.ts's caller reports chunk-by-chunk progress
+    // across the whole sync, since that's the only granularity available
+    // on native too — see uploadBulkViaFetch below).
+    xhr.upload.onprogress = (event) => {
+      if (onProgress && event.lengthComputable) onProgress(event.loaded / event.total);
+    };
+    xhr.onload = () => {
+      try {
+        resolve(parseUploadResponse<BulkUploadResponse>(xhr.responseText, xhr.status));
+      } catch (err) {
+        reject(err);
+      }
+    };
+    xhr.onerror = () => reject(new ApiError(0, 'ネットワークエラーが発生しました'));
+    xhr.send(form);
+  });
+}
+
+// expo-file-system's createUploadTask (used by uploadViaFileSystemTask
+// above, for the single-photo route) only ever sends one file per task —
+// there's no multi-file equivalent — so a genuine multi-photo request on
+// native has to go through plain fetch + React Native's own FormData
+// polyfill instead, which (unlike browser FormData) accepts a plain
+// {uri, name, type} object directly rather than needing a real Blob/File.
+// The cost is losing byte-level progress: fetch has none, and there's no
+// UploadTask here to supply it either. guestStorage.ts's caller compensates
+// by reporting progress per finished chunk instead, which works the same
+// way regardless of platform.
+async function uploadBulkViaFetch(url: string, items: BulkUploadItem[]): Promise<BulkUploadResponse> {
+  const form = new FormData();
+  form.append('items', bulkItemsField(items));
+  for (const item of items) {
+    const filePart = { uri: item.photo.uri, name: item.photo.name, type: item.photo.type };
+    form.append('photos', filePart as unknown as Blob, item.photo.name);
+  }
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    body: form,
+  });
+  const text = await res.text();
+  return parseUploadResponse<BulkUploadResponse>(text, res.status);
+}
+
+export async function uploadCollectionsBulk(
+  items: BulkUploadItem[],
+  onProgress?: (fraction: number) => void,
+): Promise<BulkUploadResponse> {
+  if (items.length === 0) return { results: [] };
+  await ensureFreshToken();
+  const url = `${getApiBaseUrl()}/api/collections/bulk`;
+  return Platform.OS === 'web' ? uploadBulkViaXhr(url, items, onProgress) : uploadBulkViaFetch(url, items);
 }
 
 export async function deleteCollection(collectionId: string): Promise<{ summary: CollectionSummary }> {

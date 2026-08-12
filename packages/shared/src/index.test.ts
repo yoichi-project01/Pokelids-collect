@@ -1,17 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildCollectionSummary,
+  chunk,
   computeCelebrationMilestone,
   countsTowardProgress,
   determinePhotoMedal,
   haversineDistanceMeters,
+  isBulkSyncStopStatus,
   isPokeLidVisible,
   isValidVisitedAt,
   municipalityKey,
+  partitionGuestRecordsForSync,
   pickMunicipalityGoals,
   PREFECTURES,
   progressPercent,
   regionNameJa,
+  tallyMedalCounts,
   validateCoordinates,
   type CollectionSummary,
   type MunicipalityProgressDto,
@@ -227,6 +231,95 @@ describe('determinePhotoMedal', () => {
 
   it('is NONE when far away', () => {
     expect(determinePhotoMedal(50_000, RADIUS)).toBe('NONE');
+  });
+});
+
+describe('chunk', () => {
+  it('splits evenly-divisible input into equal-size groups', () => {
+    expect(chunk([1, 2, 3, 4, 5, 6], 3)).toEqual([
+      [1, 2, 3],
+      [4, 5, 6],
+    ]);
+  });
+
+  it('leaves a smaller final group when the input does not divide evenly', () => {
+    expect(chunk([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]]);
+  });
+
+  it('returns a single group when size >= length', () => {
+    expect(chunk([1, 2], 5)).toEqual([[1, 2]]);
+  });
+
+  it('returns an empty array for empty input', () => {
+    expect(chunk([], 3)).toEqual([]);
+  });
+
+  it('throws for a non-positive size', () => {
+    expect(() => chunk([1, 2, 3], 0)).toThrow();
+    expect(() => chunk([1, 2, 3], -1)).toThrow();
+  });
+});
+
+describe('partitionGuestRecordsForSync', () => {
+  it('puts a record with no matching local photo into textOnly', () => {
+    const result = partitionGuestRecordsForSync([{ pokeLidId: 'a' }], []);
+    expect(result.textOnly).toEqual([{ pokeLidId: 'a' }]);
+    expect(result.withPhotos).toEqual([]);
+  });
+
+  it('puts a record with at least one matching local photo into withPhotos', () => {
+    const result = partitionGuestRecordsForSync([{ pokeLidId: 'a' }], ['a']);
+    expect(result.withPhotos).toEqual([{ pokeLidId: 'a' }]);
+    expect(result.textOnly).toEqual([]);
+  });
+
+  it('handles multiple photos for the same record without duplicating it', () => {
+    const result = partitionGuestRecordsForSync([{ pokeLidId: 'a' }], ['a', 'a', 'a']);
+    expect(result.withPhotos).toEqual([{ pokeLidId: 'a' }]);
+  });
+
+  it('partitions a mixed set correctly, preserving input order within each group', () => {
+    const collections = [{ pokeLidId: 'a' }, { pokeLidId: 'b' }, { pokeLidId: 'c' }];
+    const result = partitionGuestRecordsForSync(collections, ['b']);
+    expect(result.textOnly).toEqual([{ pokeLidId: 'a' }, { pokeLidId: 'c' }]);
+    expect(result.withPhotos).toEqual([{ pokeLidId: 'b' }]);
+  });
+
+  it('ignores a photo pokeLidId with no matching collection (orphaned photo)', () => {
+    const result = partitionGuestRecordsForSync([{ pokeLidId: 'a' }], ['does-not-exist']);
+    expect(result.textOnly).toEqual([{ pokeLidId: 'a' }]);
+    expect(result.withPhotos).toEqual([]);
+  });
+});
+
+describe('tallyMedalCounts', () => {
+  it('counts each medal type independently', () => {
+    expect(tallyMedalCounts(['GOLD', 'GOLD', 'SILVER', 'NONE', 'GOLD'])).toEqual({
+      GOLD: 3,
+      SILVER: 1,
+      NONE: 1,
+    });
+  });
+
+  it('returns all zeros for an empty list', () => {
+    expect(tallyMedalCounts([])).toEqual({ GOLD: 0, SILVER: 0, NONE: 0 });
+  });
+});
+
+describe('isBulkSyncStopStatus', () => {
+  it('stops on 429 (bulk rate limit)', () => {
+    expect(isBulkSyncStopStatus(429)).toBe(true);
+  });
+
+  it('stops on 413 (storage limit)', () => {
+    expect(isBulkSyncStopStatus(413)).toBe(true);
+  });
+
+  it('does not stop on other statuses (transient/per-chunk failures)', () => {
+    expect(isBulkSyncStopStatus(400)).toBe(false);
+    expect(isBulkSyncStopStatus(404)).toBe(false);
+    expect(isBulkSyncStopStatus(500)).toBe(false);
+    expect(isBulkSyncStopStatus(0)).toBe(false);
   });
 });
 

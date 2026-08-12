@@ -8,10 +8,6 @@ vi.mock('./photoExif', () => ({
   })),
 }));
 
-vi.mock('./imageResize', () => ({
-  resizePhotoForStorage: vi.fn(async (_photo: { uri: string }) => ({ uri: 'resized-uri' })),
-}));
-
 vi.mock('./guestPhotoStorage', () => ({
   getAllGuestPhotos: vi.fn(async () => []),
   saveGuestPhoto: vi.fn(
@@ -36,7 +32,6 @@ vi.mock('./storagePersistence', () => ({
 }));
 
 import { extractPhotoExif } from './photoExif';
-import { resizePhotoForStorage } from './imageResize';
 import { getAllGuestPhotos, saveGuestPhoto } from './guestPhotoStorage';
 import { ensurePersistentStorage } from './storagePersistence';
 import { captureGuestPhoto } from './guestPhotoCapture';
@@ -53,33 +48,21 @@ beforeEach(() => {
 });
 
 describe('captureGuestPhoto', () => {
-  it('reads EXIF strictly before resizing', async () => {
-    await captureGuestPhoto('lid-1', ORIGINAL_PHOTO, LID_COORDS);
-
-    // Order matters: resizing strips EXIF (see imageResize.ts), so if this
-    // ever ran resize first, extractPhotoExif would receive the
-    // already-resized photo and silently lose GPS — exactly the regression
-    // this test exists to catch.
-    const exifOrder = vi.mocked(extractPhotoExif).mock.invocationCallOrder[0];
-    const resizeOrder = vi.mocked(resizePhotoForStorage).mock.invocationCallOrder[0];
-    expect(exifOrder).toBeLessThan(resizeOrder);
-  });
-
-  it('passes the ORIGINAL photo to extractPhotoExif, never the resized one', async () => {
+  it('passes the ORIGINAL photo to extractPhotoExif', async () => {
     await captureGuestPhoto('lid-1', ORIGINAL_PHOTO, LID_COORDS);
     expect(extractPhotoExif).toHaveBeenCalledWith(ORIGINAL_PHOTO);
   });
 
-  it('passes the ORIGINAL photo to resizePhotoForStorage, not something already processed', async () => {
-    await captureGuestPhoto('lid-1', ORIGINAL_PHOTO, LID_COORDS);
-    expect(resizePhotoForStorage).toHaveBeenCalledWith(ORIGINAL_PHOTO);
-  });
-
-  it('saves the RESIZED photo, not the original', async () => {
+  // No resize step anymore (see this file's own doc comment for why: a
+  // resized-and-EXIF-stripped local copy can never produce a GOLD medal
+  // once 7-9 phase 2 syncs it, since the server has nothing left to
+  // re-verify) — saveGuestPhoto must receive the exact same photo object
+  // extractPhotoExif did, not a processed copy.
+  it('saves the ORIGINAL photo, unmodified', async () => {
     await captureGuestPhoto('lid-1', ORIGINAL_PHOTO, LID_COORDS);
     expect(saveGuestPhoto).toHaveBeenCalledWith(
       'lid-1',
-      { uri: 'resized-uri' },
+      ORIGINAL_PHOTO,
       expect.any(Number),
       '2026-01-01T00:00:00.000Z',
     );
@@ -102,7 +85,7 @@ describe('captureGuestPhoto', () => {
       capturedAt: null,
     });
     await captureGuestPhoto('lid-1', ORIGINAL_PHOTO, LID_COORDS);
-    expect(saveGuestPhoto).toHaveBeenCalledWith('lid-1', { uri: 'resized-uri' }, null, null);
+    expect(saveGuestPhoto).toHaveBeenCalledWith('lid-1', ORIGINAL_PHOTO, null, null);
   });
 
   it("requests persistent storage when this is the guest's first photo ever (7-10)", async () => {

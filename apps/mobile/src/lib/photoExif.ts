@@ -26,8 +26,10 @@ export interface PhotoExifResult {
 // the raw file bytes with exifr sidesteps that gap entirely, same as the
 // server already does for uploaded files (7-9).
 //
-// Must be called on the ORIGINAL picked photo, before any resize — see
-// imageResize.ts's doc comment for why resizing strips this metadata.
+// Must be called on the ORIGINAL picked photo. guestPhotoCapture.ts's own
+// doc comment covers why a resized/re-encoded copy can't be substituted
+// here (resizing strips EXIF, including GPS, on both platforms) — this file
+// no longer does any resizing itself for exactly that reason.
 export async function extractPhotoExif(photo: { uri: string; webFile?: File }): Promise<PhotoExifResult> {
   try {
     // exifr accepts a browser File directly (it slices out just the EXIF

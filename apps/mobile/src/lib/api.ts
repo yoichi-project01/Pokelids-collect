@@ -176,6 +176,17 @@ export async function fetchMe() {
   return request<UserDto>('/api/auth/me');
 }
 
+// 5-4. `code` and `nonce` come from googleAuth.ts's callback handling —
+// `nonce` is the value stashed in sessionStorage at the start of this same
+// sign-in attempt, sent back here so the server can confirm it matches the
+// claim actually embedded in Google's ID token (not just trust the client).
+export async function exchangeGoogleCode(code: string, nonce: string) {
+  return request<AuthTokensDto & { user: UserDto }>('/api/auth/google/exchange', {
+    method: 'POST',
+    body: JSON.stringify({ code, nonce }),
+  });
+}
+
 export async function requestPasswordReset(email: string): Promise<void> {
   await request<{ ok: true }>('/api/auth/password-reset/request', {
     method: 'POST',

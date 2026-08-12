@@ -4,6 +4,7 @@ import {
   chunk,
   computeCelebrationMilestone,
   countsTowardProgress,
+  decideGoogleAccountLink,
   determinePhotoMedal,
   haversineDistanceMeters,
   isBulkSyncStopStatus,
@@ -382,6 +383,42 @@ describe('isPokeLidVisible', () => {
 
   it('treats an absent field (stale snapshot) as active regardless of collected status', () => {
     expect(isPokeLidVisible(undefined, false)).toBe(true);
+  });
+});
+
+describe('decideGoogleAccountLink', () => {
+  it('creates a new account when no existing user has this email', () => {
+    expect(decideGoogleAccountLink({ googleEmailVerified: true, existingUser: null })).toBe('create');
+  });
+
+  it('links when both Google and the existing account have a verified email', () => {
+    expect(
+      decideGoogleAccountLink({
+        googleEmailVerified: true,
+        existingUser: { emailVerifiedAt: '2026-01-01T00:00:00.000Z' },
+      }),
+    ).toBe('link');
+  });
+
+  it('rejects when Google reports the email as unverified, even if the existing account is verified', () => {
+    expect(
+      decideGoogleAccountLink({
+        googleEmailVerified: false,
+        existingUser: { emailVerifiedAt: '2026-01-01T00:00:00.000Z' },
+      }),
+    ).toBe('reject');
+  });
+
+  it('rejects when the existing account is unverified, even if Google reports the email as verified', () => {
+    expect(
+      decideGoogleAccountLink({ googleEmailVerified: true, existingUser: { emailVerifiedAt: null } }),
+    ).toBe('reject');
+  });
+
+  it('rejects when neither side is verified', () => {
+    expect(
+      decideGoogleAccountLink({ googleEmailVerified: false, existingUser: { emailVerifiedAt: null } }),
+    ).toBe('reject');
   });
 });
 

@@ -609,3 +609,43 @@ export function isPokeLidVisible(
 ): boolean {
   return countsTowardProgress(retiredAt) || hasCollected;
 }
+
+// 5-4: whether a Google sign-in should be auto-linked to an existing
+// password-registered account with the same email, create a brand-new
+// account, or be rejected outright. Deliberately excludes a fourth option
+// ("create a second account with the same email") — this app enforces
+// email uniqueness (User.email @unique) precisely so a user never has to
+// wonder which of two accounts holds their collection history, so a
+// same-email conflict must always resolve to either the SAME account or an
+// error, never a duplicate.
+//
+// `link` requires BOTH of the following, not just one:
+// - Google's own `email_verified` claim is true for this sign-in (Google
+//   itself vouches the signer controls this address right now)
+// - the existing account's own emailVerifiedAt (5-3) is non-null (this
+//   app's own registration flow already confirmed, at some point in the
+//   past, that whoever registered that account also controlled this
+//   address)
+// Both are necessary because they guard against two different directions
+// of the same attack: without the Google-side check, a Google account
+// created with an unverified/attacker-controlled alias could hijack a
+// legitimate existing account. Without the existing-account check, someone
+// who registered here with an email address they don't actually control
+// (typo, or deliberately impersonating someone) would have that account
+// silently handed to the real owner the moment that owner ever tries
+// Google sign-in — which sounds like the "right" outcome but isn't: the
+// impersonator may have already attached collection data / notes to that
+// account that the real owner never consented to receiving, and more
+// importantly, this exact same mechanism run in reverse (real owner
+// registers normally first, then impersonator claims it via Google) would
+// be a straightforward account takeover if the check only ran one-sided.
+// Requiring both sides confirmed keeps this symmetric and safe regardless
+// of who acted first.
+export function decideGoogleAccountLink(input: {
+  googleEmailVerified: boolean;
+  existingUser: { emailVerifiedAt: string | null } | null;
+}): 'create' | 'link' | 'reject' {
+  if (!input.existingUser) return 'create';
+  if (input.googleEmailVerified && input.existingUser.emailVerifiedAt !== null) return 'link';
+  return 'reject';
+}

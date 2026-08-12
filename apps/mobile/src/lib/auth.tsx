@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import type { PhotoMedal, UserDto } from '@pokelids/shared';
+import type { AuthTokensDto, PhotoMedal, UserDto } from '@pokelids/shared';
 import { SyncCompleteModal } from '../components/SyncCompleteModal';
 import { UploadProgressBanner } from '../components/UploadProgressBanner';
 import {
+  exchangeGoogleCode,
   fetchMe,
   login as apiLogin,
   logout as apiLogout,
@@ -33,6 +34,13 @@ interface AuthContextValue {
   clearSessionExpired: () => void;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
+  // 5-4: takes the {code, nonce} already produced by
+  // googleAuth.ts's consumeGoogleCallback and does the same
+  // session-establishment + guest-sync dance as login/register — deliberately
+  // not a separate SSO session mechanism (see this feature's own design
+  // note: 52451d8's automatic-refresh logic must apply the same way
+  // regardless of how the session started).
+  loginWithGoogleCode: (code: string, nonce: string) => Promise<void>;
   logout: () => Promise<void>;
   // Re-fetches /api/auth/me and updates the context's `user` in place —
   // used by verify-email.tsx after a successful confirm, so a logged-in
@@ -90,8 +98,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => setTokensChangedListener(null);
   }, []);
 
-  async function login(email: string, password: string) {
-    const result = await apiLogin(email, password);
+  // Shared tail of login/register/loginWithGoogleCode below: persist the
+  // freshly-issued session, adopt the returned user, and offer to sync
+  // whatever the guest recorded before this login. Factored out once these
+  // three call sites all needed to do it identically, rather than because
+  // any one of them is more complex on its own.
+  async function establishSession(result: AuthTokensDto & { user: UserDto }) {
     setTokens({ accessToken: result.accessToken, refreshToken: result.refreshToken });
     await setStoredTokens(
       STORAGE_KEY,
@@ -102,16 +114,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await maybeSyncGuestCollections();
   }
 
+  async function login(email: string, password: string) {
+    await establishSession(await apiLogin(email, password));
+  }
+
   async function register(email: string, password: string, displayName: string) {
-    const result = await apiRegister(email, password, displayName);
-    setTokens({ accessToken: result.accessToken, refreshToken: result.refreshToken });
-    await setStoredTokens(
-      STORAGE_KEY,
-      JSON.stringify({ accessToken: result.accessToken, refreshToken: result.refreshToken }),
-    );
-    setUser(result.user);
-    setSessionExpired(false);
-    await maybeSyncGuestCollections();
+    await establishSession(await apiRegister(email, password, displayName));
+  }
+
+  async function loginWithGoogleCode(code: string, nonce: string) {
+    await establishSession(await exchangeGoogleCode(code, nonce));
   }
 
   async function maybeSyncGuestCollections() {
@@ -199,6 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearSessionExpired: () => setSessionExpired(false),
         login,
         register,
+        loginWithGoogleCode,
         logout,
         refreshUser,
       }}

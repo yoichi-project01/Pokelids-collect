@@ -3,6 +3,14 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+      # docker compose build reads .env in this directory for variable
+      # substitution here (this is a compose-file-level ${...}, unrelated to
+      # env_file below, which only affects the running container). Passed
+      # through as a build ARG since the mobile-build stage needs it at
+      # `expo export` time, not at container runtime — see the Dockerfile's
+      # own comment on this ARG for why.
+      args:
+        GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     container_name: pokelids_api
     restart: unless-stopped
     env_file: .env

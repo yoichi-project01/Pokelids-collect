@@ -53,6 +53,7 @@ export default function RootLayout() {
         <Stack.Screen name="forgot-password" options={{ title: 'パスワードをお忘れの方' }} />
         <Stack.Screen name="reset-password" options={{ title: 'パスワードの再設定' }} />
         <Stack.Screen name="verify-email" options={{ title: 'メールアドレスの確認' }} />
+        <Stack.Screen name="auth/google/callback" options={{ title: 'Googleでログイン' }} />
         <Stack.Screen name="prefectures/[id]" options={{ title: '都道府県別一覧' }} />
         <Stack.Screen name="poke-lids/[id]" options={{ title: 'ポケふた詳細' }} />
         <Stack.Screen name="privacy" options={{ title: 'プライバシーポリシー' }} />

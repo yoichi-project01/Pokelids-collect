@@ -5,6 +5,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import { sendPasswordResetEmail, sendEmailVerificationEmail } from '../lib/email';
 import { removeFileBestEffort } from '../lib/fileCleanup';
+import { GoogleAuthError, resolveGoogleUser, verifyGoogleAuthorizationCode } from '../lib/googleAuth';
 import { prisma } from '../lib/prisma';
 import {
   signAccessToken,
@@ -16,6 +17,7 @@ import {
   hashEmailVerificationToken,
 } from '../lib/auth';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
+import type { Request } from 'express';
 
 export const authRouter = Router();
 
@@ -63,6 +65,43 @@ async function issueAndSendVerificationEmail(user: { id: string; email: string }
   });
 }
 
+// The accessToken + refreshToken issuance dance is identical across
+// /register, /login, and /google/exchange below (5-4 intentionally reuses
+// this rather than inventing an SSO-specific session mechanism — see this
+// task's own design note) — factored out once both to avoid drifting
+// between three copies and so 52451d8's client-side automatic-refresh logic
+// really does apply uniformly, regardless of how the session started.
+async function issueSessionTokens(
+  user: { id: string; email: string },
+  req: Request,
+): Promise<{ accessToken: string; refreshToken: string }> {
+  const accessToken = signAccessToken({ sub: user.id, email: user.email });
+  const { token: refreshToken, hash, expiresAt } = generateRefreshToken();
+  await prisma.refreshToken.create({
+    data: {
+      userId: user.id,
+      tokenHash: hash,
+      expiresAt,
+      deviceInfo: req.headers['user-agent']?.slice(0, 255),
+    },
+  });
+  return { accessToken, refreshToken };
+}
+
+function serializeUser(user: {
+  id: string;
+  email: string;
+  displayName: string;
+  emailVerifiedAt: Date | null;
+}) {
+  return {
+    id: user.id,
+    email: user.email,
+    displayName: user.displayName,
+    emailVerifiedAt: user.emailVerifiedAt,
+  };
+}
+
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
@@ -86,17 +125,7 @@ authRouter.post('/register', credentialRateLimit, async (req, res) => {
     data: { email, passwordHash, displayName },
   });
 
-  const accessToken = signAccessToken({ sub: user.id, email: user.email });
-  const { token: refreshToken, hash, expiresAt } = generateRefreshToken();
-
-  await prisma.refreshToken.create({
-    data: {
-      userId: user.id,
-      tokenHash: hash,
-      expiresAt,
-      deviceInfo: req.headers['user-agent']?.slice(0, 255),
-    },
-  });
+  const { accessToken, refreshToken } = await issueSessionTokens(user, req);
 
   // Not awaited: sending the verification email is supplementary to
   // registration succeeding, not part of its contract — someone recording
@@ -110,16 +139,7 @@ authRouter.post('/register', credentialRateLimit, async (req, res) => {
     console.error('Failed to issue email verification token on register', err);
   });
 
-  res.status(201).json({
-    accessToken,
-    refreshToken,
-    user: {
-      id: user.id,
-      email: user.email,
-      displayName: user.displayName,
-      emailVerifiedAt: user.emailVerifiedAt,
-    },
-  });
+  res.status(201).json({ accessToken, refreshToken, user: serializeUser(user) });
 });
 
 const loginSchema = z.object({
@@ -135,32 +155,25 @@ authRouter.post('/login', credentialRateLimit, async (req, res) => {
   const { email, password } = parsed.data;
 
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  // A Google-only account (5-4) has no passwordHash to compare against at
+  // all — a distinct, more helpful message here (rather than folding this
+  // into the generic wrong-password 401 below) since the login form's own
+  // password field can never be the right answer for this account no
+  // matter what's typed, and the client (login.tsx) keys off this exact
+  // string to show the tailored guidance rather than "wrong password."
+  if (!user.passwordHash) {
+    return res.status(401).json({ error: 'This account uses Google sign-in' });
+  }
+  if (!(await bcrypt.compare(password, user.passwordHash))) {
     return res.status(401).json({ error: 'Invalid email or password' });
   }
 
-  const accessToken = signAccessToken({ sub: user.id, email: user.email });
-  const { token: refreshToken, hash, expiresAt } = generateRefreshToken();
+  const { accessToken, refreshToken } = await issueSessionTokens(user, req);
 
-  await prisma.refreshToken.create({
-    data: {
-      userId: user.id,
-      tokenHash: hash,
-      expiresAt,
-      deviceInfo: req.headers['user-agent']?.slice(0, 255),
-    },
-  });
-
-  res.json({
-    accessToken,
-    refreshToken,
-    user: {
-      id: user.id,
-      email: user.email,
-      displayName: user.displayName,
-      emailVerifiedAt: user.emailVerifiedAt,
-    },
-  });
+  res.json({ accessToken, refreshToken, user: serializeUser(user) });
 });
 
 const refreshSchema = z.object({
@@ -348,15 +361,64 @@ authRouter.post('/verify-email/confirm', async (req, res) => {
   res.status(204).end();
 });
 
+const googleExchangeSchema = z.object({
+  code: z.string().min(1),
+  // Same value the client generated and embedded in the initial authorize
+  // request (see apps/mobile's googleAuth.ts) — round-tripped back here so
+  // verifyGoogleAuthorizationCode can confirm it matches the `nonce` claim
+  // actually baked into the ID token Google returns, not just trust that
+  // the caller is telling the truth about which flow this code belongs to.
+  nonce: z.string().min(1),
+});
+
+// credentialRateLimit (shared with /login and /register, not a dedicated
+// instance): the authorization `code` itself isn't a brute-forceable secret
+// (single-use, short-lived, issued by Google — nothing to guess), but this
+// still calls out to Google's token endpoint and touches the DB per
+// request, and sharing the budget with the other credential-adjacent
+// endpoints below is enough defense-in-depth against casual hammering
+// without adding a fourth limiter instance to keep in sync.
+authRouter.post('/google/exchange', credentialRateLimit, async (req, res) => {
+  const parsed = googleExchangeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  let identity;
+  try {
+    identity = await verifyGoogleAuthorizationCode(parsed.data.code, parsed.data.nonce);
+  } catch (err) {
+    if (err instanceof GoogleAuthError) return res.status(err.status).json({ error: err.message });
+    throw err;
+  }
+
+  let result;
+  try {
+    result = await resolveGoogleUser(identity);
+  } catch (err) {
+    if (err instanceof GoogleAuthError) return res.status(err.status).json({ error: err.message });
+    throw err;
+  }
+
+  // Mirrors /register's own fire-and-forget verification email for exactly
+  // the same reason (see issueAndSendVerificationEmail's callers) — this
+  // only actually fires for a brand-new account whose Google email came
+  // back unverified (see resolveGoogleUser's needsEmailVerification); a
+  // linked or already-verified account never reaches here at all.
+  if (result.needsEmailVerification) {
+    void issueAndSendVerificationEmail(result).catch((err) => {
+      console.error('Failed to issue email verification token on Google sign-in', err);
+    });
+  }
+
+  const { accessToken, refreshToken } = await issueSessionTokens(result, req);
+  res.json({ accessToken, refreshToken, user: serializeUser(result) });
+});
+
 authRouter.get('/me', requireAuth, async (req: AuthedRequest, res) => {
   const user = await prisma.user.findUnique({ where: { id: req.userId } });
   if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({
-    id: user.id,
-    email: user.email,
-    displayName: user.displayName,
-    emailVerifiedAt: user.emailVerifiedAt,
-  });
+  res.json(serializeUser(user));
 });
 
 authRouter.delete('/me', requireAuth, async (req: AuthedRequest, res) => {

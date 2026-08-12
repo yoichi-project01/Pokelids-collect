@@ -13,6 +13,17 @@ RUN npm run build --workspace=@pokelids/shared
 FROM deps AS mobile-build
 COPY apps/mobile apps/mobile
 WORKDIR /repo/apps/mobile
+# EXPO_PUBLIC_* vars are baked into the web bundle at export time (Expo's
+# babel plugin inlines process.env.EXPO_PUBLIC_* as string literals), not
+# read at container runtime — so unlike every other GOOGLE_* var (read
+# normally from .env at runtime by the api-build/final stages below), this
+# one has to arrive as a build ARG instead. A Google OAuth web client ID is
+# meant to be public (it's sent in the browser's own redirect URL to
+# accounts.google.com either way — see apps/mobile's googleAuth.ts), so
+# baking it into the publicly-served bundle isn't a secret leak the way the
+# corresponding GOOGLE_CLIENT_SECRET would be.
+ARG GOOGLE_CLIENT_ID
+ENV EXPO_PUBLIC_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
 RUN npx expo export -p web
 
 FROM deps AS api-build

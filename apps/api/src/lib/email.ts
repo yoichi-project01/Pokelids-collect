@@ -26,3 +26,22 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
     `,
   });
 }
+
+export async function sendEmailVerificationEmail(to: string, verifyUrl: string): Promise<void> {
+  if (!resend) {
+    console.log(`[email] RESEND_API_KEY not set; email verification link for ${to}: ${verifyUrl}`);
+    return;
+  }
+
+  await resend.emails.send({
+    from: `ポケふたコレクト <${RESEND_FROM_EMAIL}>`,
+    to,
+    subject: 'メールアドレスの確認 - ポケふたコレクト',
+    html: `
+      <p>ご登録ありがとうございます。</p>
+      <p>以下のリンクから24時間以内にメールアドレスを確認してください。</p>
+      <p><a href="${verifyUrl}">${verifyUrl}</a></p>
+      <p>確認しなくてもアプリは引き続きお使いいただけます。このメールに心当たりがない場合は無視してください。</p>
+    `,
+  });
+}

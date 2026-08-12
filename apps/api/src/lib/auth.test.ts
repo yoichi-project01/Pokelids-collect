@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  generateEmailVerificationToken,
   generatePasswordResetToken,
+  hashEmailVerificationToken,
   hashPasswordResetToken,
   signPhotoAccessToken,
   verifyPhotoAccessToken,
@@ -96,5 +98,47 @@ describe('generatePasswordResetToken / hashPasswordResetToken', () => {
 
   it('produces different hashes for different tokens', () => {
     expect(hashPasswordResetToken('token-a')).not.toBe(hashPasswordResetToken('token-b'));
+  });
+});
+
+// generateEmailVerificationToken/hashEmailVerificationToken (5-3) — same
+// scope note as generatePasswordResetToken above applies here too: the
+// expiry/single-use/cross-user checks that actually matter for security
+// live in the `/api/auth/verify-email/*` route handlers' Prisma queries
+// (findFirst filtering on usedAt/expiresAt, the emailVerifiedAt-already-set
+// check), which this repo has no DB-backed integration test setup for. That
+// behavior — an expired token, a reused (usedAt-set) token, and confirming
+// with a token whose account is already verified — was instead verified
+// manually against the running API, matching how password-reset's own
+// route-level checks were verified (see webapp/CLAUDE.md).
+describe('generateEmailVerificationToken / hashEmailVerificationToken', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('generates a token that expires about 24 hours from now', () => {
+    const { expiresAt } = generateEmailVerificationToken();
+    expect(expiresAt.getTime() - Date.now()).toBe(24 * 60 * 60 * 1000);
+  });
+
+  it('hashes the same token deterministically', () => {
+    const { token, hash } = generateEmailVerificationToken();
+    expect(hashEmailVerificationToken(token)).toBe(hash);
+  });
+
+  it('generates unpredictable, non-colliding tokens', () => {
+    const a = generateEmailVerificationToken();
+    const b = generateEmailVerificationToken();
+    expect(a.token).not.toBe(b.token);
+    expect(a.hash).not.toBe(b.hash);
+  });
+
+  it('produces different hashes for different tokens', () => {
+    expect(hashEmailVerificationToken('token-a')).not.toBe(hashEmailVerificationToken('token-b'));
   });
 });

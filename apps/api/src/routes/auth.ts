@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import { z } from 'zod';
-import { sendPasswordResetEmail } from '../lib/email';
+import { sendPasswordResetEmail, sendEmailVerificationEmail } from '../lib/email';
 import { removeFileBestEffort } from '../lib/fileCleanup';
 import { prisma } from '../lib/prisma';
 import {
@@ -12,6 +12,8 @@ import {
   hashRefreshToken,
   generatePasswordResetToken,
   hashPasswordResetToken,
+  generateEmailVerificationToken,
+  hashEmailVerificationToken,
 } from '../lib/auth';
 import { requireAuth, type AuthedRequest } from '../middleware/auth';
 
@@ -44,6 +46,22 @@ const passwordResetRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// Shared by register (fire-and-forget, see call site below) and
+// POST /verify-email/request (awaited, since sending IS the point of that
+// request) — mirrors sendPasswordResetEmail's own call sites in only
+// catching the *send*, not the token creation: a DB failure here is a real
+// problem worth surfacing as a 500 from /verify-email/request, same as
+// password-reset/request's own prisma.passwordResetToken.create is
+// unguarded.
+async function issueAndSendVerificationEmail(user: { id: string; email: string }): Promise<void> {
+  const { token, hash, expiresAt } = generateEmailVerificationToken();
+  await prisma.emailVerificationToken.create({ data: { userId: user.id, tokenHash: hash, expiresAt } });
+  const verifyUrl = `${SITE_URL}/verify-email?token=${token}`;
+  await sendEmailVerificationEmail(user.email, verifyUrl).catch((err) => {
+    console.error('Failed to send email verification email', err);
+  });
+}
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -80,10 +98,27 @@ authRouter.post('/register', credentialRateLimit, async (req, res) => {
     },
   });
 
+  // Not awaited: sending the verification email is supplementary to
+  // registration succeeding, not part of its contract — someone recording
+  // their first find on a trip shouldn't wait on an email provider round
+  // trip before the app is usable (see this task's own design note on why
+  // being unverified never blocks anything). Errors are swallowed here too
+  // (on top of issueAndSendVerificationEmail's own internal send-failure
+  // catch) so even a DB hiccup while creating the token can't surface as a
+  // failed registration.
+  void issueAndSendVerificationEmail(user).catch((err) => {
+    console.error('Failed to issue email verification token on register', err);
+  });
+
   res.status(201).json({
     accessToken,
     refreshToken,
-    user: { id: user.id, email: user.email, displayName: user.displayName },
+    user: {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      emailVerifiedAt: user.emailVerifiedAt,
+    },
   });
 });
 
@@ -119,7 +154,12 @@ authRouter.post('/login', credentialRateLimit, async (req, res) => {
   res.json({
     accessToken,
     refreshToken,
-    user: { id: user.id, email: user.email, displayName: user.displayName },
+    user: {
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      emailVerifiedAt: user.emailVerifiedAt,
+    },
   });
 });
 
@@ -241,10 +281,82 @@ authRouter.post('/password-reset/confirm', async (req, res) => {
   res.status(204).end();
 });
 
+const verifyEmailRequestSchema = z.object({
+  email: z.string().email(),
+});
+
+// credentialRateLimit (not a dedicated tighter limiter, unlike
+// passwordResetRateLimit above) — confirming an address is lower-stakes
+// than a password-reset flood, and this endpoint already shares its abuse
+// surface (an email address, resend-able) with /register, so sharing that
+// same budget is enough to blunt a mail-bombing attempt without another
+// limiter instance to keep in sync.
+authRouter.post('/verify-email/request', credentialRateLimit, async (req, res) => {
+  const parsed = verifyEmailRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
+  // Skips issuing a token at all once already verified — not required for
+  // the enumeration defense below (the response is identical either way),
+  // just avoids minting a pointless token and sending a mail nobody needs.
+  if (user && !user.emailVerifiedAt) {
+    await issueAndSendVerificationEmail(user);
+  }
+
+  // Same shape regardless of whether the account exists (or is already
+  // verified) — same enumeration defense as password-reset/request above.
+  res.json({ ok: true });
+});
+
+const verifyEmailConfirmSchema = z.object({
+  token: z.string().min(1),
+});
+
+authRouter.post('/verify-email/confirm', async (req, res) => {
+  const parsed = verifyEmailConfirmSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  const hash = hashEmailVerificationToken(parsed.data.token);
+  const stored = await prisma.emailVerificationToken.findFirst({
+    where: { tokenHash: hash, usedAt: null, expiresAt: { gt: new Date() } },
+    include: { user: true },
+  });
+  if (!stored) {
+    return res.status(400).json({ error: 'Invalid or expired verification token' });
+  }
+
+  // Guards against a stale-but-still-valid token from an earlier
+  // /verify-email/request re-confirming an already-verified user (e.g. they
+  // requested twice, clicked the older email second) — usedAt alone only
+  // stops *this* token being replayed, not a *different*, still-live token
+  // for the same account. email is unique on User, so this can only ever be
+  // "this same account, already verified", never a genuine collision with
+  // someone else's account.
+  if (stored.user.emailVerifiedAt) {
+    return res.status(400).json({ error: 'Email already verified' });
+  }
+
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: stored.userId }, data: { emailVerifiedAt: new Date() } }),
+    prisma.emailVerificationToken.update({ where: { id: stored.id }, data: { usedAt: new Date() } }),
+  ]);
+
+  res.status(204).end();
+});
+
 authRouter.get('/me', requireAuth, async (req: AuthedRequest, res) => {
   const user = await prisma.user.findUnique({ where: { id: req.userId } });
   if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ id: user.id, email: user.email, displayName: user.displayName });
+  res.json({
+    id: user.id,
+    email: user.email,
+    displayName: user.displayName,
+    emailVerifiedAt: user.emailVerifiedAt,
+  });
 });
 
 authRouter.delete('/me', requireAuth, async (req: AuthedRequest, res) => {

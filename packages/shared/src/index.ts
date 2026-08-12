@@ -413,6 +413,11 @@ export interface UserDto {
   id: string;
   email: string;
   displayName: string;
+  // null until the 5-3 email-verification link is clicked (always null for
+  // accounts created before 5-3 too — never backfilled). Never gates login
+  // or any in-app feature; see apps/mobile's settings screen for the only
+  // place this is currently read.
+  emailVerifiedAt: string | null;
 }
 
 // Guards against invalid GPS coordinates reaching haversineDistanceMeters,

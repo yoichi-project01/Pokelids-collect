@@ -190,6 +190,20 @@ export async function confirmPasswordReset(token: string, newPassword: string): 
   });
 }
 
+export async function requestEmailVerification(email: string): Promise<void> {
+  await request<{ ok: true }>('/api/auth/verify-email/request', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function confirmEmailVerification(token: string): Promise<void> {
+  await request<void>('/api/auth/verify-email/confirm', {
+    method: 'POST',
+    body: JSON.stringify({ token }),
+  });
+}
+
 export async function deleteAccount(): Promise<void> {
   await request<void>('/api/auth/me', { method: 'DELETE' });
 }

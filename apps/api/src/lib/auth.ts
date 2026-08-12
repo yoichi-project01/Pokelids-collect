@@ -10,6 +10,12 @@ const REFRESH_TTL_DAYS = Number(process.env.JWT_REFRESH_TTL_DAYS ?? '30');
 // a narrow window; long enough that a user reading their inbox doesn't race
 // against it.
 const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000;
+// Longer than the reset TTL on purpose (5-3): confirming an address is a
+// much lower-stakes action than resetting a password (nothing sensitive is
+// exposed or changed by clicking the link late), so there's no reason to
+// force the same tight window — someone who registers on a trip and only
+// checks email that evening should still find the link valid.
+const EMAIL_VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
 // The token is embedded once into a page's collections response and reused
 // by <Image> for as long as that page stays open, so it needs to outlast a
 // normal viewing session, not just the initial page load. It's still scoped
@@ -51,6 +57,25 @@ export function generatePasswordResetToken(): { token: string; hash: string; exp
 }
 
 export function hashPasswordResetToken(token: string): string {
+  return crypto.createHmac('sha256', REFRESH_SECRET).update(token).digest('hex');
+}
+
+// Same shape again, this time for 5-3's email verification — a distinct
+// pair of functions (not a shared `generateOpaqueToken(ttl)` helper) so each
+// token kind keeps its own named TTL constant and hash function, matching
+// generatePasswordResetToken/hashPasswordResetToken's own precedent. Hashed
+// with the same HMAC key (REFRESH_SECRET) as the other token kinds here —
+// what makes these token types non-interchangeable is that each is only
+// ever looked up against its own table (EmailVerificationToken vs
+// PasswordResetToken vs RefreshToken), not a different secret per kind.
+export function generateEmailVerificationToken(): { token: string; hash: string; expiresAt: Date } {
+  const token = crypto.randomBytes(32).toString('hex');
+  const hash = hashEmailVerificationToken(token);
+  const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_TTL_MS);
+  return { token, hash, expiresAt };
+}
+
+export function hashEmailVerificationToken(token: string): string {
   return crypto.createHmac('sha256', REFRESH_SECRET).update(token).digest('hex');
 }
 

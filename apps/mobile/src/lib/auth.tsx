@@ -34,6 +34,11 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName: string) => Promise<void>;
   logout: () => Promise<void>;
+  // Re-fetches /api/auth/me and updates the context's `user` in place —
+  // used by verify-email.tsx after a successful confirm, so a logged-in
+  // tab's settings screen stops showing the "未確認" notice immediately
+  // instead of only after the next full auth restore (app relaunch/reload).
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -170,6 +175,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSessionExpired(false);
   }
 
+  async function refreshUser() {
+    // A no-op while logged out (nothing to refresh) rather than throwing —
+    // verify-email.tsx calls this unconditionally after a successful
+    // confirm, whether or not the confirming tab happens to be logged in.
+    if (!user) return;
+    try {
+      setUser(await fetchMe());
+    } catch {
+      // Same reasoning as the initial restore effect above: a transient
+      // failure here shouldn't be surfaced as anything more than "the
+      // notice didn't update yet" — the next natural fetchMe() (app
+      // relaunch, token refresh) will pick up the real state.
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -180,6 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        refreshUser,
       }}
     >
       {children}

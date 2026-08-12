@@ -26,18 +26,26 @@ model Prefecture {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  displayName  String   @map("display_name")
-  isAdmin      Boolean  @default(false) @map("is_admin")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String    @map("password_hash")
+  displayName     String    @map("display_name")
+  isAdmin         Boolean   @default(false) @map("is_admin")
+  // null for every user created before 5-3, and for anyone who hasn't
+  // clicked their verification link yet — never backfilled retroactively
+  // (there's no way to know a pre-5-3 signup's address was really theirs).
+  // See auth routes: this only gates the future Google SSO auto-link, never
+  // login or the app itself (ROADMAP.md's "偶然の発見" flow must not be
+  // interrupted by an email round trip).
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  refreshTokens       RefreshToken[]
-  collections         Collection[]
-  photos              Photo[]
-  passwordResetTokens PasswordResetToken[]
+  refreshTokens           RefreshToken[]
+  collections             Collection[]
+  photos                  Photo[]
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
 
   @@map("users")
 }
@@ -69,6 +77,27 @@ model PasswordResetToken {
 
   @@index([userId])
   @@map("password_reset_tokens")
+}
+
+// Same design as PasswordResetToken above (5-2): random token, only its HMAC
+// stored, single-use via usedAt, expiry checked at confirm time. Kept as a
+// separate model rather than reusing PasswordResetToken with a `purpose`
+// column — a password-reset token and an email-verification token must never
+// be interchangeable (a leaked verification-request response must not be
+// usable to reset a password), and a shared table makes that a runtime
+// invariant to maintain instead of a schema-level impossibility.
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("email_verification_tokens")
 }
 
 model PokeLid {

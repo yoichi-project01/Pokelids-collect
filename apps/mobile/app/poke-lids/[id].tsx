@@ -43,10 +43,12 @@ import {
 } from '../../src/lib/guestPhotoStorage';
 import {
   getGuestCollection,
+  getGuestCollections,
   removeGuestCollected,
   setGuestCollected,
   type GuestCollection,
 } from '../../src/lib/guestStorage';
+import { maybeShowInstallPrompt } from '../../src/lib/installPrompt';
 import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
 import { showToast } from '../../src/lib/toast';
@@ -156,12 +158,22 @@ export default function PokeLidDetailScreen() {
     };
   }, [id, authLoading, user, reloadKey]);
 
+  // Checked after every guest record write (both here and
+  // onConfirmGuestPhoto below), not on a timer — see maybeShowInstallPrompt
+  // for why this needs to be tied to the moment a guest could plausibly
+  // have just crossed the 3-record threshold (7-10).
+  async function checkInstallPromptAfterGuestRecord() {
+    const count = (await getGuestCollections()).length;
+    void maybeShowInstallPrompt(count);
+  }
+
   async function onMarkGuestVisited() {
     if (!lid) return;
     setSavingGuest(true);
     try {
       await setGuestCollected(id, lid.prefectureId, notes || null);
       setGuestCollectionState(await getGuestCollection(id));
+      void checkInstallPromptAfterGuestRecord();
     } finally {
       setSavingGuest(false);
     }
@@ -302,6 +314,7 @@ export default function PokeLidDetailScreen() {
       setGuestCollectionState(await getGuestCollection(id));
       setGuestPhotos((prev) => [...prev, saved]);
       showToast('この端末に保存しました', 'ログインすると、他の端末でも見られます', 'success');
+      void checkInstallPromptAfterGuestRecord();
     } catch (err) {
       // Limit rejections (5枚/記録・30枚合計・空き容量不足) carry a specific
       // Japanese message from GuestPhotoLimitError; anything else (resize

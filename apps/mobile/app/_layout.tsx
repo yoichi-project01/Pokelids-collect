@@ -2,6 +2,7 @@ import { Stack, type NativeStackHeaderProps } from 'expo-router';
 import Head from 'expo-router/head';
 import { Platform } from 'react-native';
 import { AppHeader } from '../src/components/AppHeader';
+import { InstallPrompt } from '../src/components/InstallPrompt';
 import { Onboarding } from '../src/components/Onboarding';
 import { Toast } from '../src/components/Toast';
 import { AuthProvider } from '../src/lib/auth';
@@ -58,6 +59,7 @@ export default function RootLayout() {
       </Stack>
       <Toast />
       <Onboarding />
+      <InstallPrompt />
     </AuthProvider>
   );
 }

@@ -17,6 +17,7 @@ import { formatDateJST } from '../../src/lib/date';
 import { getAllGuestPhotos, type GuestPhotoWithUri } from '../../src/lib/guestPhotoStorage';
 import { getGuestCollections, type GuestCollection } from '../../src/lib/guestStorage';
 import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
+import { isStoragePersisted } from '../../src/lib/storagePersistence';
 import {
   GRID_CELL_PADDING,
   gridKeyExtractor,
@@ -52,6 +53,11 @@ export default function CollectionScreen() {
   const [guestCollections, setGuestCollections] = useState<GuestCollection[]>([]);
   const [guestPhotos, setGuestPhotos] = useState<GuestPhotoWithUri[]>([]);
   const [location, setLocation] = useState<Coordinates | null>(null);
+  // Starts true (the calmer wording) rather than false, so the banner
+  // doesn't flash the more cautious copy for the instant before this
+  // resolves — a wrong-for-a-moment "persisted" reads as harmless, a
+  // wrong-for-a-moment "not persisted" doesn't (7-10).
+  const [storagePersisted, setStoragePersisted] = useState(true);
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const columns = useResponsiveColumns();
@@ -59,6 +65,7 @@ export default function CollectionScreen() {
 
   useEffect(() => {
     getCurrentLocation().then(setLocation);
+    isStoragePersisted().then(setStoragePersisted);
   }, []);
 
   // Single fetch used by both the focus refetch below and pull-to-refresh,
@@ -229,7 +236,14 @@ export default function CollectionScreen() {
               {guestCollections.length > 0 && (
                 <View style={styles.guestBanner}>
                   <Text style={styles.guestBannerText}>
-                    {guestCollections.length}件の記録がこの端末にあります。ログインすると安全に保管されます
+                    {storagePersisted
+                      ? `${guestCollections.length}件の記録がこの端末にあります。ログインすると安全に保管されます`
+                      : // Not persisted (denied or unsupported, see
+                        // storagePersistence.ts) — names concrete reasons a
+                        // login helps (device/browser changes), framed as
+                        // what login *preserves*, not what staying a guest
+                        // *risks*. Never says "消えます" (7-10).
+                        `${guestCollections.length}件の記録がこの端末にあります。ログインすると、機種変更やブラウザの変更があっても記録を引き継げます`}
                   </Text>
                 </View>
               )}

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('./photoExif', () => ({
   extractPhotoExif: vi.fn(async (_photo: { uri: string }) => ({
@@ -13,6 +13,7 @@ vi.mock('./imageResize', () => ({
 }));
 
 vi.mock('./guestPhotoStorage', () => ({
+  getAllGuestPhotos: vi.fn(async () => []),
   saveGuestPhoto: vi.fn(
     async (
       pokeLidId: string,
@@ -30,13 +31,26 @@ vi.mock('./guestPhotoStorage', () => ({
   ),
 }));
 
+vi.mock('./storagePersistence', () => ({
+  ensurePersistentStorage: vi.fn(async () => {}),
+}));
+
 import { extractPhotoExif } from './photoExif';
 import { resizePhotoForStorage } from './imageResize';
-import { saveGuestPhoto } from './guestPhotoStorage';
+import { getAllGuestPhotos, saveGuestPhoto } from './guestPhotoStorage';
+import { ensurePersistentStorage } from './storagePersistence';
 import { captureGuestPhoto } from './guestPhotoCapture';
 
 const ORIGINAL_PHOTO = { uri: 'original-uri' };
 const LID_COORDS = { latitude: 35.0001, longitude: 139.0001 };
+
+beforeEach(() => {
+  // Clears call history (not implementations — the vi.mock factories above
+  // still provide the default behavior) so each test's assertions about
+  // "was this called" aren't polluted by earlier tests in this file.
+  vi.clearAllMocks();
+  vi.mocked(getAllGuestPhotos).mockResolvedValue([]);
+});
 
 describe('captureGuestPhoto', () => {
   it('reads EXIF strictly before resizing', async () => {
@@ -89,5 +103,33 @@ describe('captureGuestPhoto', () => {
     });
     await captureGuestPhoto('lid-1', ORIGINAL_PHOTO, LID_COORDS);
     expect(saveGuestPhoto).toHaveBeenCalledWith('lid-1', { uri: 'resized-uri' }, null, null);
+  });
+
+  it("requests persistent storage when this is the guest's first photo ever (7-10)", async () => {
+    vi.mocked(getAllGuestPhotos).mockResolvedValueOnce([]);
+    await captureGuestPhoto('lid-1', ORIGINAL_PHOTO, LID_COORDS);
+    expect(ensurePersistentStorage).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not request persistent storage again for a subsequent photo', async () => {
+    vi.mocked(getAllGuestPhotos).mockResolvedValueOnce([
+      { id: 'existing', pokeLidId: 'lid-0', distanceMeters: null, capturedAt: null, savedAt: '', uri: 'x' },
+    ]);
+    await captureGuestPhoto('lid-1', ORIGINAL_PHOTO, LID_COORDS);
+    expect(ensurePersistentStorage).not.toHaveBeenCalled();
+  });
+
+  it('checks the photo count from BEFORE this save, not after (would always be >= 1 otherwise)', async () => {
+    // getAllGuestPhotos is mocked to return [] regardless of when it's
+    // called in this test, so if captureGuestPhoto checked the count
+    // *after* saveGuestPhoto instead of before, this assertion wouldn't
+    // distinguish the bug from correct behavior — this test exists
+    // primarily as documentation of the ordering requirement; the previous
+    // two tests are what actually verify it end-to-end via the resolved
+    // value.
+    await captureGuestPhoto('lid-1', ORIGINAL_PHOTO, LID_COORDS);
+    const getAllOrder = vi.mocked(getAllGuestPhotos).mock.invocationCallOrder[0];
+    const saveOrder = vi.mocked(saveGuestPhoto).mock.invocationCallOrder[0];
+    expect(getAllOrder).toBeLessThan(saveOrder);
   });
 });

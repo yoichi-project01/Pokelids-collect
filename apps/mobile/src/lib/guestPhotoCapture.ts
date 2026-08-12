@@ -1,7 +1,8 @@
 import { haversineDistanceMeters } from '@pokelids/shared';
 import { extractPhotoExif } from './photoExif';
-import { saveGuestPhoto, type GuestPhotoWithUri } from './guestPhotoStorage';
+import { getAllGuestPhotos, saveGuestPhoto, type GuestPhotoWithUri } from './guestPhotoStorage';
 import { resizePhotoForStorage } from './imageResize';
+import { ensurePersistentStorage } from './storagePersistence';
 
 export interface PickedPhoto {
   uri: string;
@@ -34,5 +35,17 @@ export async function captureGuestPhoto(
       ? haversineDistanceMeters(exif.latitude, exif.longitude, lidCoords.latitude, lidCoords.longitude)
       : null;
 
-  return saveGuestPhoto(pokeLidId, resized, distanceMeters, exif.capturedAt);
+  // Checked before saving, not after — "is this the guest's first photo
+  // ever" has to mean "before this one," or it would never be true (this
+  // save always makes the post-save count >= 1).
+  const isFirstPhotoEver = (await getAllGuestPhotos()).length === 0;
+  const saved = await saveGuestPhoto(pokeLidId, resized, distanceMeters, exif.capturedAt);
+
+  // 7-10: request storage persistence right when there's first something
+  // worth protecting — not at app launch, where there'd be nothing to lose
+  // yet and the request would just be noise. Fire-and-forget: best-effort,
+  // must not delay returning the saved photo to the caller.
+  if (isFirstPhotoEver) void ensurePersistentStorage();
+
+  return saved;
 }

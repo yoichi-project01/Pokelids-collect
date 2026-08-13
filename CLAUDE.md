@@ -4,6 +4,7 @@ Expo Router (web/native共用) + Express + Prisma + PostgreSQL のモノレポ�
 Web版は同じコードから `output: "static"` で生成し、`apps/api/public` から配信する。
 
 残タスクの詳細は `TASKS.md`、優先順位と設計方針は `ROADMAP.md` にある。
+広告導入・収益化の設計方針は `MONETIZATION.md` にある（未実装、計画のみ）。
 **必要になった時点で読むこと**（毎回読み込む必要はない）。
 何をどの順で作るかで迷ったら `ROADMAP.md` の判断を優先する。
 

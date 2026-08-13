@@ -5,6 +5,15 @@ const SITE_URL = 'https://pokelids-collect.jp';
 const DESCRIPTION =
   'ポケふた(ご当地ポケモンマンホール)を実際に訪問して写真を撮り、収集記録として残すアプリ。';
 
+// Baked in at build time (see the Dockerfile's mobile-build stage) —
+// unset in a deployment that hasn't set up AdSense, and clearing it +
+// rebuilding is the kill switch (see .env.example's own comment on this
+// var). This is script-tag-only, for AdSense site review (MONETIZATION.md):
+// no ad slots exist yet (that's Phase 1), and Auto ads stays off in the
+// AdSense dashboard so ad placement decisions never bypass this app's own
+// "never during the critical flow" rule (MONETIZATION.md §1).
+const ADSENSE_CLIENT_ID = process.env.EXPO_PUBLIC_ADSENSE_CLIENT_ID;
+
 // This file only ever runs in Node during static rendering (no DOM access),
 // and controls the document shell shared by every route. Per-page <title>
 // AND <meta name="description"> are set separately via `expo-router/head` —
@@ -79,6 +88,22 @@ export default function Root({ children }: PropsWithChildren) {
           registration lives in its own file instead.
         */}
         <script src="/sw-register.js" defer />
+
+        {/*
+          AdSense review requires the script to be present sitewide, so
+          this lives in the document shell (every page) rather than a
+          specific screen. `async` (not `defer`) is Google's own documented
+          loading attribute for this tag. Omitted entirely — not rendered
+          with an empty client param — when ADSENSE_CLIENT_ID is unset; see
+          this file's top-of-file comment on that constant.
+        */}
+        {ADSENSE_CLIENT_ID && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+            crossOrigin="anonymous"
+          />
+        )}
       </head>
       <body>{children}</body>
     </html>

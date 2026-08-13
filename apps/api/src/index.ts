@@ -39,13 +39,76 @@ app.use(
         // photo, and PhotoPreviewModal's <Image source={{ uri }} /> renders
         // it directly (no upload/network round-trip involved) — without
         // this the preview silently fails to load.
-        'img-src': ["'self'", 'data:', 'blob:', 'https://*.tile.openstreetmap.org'],
+        // https://pagead2.googlesyndication.com is AdSense's script host
+        // (MONETIZATION.md) — script tag only right now (no ad slots, see
+        // apps/mobile's +html.tsx), but the loader script itself already
+        // needs img-src to fetch a 1x1 tracking pixel / config resources on
+        // load, before any ad is ever requested. ep1.adtrafficquality.google
+        // is the same invalid-traffic-detection "sodar" system as
+        // connect-src below, here fetching a pixel via <img> rather than
+        // fetch(). Both confirmed via the live browser console
+        // (2026-08-13), not guessed from documentation.
+        'img-src': [
+          "'self'",
+          'data:',
+          'blob:',
+          'https://*.tile.openstreetmap.org',
+          'https://pagead2.googlesyndication.com',
+          'https://ep1.adtrafficquality.google',
+        ],
         // Expo Router's static export injects a tiny fixed inline bootstrap
         // script (`globalThis.__EXPO_ROUTER_HYDRATE__=true;`) on every page
         // to signal client-side hydration; this is its exact hash, not
         // something this app's code writes. If it ever fails after an Expo
         // upgrade, check the browser console for the new sha256- value.
-        'script-src': ["'self'", "'sha256-67fhrP0+BkBqmgGGXTtgiVO/9EQs3QruYNU/7fnRkI8='"],
+        // ep2.adtrafficquality.google serves sodar2.js, part of Google's
+        // invalid-traffic-detection system AdSense's loader pulls in even
+        // with zero ad slots present — confirmed via the live browser
+        // console (2026-08-13), same as everything else on this list; see
+        // connect-src's comment below for why this is a *different*
+        // numbered subdomain from the one connect-src needs.
+        'script-src': [
+          "'self'",
+          "'sha256-67fhrP0+BkBqmgGGXTtgiVO/9EQs3QruYNU/7fnRkI8='",
+          'https://pagead2.googlesyndication.com',
+          'https://ep2.adtrafficquality.google',
+        ],
+        // No override existed before this (helmet's default is
+        // connect-src 'self', which the app never needed to widen until
+        // now — every API call is same-origin). AdSense's loader script
+        // reports back to its own domain even with no ad slots present,
+        // and separately polls ep1.adtrafficquality.google (Google's
+        // invalid-traffic-detection "sodar" getconfig endpoint) — both
+        // confirmed by watching the actual browser console against the
+        // live site (2026-08-13), not guessed from documentation. Note
+        // ep1 here vs. ep2 in script-src above: Google's adtrafficquality
+        // system spreads its own script/connect traffic across several
+        // numbered subdomains, apparently not the same one for both —
+        // a wildcard *.adtrafficquality.google was deliberately not used
+        // regardless, per this file's "no broad wildcards" rule; if a
+        // *third* numbered subdomain shows up in the console later, add
+        // that specific one too rather than switching to a wildcard.
+        'connect-src': [
+          "'self'",
+          'https://pagead2.googlesyndication.com',
+          'https://ep1.adtrafficquality.google',
+        ],
+        // No override existed before this (helmet's default-src 'self' was
+        // covering same-origin framing implicitly, hence 'self' here too).
+        // AdSense's loader opens several hidden bootstrap/verification
+        // iframes even with zero ad slots present and Auto ads off —
+        // googleads.g.doubleclick.net (ad request correlator),
+        // ep2.adtrafficquality.google (the same invalid-traffic-detection
+        // system as script-src/connect-src above, here via an iframe
+        // rather than a script/fetch), and www.google.com (a Google-hosted
+        // verification frame). All three confirmed via the live browser
+        // console (2026-08-13), not assumed from docs.
+        'frame-src': [
+          "'self'",
+          'https://googleads.g.doubleclick.net',
+          'https://ep2.adtrafficquality.google',
+          'https://www.google.com',
+        ],
       },
     },
   }),

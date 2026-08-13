@@ -11,6 +11,7 @@ services:
       # own comment on this ARG for why.
       args:
         GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+        ADSENSE_CLIENT_ID: ${ADSENSE_CLIENT_ID}
     container_name: pokelids_api
     restart: unless-stopped
     env_file: .env

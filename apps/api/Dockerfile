@@ -24,6 +24,12 @@ WORKDIR /repo/apps/mobile
 # corresponding GOOGLE_CLIENT_SECRET would be.
 ARG GOOGLE_CLIENT_ID
 ENV EXPO_PUBLIC_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+# Same build-time-bake reasoning as GOOGLE_CLIENT_ID above — an AdSense
+# publisher ID is meant to be public (it's right there in the <script src>
+# URL any visitor's browser fetches), so baking it into the served bundle
+# isn't a secret leak.
+ARG ADSENSE_CLIENT_ID
+ENV EXPO_PUBLIC_ADSENSE_CLIENT_ID=$ADSENSE_CLIENT_ID
 RUN npx expo export -p web
 
 FROM deps AS api-build

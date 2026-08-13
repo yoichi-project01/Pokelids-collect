@@ -15,9 +15,6 @@ export default function PrivacyPolicyScreen() {
         <title>プライバシーポリシー - ポケふたコレクト</title>
       </Head>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.draftNotice}>
-          ※ このページは草案です。公開前に内容をご確認・編集してください。
-        </Text>
         <Text style={styles.title}>プライバシーポリシー</Text>
         <Text style={styles.updated}>最終更新日: {LAST_UPDATED}</Text>
 
@@ -118,7 +115,6 @@ function ExternalLink({ href, label }: { href: string; label: string }) {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, gap: spacing.lg },
-  draftNotice: { ...typography.footnote, color: '#b45309', textAlign: 'center' },
   title: { ...typography.largeTitle },
   updated: { ...typography.footnote },
   section: { gap: spacing.xs },

@@ -15,9 +15,6 @@ export default function TermsScreen() {
         <title>利用規約 - ポケふたコレクト</title>
       </Head>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.draftNotice}>
-          ※ このページは草案です。公開前に内容をご確認・編集してください。
-        </Text>
         <Text style={styles.title}>利用規約</Text>
         <Text style={styles.updated}>最終更新日: {LAST_UPDATED}</Text>
 
@@ -75,7 +72,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 const styles = StyleSheet.create({
   container: { padding: spacing.lg, gap: spacing.lg },
-  draftNotice: { ...typography.footnote, color: '#b45309', textAlign: 'center' },
   title: { ...typography.largeTitle },
   updated: { ...typography.footnote },
   section: { gap: spacing.xs },

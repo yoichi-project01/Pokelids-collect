@@ -1,9 +1,9 @@
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
-import { deleteAccount, requestEmailVerification } from '../../src/lib/api';
+import { deleteAccount, requestEmailVerification, requestExport } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { confirmAsync } from '../../src/lib/confirm';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL, MEDAL_SHORT_LABEL } from '../../src/lib/medal';
@@ -15,6 +15,22 @@ export default function SettingsScreen() {
   const router = useRouter();
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [resendingVerification, setResendingVerification] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  async function onExportData() {
+    setExporting(true);
+    try {
+      const url = await requestExport();
+      // Opens the platform's own download/share UI (browser download on
+      // web, the OS "save/share" sheet on native) rather than fetching the
+      // bytes into this app — see requestExport's doc comment for why.
+      await Linking.openURL(url);
+    } catch {
+      showToast('エラー', 'データのダウンロードに失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setExporting(false);
+    }
+  }
 
   async function onResendVerification() {
     if (!user) return;
@@ -35,7 +51,7 @@ export default function SettingsScreen() {
   async function onDeleteAccount() {
     const confirmed = await confirmAsync(
       'アカウントを削除',
-      'アカウントと収集記録・写真をすべて削除します。この操作は取り消せません。よろしいですか？',
+      'アカウントと収集記録・写真をすべて削除します。この操作は取り消せません。先に「データをダウンロードする」で記録・写真を保存しておくことをおすすめします。よろしいですか？',
       '削除する',
     );
     if (!confirmed) return;
@@ -112,6 +128,18 @@ export default function SettingsScreen() {
       </View>
 
       {user && (
+        <View style={styles.card}>
+          <Text style={styles.exportCaption}>収集記録・写真はいつでも ZIP でダウンロードできます。</Text>
+          <Button
+            title={exporting ? '準備中…' : 'データをダウンロードする'}
+            onPress={onExportData}
+            loading={exporting}
+            variant="secondary"
+          />
+        </View>
+      )}
+
+      {user && (
         <Button
           title={deletingAccount ? '削除中…' : 'アカウントを削除する'}
           onPress={onDeleteAccount}
@@ -136,6 +164,7 @@ const styles = StyleSheet.create({
   email: { ...typography.bodyMedium },
   emailSub: { ...typography.caption, marginBottom: spacing.xs },
   guestText: { ...typography.body, marginBottom: spacing.xs },
+  exportCaption: { ...typography.body, marginBottom: spacing.xs },
   verifyNoticeText: { ...typography.body, color: colors.attention, marginBottom: spacing.xs },
   sectionTitle: { ...typography.bodyMedium, marginBottom: spacing.xs },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },

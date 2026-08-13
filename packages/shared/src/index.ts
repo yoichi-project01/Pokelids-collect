@@ -649,3 +649,83 @@ export function decideGoogleAccountLink(input: {
   if (input.googleEmailVerified && input.existingUser.emailVerifiedAt !== null) return 'link';
   return 'reject';
 }
+
+// 7-3. One row per collection, not per photo — a collection can hold up to
+// MAX_PHOTOS_PER_COLLECTION photos, but the export's medal/distance columns
+// need a single representative value. `medal`/`distanceMeters` here are
+// always the *primary* photo's (apps/api's routes/export.ts picks that
+// before building this record) — the same photo the app already treats as
+// "the" photo for a collection everywhere else (PhotoDto.isPrimary), so this
+// doesn't invent a new notion of which photo represents the visit.
+export interface ExportCollectionRecord {
+  pokeLidId: string;
+  pokeLidName: string;
+  prefectureNameJa: string;
+  municipality: string;
+  visitedAt: string; // ISO 8601 instant
+  notes: string | null;
+  medal: PhotoMedal | null; // null only when the record has no photo at all
+  distanceMeters: number | null; // null alongside medal
+  photoCount: number;
+}
+
+// Visits happen in Japan, so the CSV's date column uses the JST calendar
+// date, not the UTC date a naive `.toISOString().slice(0, 10)` would give —
+// a visit recorded at 20:00 JST is still "today" locally but can already be
+// "tomorrow" in UTC for nine hours of the evening. Same reasoning as
+// apps/mobile's date.ts (formatDateJST), just producing a sortable
+// YYYY-MM-DD instead of a Japanese-language string — a CSV meant to be
+// opened in a spreadsheet benefits far more from a machine-sortable date
+// than from `2026年1月1日`. `en-CA` is a deliberate locale choice: it's the
+// one built-in Intl locale whose default date format is already
+// `YYYY-MM-DD`, so no manual field-reordering is needed.
+function toJstIsoDate(isoInstant: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo' }).format(new Date(isoInstant));
+}
+
+const EXPORT_MEDAL_LABEL: Record<PhotoMedal, string> = {
+  GOLD: '金（位置情報一致）',
+  SILVER: '銀（位置情報なし）',
+  NONE: '証明なし（位置情報不一致）',
+};
+
+// RFC 4180 quoting: only wraps a field in quotes when it actually contains a
+// comma/quote/newline, so the common case (short IDs, plain names) stays
+// readable in a raw text preview instead of every field being quoted.
+function csvField(value: string): string {
+  if (/[",\n\r]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+const EXPORT_CSV_HEADER = [
+  'ポケふた名',
+  '都道府県',
+  '市区町村',
+  '訪問日',
+  'メダル',
+  'メモ',
+  '距離(m)',
+  '写真枚数',
+];
+
+export function buildExportCsv(records: readonly ExportCollectionRecord[]): string {
+  const rows = records.map((r) =>
+    [
+      r.pokeLidName,
+      r.prefectureNameJa,
+      r.municipality,
+      toJstIsoDate(r.visitedAt),
+      r.medal ? EXPORT_MEDAL_LABEL[r.medal] : '',
+      r.notes ?? '',
+      r.distanceMeters !== null ? String(Math.round(r.distanceMeters)) : '',
+      String(r.photoCount),
+    ]
+      .map(csvField)
+      .join(','),
+  );
+  // \r\n (not \n): the RFC 4180 line ending, and what Excel expects to avoid
+  // misreading the whole file as one line on Windows.
+  return [EXPORT_CSV_HEADER.join(','), ...rows].join('\r\n');
+}

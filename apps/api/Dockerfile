@@ -41,6 +41,16 @@ COPY --from=deps --chown=node:node /repo/package.json ./
 COPY --from=api-build --chown=node:node /repo/node_modules ./node_modules
 COPY --from=deps --chown=node:node /repo/packages/shared ./packages/shared
 COPY --from=api-build --chown=node:node /repo/apps/api/package.json apps/api/package.json
+# npm workspaces doesn't always hoist a workspace's dependency to the root
+# node_modules — it nests a package under apps/api/node_modules instead
+# whenever hoisting it would conflict with a different version already
+# resolved for another workspace (e.g. archiver@7 needs readable-stream@^4,
+# but apps/mobile's tree already pins readable-stream@3 for something else).
+# `npm dedupe` cannot collapse a genuine version conflict like that, so
+# Node's module resolution has to be able to find the nested copy instead —
+# it walks up from apps/api/dist through apps/api/node_modules before ever
+# reaching the root one, so both directories need to exist in the image.
+COPY --from=api-build --chown=node:node /repo/apps/api/node_modules apps/api/node_modules
 COPY --from=api-build --chown=node:node /repo/apps/api/dist apps/api/dist
 COPY --from=api-build --chown=node:node /repo/apps/api/prisma apps/api/prisma
 COPY --from=mobile-build --chown=node:node /repo/apps/mobile/dist apps/api/public

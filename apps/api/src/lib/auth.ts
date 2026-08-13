@@ -21,6 +21,13 @@ const EMAIL_VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
 // normal viewing session, not just the initial page load. It's still scoped
 // to a single photo ID, so a longer TTL doesn't meaningfully widen exposure.
 const PHOTO_TOKEN_TTL_MS = 45 * 60 * 1000;
+// 7-3. Unlike a photo token (embedded in a page and reused for as long as
+// that page stays open), an export token is meant to be used once, right
+// after POST /api/export mints it — the client immediately navigates to the
+// download URL. Short enough that a link sitting in browser history / a
+// proxy access log stops working quickly; long enough to survive the client
+// actually issuing the follow-up request.
+const EXPORT_TOKEN_TTL_MS = 10 * 60 * 1000;
 
 export interface AccessTokenPayload {
   sub: string;
@@ -101,4 +108,44 @@ export function verifyPhotoAccessToken(photoId: string, token: string): boolean 
   const expectedBuf = Buffer.from(expected);
   const actualBuf = Buffer.from(signature);
   return expectedBuf.length === actualBuf.length && crypto.timingSafeEqual(expectedBuf, actualBuf);
+}
+
+function signExportPayload(userId: string, expiresAt: number): string {
+  return crypto.createHmac('sha256', PHOTO_TOKEN_SECRET).update(`${userId}.${expiresAt}`).digest('hex');
+}
+
+// Same HMAC-signed-short-lived-token shape as signPhotoAccessToken, applied
+// to GET /api/export/download instead of <Image> — that route is opened via
+// direct navigation (Linking.openURL on native, a plain link on web) so it
+// can't carry an Authorization header either. Reuses PHOTO_TOKEN_SECRET
+// rather than a third secret constant, the same way RefreshToken/
+// PasswordResetToken/EmailVerificationToken already share REFRESH_SECRET
+// above — safe because the token *shapes* differ (this one is
+// `userId.expiresAt.signature`, three parts; a photo token is
+// `expiresAt.signature`, two), so one can never be mistaken for the other
+// even under a shared key. Unlike verifyPhotoAccessToken, the userId isn't
+// known ahead of time from a URL path segment — it's the very thing this
+// route needs to learn, so it travels inside the token itself and comes
+// back out of verification rather than being passed in.
+export function signExportAccessToken(userId: string): string {
+  const expiresAt = Date.now() + EXPORT_TOKEN_TTL_MS;
+  return `${userId}.${expiresAt}.${signExportPayload(userId, expiresAt)}`;
+}
+
+// Returns the authorized userId on success, or null — never throws, so
+// callers can treat any failure (malformed, expired, tampered) uniformly as
+// "not authorized" without a try/catch.
+export function verifyExportAccessToken(token: string): string | null {
+  const [userId, expiresAtRaw, signature] = token.split('.');
+  const expiresAt = Number(expiresAtRaw);
+  if (!userId || !expiresAtRaw || !signature || Number.isNaN(expiresAt) || Date.now() > expiresAt) {
+    return null;
+  }
+  const expected = signExportPayload(userId, expiresAt);
+  const expectedBuf = Buffer.from(expected);
+  const actualBuf = Buffer.from(signature);
+  if (expectedBuf.length !== actualBuf.length || !crypto.timingSafeEqual(expectedBuf, actualBuf)) {
+    return null;
+  }
+  return userId;
 }

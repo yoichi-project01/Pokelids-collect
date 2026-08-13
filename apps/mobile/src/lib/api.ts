@@ -219,6 +219,17 @@ export async function deleteAccount(): Promise<void> {
   await request<void>('/api/auth/me', { method: 'DELETE' });
 }
 
+// 7-3. Returns an absolute, short-lived (10min), pre-authorized download URL
+// — the caller opens it directly (Linking.openURL) rather than fetching it
+// through this client, the same reason photoUrl() below hands back a bare
+// URL instead of the image bytes: the platform's own download/share UI
+// needs to drive the request, and that can't carry the Authorization header
+// this module attaches to a normal request() call.
+export async function requestExport(): Promise<string> {
+  const { url } = await request<{ url: string }>('/api/export', { method: 'POST' });
+  return `${getApiBaseUrl()}${url}`;
+}
+
 export async function logout(): Promise<void> {
   if (!refreshToken) return;
   // Best-effort: the local session is cleared regardless of whether this

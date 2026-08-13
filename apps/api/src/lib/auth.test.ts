@@ -4,7 +4,9 @@ import {
   generatePasswordResetToken,
   hashEmailVerificationToken,
   hashPasswordResetToken,
+  signExportAccessToken,
   signPhotoAccessToken,
+  verifyExportAccessToken,
   verifyPhotoAccessToken,
 } from './auth';
 
@@ -58,6 +60,70 @@ describe('signPhotoAccessToken / verifyPhotoAccessToken', () => {
     expect(verifyPhotoAccessToken('photo-1', '')).toBe(false);
     expect(verifyPhotoAccessToken('photo-1', 'not-a-token')).toBe(false);
     expect(verifyPhotoAccessToken('photo-1', 'abc.def')).toBe(false);
+  });
+});
+
+describe('signExportAccessToken / verifyExportAccessToken', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T00:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('accepts a freshly-signed token and returns the userId it was signed for', () => {
+    const token = signExportAccessToken('user-1');
+    expect(verifyExportAccessToken(token)).toBe('user-1');
+  });
+
+  it('rejects the token once it has expired', () => {
+    const token = signExportAccessToken('user-1');
+    vi.setSystemTime(new Date('2026-01-01T00:11:00.000Z')); // +11min, past the 10min TTL
+    expect(verifyExportAccessToken(token)).toBeNull();
+  });
+
+  it('accepts the token right up until (but not after) it expires', () => {
+    const token = signExportAccessToken('user-1');
+    vi.setSystemTime(new Date('2026-01-01T00:09:00.000Z')); // +9min, still within the 10min TTL
+    expect(verifyExportAccessToken(token)).toBe('user-1');
+  });
+
+  it('rejects a token with a tampered userId (the signature no longer matches)', () => {
+    const token = signExportAccessToken('user-1');
+    const [, expiresAt, signature] = token.split('.');
+    expect(verifyExportAccessToken(`user-2.${expiresAt}.${signature}`)).toBeNull();
+  });
+
+  it('rejects a token with a tampered signature', () => {
+    const token = signExportAccessToken('user-1');
+    const [userId, expiresAt, signature] = token.split('.');
+    const tampered = `${userId}.${expiresAt}.${signature.slice(0, -1)}${signature.at(-1) === 'a' ? 'b' : 'a'}`;
+    expect(verifyExportAccessToken(tampered)).toBeNull();
+  });
+
+  it('rejects a token with a tampered expiry (forged extension)', () => {
+    const token = signExportAccessToken('user-1');
+    const [userId, , signature] = token.split('.');
+    const forgedExpiry = Date.now() + 999 * 24 * 60 * 60 * 1000;
+    expect(verifyExportAccessToken(`${userId}.${forgedExpiry}.${signature}`)).toBeNull();
+  });
+
+  it('rejects malformed tokens', () => {
+    expect(verifyExportAccessToken('')).toBeNull();
+    expect(verifyExportAccessToken('not-a-token')).toBeNull();
+    expect(verifyExportAccessToken('abc.def')).toBeNull();
+  });
+
+  it('is never confused with a photo access token sharing the same secret', () => {
+    // Two-part shape (expiresAt.signature) vs export's three-part shape
+    // (userId.expiresAt.signature) — a photo token fed into
+    // verifyExportAccessToken parses as userId=<expiresAt>,
+    // expiresAtRaw=<signature> (not numeric), so it's rejected before the
+    // HMAC comparison ever runs.
+    const photoToken = signPhotoAccessToken('photo-1');
+    expect(verifyExportAccessToken(photoToken)).toBeNull();
   });
 });
 

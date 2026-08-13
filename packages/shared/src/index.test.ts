@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildCollectionSummary,
+  buildExportCsv,
   chunk,
   computeCelebrationMilestone,
   countsTowardProgress,
@@ -19,6 +20,7 @@ import {
   tallyMedalCounts,
   validateCoordinates,
   type CollectionSummary,
+  type ExportCollectionRecord,
   type MunicipalityProgressDto,
 } from './index';
 
@@ -720,5 +722,71 @@ describe('computeCelebrationMilestone', () => {
       summaryOf({ prefecture: { id: 28, collected: 0, total: 0 }, collectedCount: 7 }),
     );
     expect(milestone).toBeNull();
+  });
+});
+
+describe('buildExportCsv', () => {
+  function record(overrides: Partial<ExportCollectionRecord> = {}): ExportCollectionRecord {
+    return {
+      pokeLidId: 'lid-1',
+      pokeLidName: '西宮市｜ピカチュウ',
+      prefectureNameJa: '兵庫県',
+      municipality: '西宮市',
+      visitedAt: '2026-01-01T10:00:00.000Z',
+      notes: null,
+      medal: 'GOLD',
+      distanceMeters: 12.4,
+      photoCount: 1,
+      ...overrides,
+    };
+  }
+
+  it('writes the header row followed by one row per record', () => {
+    const csv = buildExportCsv([record()]);
+    const lines = csv.split('\r\n');
+    expect(lines[0]).toBe('ポケふた名,都道府県,市区町村,訪問日,メダル,メモ,距離(m),写真枚数');
+    expect(lines[1]).toBe('西宮市｜ピカチュウ,兵庫県,西宮市,2026-01-01,金（位置情報一致）,,12,1');
+  });
+
+  it('uses the JST calendar date, which can differ from the UTC date', () => {
+    // 2026-01-01T20:00:00+09:00 is already 2026-01-01T11:00:00Z in UTC, so a
+    // naive .toISOString().slice(0, 10) would still agree here — this case
+    // instead crosses midnight JST while UTC is still on the previous day.
+    const csv = buildExportCsv([record({ visitedAt: '2025-12-31T15:00:01.000Z' })]);
+    expect(csv.split('\r\n')[1]).toContain(',2026-01-01,');
+  });
+
+  it('renders a photo-less record with empty medal/distance fields, not "null"', () => {
+    const csv = buildExportCsv([record({ medal: null, distanceMeters: null, photoCount: 0 })]);
+    expect(csv.split('\r\n')[1]).toBe('西宮市｜ピカチュウ,兵庫県,西宮市,2026-01-01,,,,0');
+  });
+
+  it('quotes a field containing a comma', () => {
+    const csv = buildExportCsv([record({ notes: '駅から徒歩5分,雨で滑りやすい' })]);
+    expect(csv.split('\r\n')[1]).toContain('"駅から徒歩5分,雨で滑りやすい"');
+  });
+
+  it('escapes an embedded quote by doubling it, RFC 4180 style', () => {
+    const csv = buildExportCsv([record({ notes: '店員さんに"ここだよ"と教えてもらった' })]);
+    expect(csv.split('\r\n')[1]).toContain('"店員さんに""ここだよ""と教えてもらった"');
+  });
+
+  it('quotes a field containing an embedded newline', () => {
+    const csv = buildExportCsv([record({ notes: '1行目\n2行目' })]);
+    const quoted = '"1行目\n2行目"';
+    expect(csv).toContain(quoted);
+    // The embedded \n must not be mistaken for a row separator when the
+    // whole document is split back into rows.
+    expect(csv.split('\r\n')).toHaveLength(2);
+  });
+
+  it('rounds a fractional distance to the nearest meter', () => {
+    const csv = buildExportCsv([record({ distanceMeters: 42.6 })]);
+    expect(csv.split('\r\n')[1]).toContain(',43,');
+  });
+
+  it('produces only the header row for an empty record list', () => {
+    const csv = buildExportCsv([]);
+    expect(csv).toBe('ポケふた名,都道府県,市区町村,訪問日,メダル,メモ,距離(m),写真枚数');
   });
 });

@@ -1,0 +1,12 @@
+node_modules/
+apps/api/node_modules/
+apps/mobile/node_modules/
+packages/shared/node_modules/
+apps/api/dist/
+apps/mobile/dist/
+apps/mobile/dist-*/
+packages/shared/dist/
+apps/mobile/.expo/
+apps/api/public/
+.env
+*.log

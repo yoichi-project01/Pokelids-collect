@@ -9,6 +9,7 @@ import { pokeLidsRouter } from './routes/pokeLids';
 import { collectionsRouter } from './routes/collections';
 import { photosRouter } from './routes/photos';
 import { progressRouter } from './routes/progress';
+import { exportRouter } from './routes/export';
 import { prisma } from './lib/prisma';
 
 const app = express();
@@ -73,6 +74,7 @@ app.use('/api/poke-lids', pokeLidsRouter);
 app.use('/api/collections', collectionsRouter);
 app.use('/api/photos', photosRouter);
 app.use('/api/progress', progressRouter);
+app.use('/api/export', exportRouter);
 
 // Official poke-lid artwork downloaded by etl/scrape.ts (see downloadOfficialImage)
 // instead of hotlinking local.pokemon.jp on every page view.

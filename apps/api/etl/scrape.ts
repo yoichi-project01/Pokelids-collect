@@ -8,7 +8,19 @@ import { PREFECTURES } from '../src/data/prefectures';
 const BASE = 'https://local.pokemon.jp';
 const REQUEST_DELAY_MS = 200;
 const CONTACT_EMAIL = process.env.ETL_CONTACT_EMAIL ?? 'admin@example.com';
-const USER_AGENT = `pokelids-collect.jp personal ETL (family use, non-commercial; contact: ${CONTACT_EMAIL})`;
+// Used to say "family use, non-commercial" — see MONETIZATION.md §13.3.
+// That claim goes false the moment ad revenue starts (ROADMAP.md §6), and
+// there's no single moment in an ad rollout where anyone would think to
+// come back and edit this string, so it's removed now rather than left to
+// quietly become a lie later. This isn't a decision to stop scraping or to
+// hide what the site does — local.pokemon.jp still gets an honest,
+// identifiable, contactable User-Agent, just without the one claim this
+// app can no longer make. Continuing to run the ETL at all (rather than
+// freezing on the existing apps/api/etl/raw/*.json snapshot) was a
+// separate, deliberate choice: newly-installed and retired poke lids (see
+// this file's own retiredAt handling below) are an ongoing data-accuracy
+// commitment this app makes to its users, independent of how it's funded.
+const USER_AGENT = `pokelids-collect.jp ETL (contact: ${CONTACT_EMAIL})`;
 const PHOTO_STORAGE_PATH = process.env.PHOTO_STORAGE_PATH ?? '/data/photos';
 const OFFICIAL_IMAGES_DIR = path.join(PHOTO_STORAGE_PATH, 'official');
 

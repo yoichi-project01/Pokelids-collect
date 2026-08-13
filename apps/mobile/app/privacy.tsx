@@ -3,9 +3,9 @@ import Head from 'expo-router/head';
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ScreenContainer } from '../src/components/ScreenContainer';
+import { CONTACT_EMAIL } from '../src/lib/contact';
 import { colors, spacing, typography } from '../src/theme';
 
-const CONTACT_EMAIL = 'setoyama.yoichi@gmail.com';
 const LAST_UPDATED = '2026-08-13';
 
 export default function PrivacyPolicyScreen() {

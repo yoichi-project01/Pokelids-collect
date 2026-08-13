@@ -7,19 +7,31 @@ import { PREFECTURES } from '../src/data/prefectures';
 
 const BASE = 'https://local.pokemon.jp';
 const REQUEST_DELAY_MS = 200;
-const CONTACT_EMAIL = process.env.ETL_CONTACT_EMAIL ?? 'admin@example.com';
 // Used to say "family use, non-commercial" — see MONETIZATION.md §13.3.
-// That claim goes false the moment ad revenue starts (ROADMAP.md §6), and
-// there's no single moment in an ad rollout where anyone would think to
-// come back and edit this string, so it's removed now rather than left to
-// quietly become a lie later. This isn't a decision to stop scraping or to
-// hide what the site does — local.pokemon.jp still gets an honest,
-// identifiable, contactable User-Agent, just without the one claim this
-// app can no longer make. Continuing to run the ETL at all (rather than
-// freezing on the existing apps/api/etl/raw/*.json snapshot) was a
+// That claim goes false the moment ad revenue starts (ROADMAP.md §8, item
+// 4), and there's no single moment in an ad rollout where anyone would
+// think to come back and edit this string, so it's removed now rather than
+// left to quietly become a lie later. This isn't a decision to stop
+// scraping or to hide what the site does — local.pokemon.jp still gets an
+// honest, identifiable, contactable User-Agent, just without the one claim
+// this app can no longer make. Continuing to run the ETL at all (rather
+// than freezing on the existing apps/api/etl/raw/*.json snapshot) was a
 // separate, deliberate choice: newly-installed and retired poke lids (see
 // this file's own retiredAt handling below) are an ongoing data-accuracy
 // commitment this app makes to its users, independent of how it's funded.
+//
+// ETL_CONTACT_EMAIL should be set (in .env, not committed) to the same
+// domain contact address privacy.tsx/terms.tsx show users
+// (apps/mobile/src/lib/contact.ts) rather than a personal address —
+// local.pokemon.jp's operators are exactly the kind of recipient a
+// domain-branded, forwarded address is for: it identifies this project
+// specifically (not the person behind it) and stays reachable if that
+// forwarding target ever needs to change. No separate constant is defined
+// here for it, unlike the mobile side's single-source CONTACT_EMAIL,
+// because this value only has one call site (this file) and already comes
+// from an env var rather than being hardcoded — there's nothing to
+// deduplicate.
+const CONTACT_EMAIL = process.env.ETL_CONTACT_EMAIL ?? 'admin@example.com';
 const USER_AGENT = `pokelids-collect.jp ETL (contact: ${CONTACT_EMAIL})`;
 const PHOTO_STORAGE_PATH = process.env.PHOTO_STORAGE_PATH ?? '/data/photos';
 const OFFICIAL_IMAGES_DIR = path.join(PHOTO_STORAGE_PATH, 'official');

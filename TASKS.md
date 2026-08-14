@@ -643,36 +643,29 @@ Google Cloud Vision の `WEB_DETECTION` で `fullMatchingImages` が返った場
 
 ---
 
-## 5-3. docker-compose を堅牢化する
+## 5-3. docker-compose を堅牢化する（対応済み・2026-08-14）
 
 **背景**
-自宅サーバーでの運用中に、以下の弱点がある。
+自宅サーバーでの運用中に、以下の弱点がある。2026-08-08 にこの項目の1番目が未対応だったために実害が出た（`original_filename` のマイグレーション失敗で API がクラッシュループしサイトが停止）。CI（1-5）で事前に防ぎ、`/health`（1-6）で検知する仕組みはあったが、「被害を抑える」層だけが欠けていた。
 
 **変更内容**
 
 1. **マイグレーションをアプリ起動から切り離す**
-   現在 `CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]` になっており、マイグレーションが失敗するとコンテナが起動しない。`depends_on: service_healthy` は `docker compose up` 時にしか効かないため、**ホスト再起動時に API が Postgres より先に起動するとクラッシュループに入る**。
-   マイグレーション専用の一回限りサービスに分離し、`condition: service_completed_successfully` で待つ。`npx` ではなく `node_modules/.bin/prisma` を直接呼ぶ。
+   `apps/api/Dockerfile` の `CMD` を `node dist/index.js` のみにし、`prisma migrate deploy` は `docker-compose.yml` の一回限りサービス `pokelids_migrate` に分離。`pokelids_api` は `depends_on: pokelids_migrate: condition: service_completed_successfully` で待つ。`npx` ではなく `/repo/node_modules/.bin/prisma` を直接呼ぶ。
+   **`pokelids_migrate` のコマンドは `prisma migrate deploy` が失敗してもコンテナ自体は exit 0 で終える**（`|| { echo ...; exit 0; }`）。`service_completed_successfully` は依存先が非ゼロ終了すると依存元を起動させない（実際にこの構成で確認済み）ため、素直に実装すると「マイグレーション失敗時はAPIも起動しない」という、今回防ぎたかった全停止の別形になってしまう。失敗は `docker compose logs pokelids_migrate` と既存の `/health` 503（1-6）で拾う。
+2. **ログローテーション**（`pokelids_api`・`pokelids_migrate`・`pokelids_postgres` 全サービス）
+   `logging: { driver: json-file, options: { max-size: '10m', max-file: '3' } }`
+3. **メモリ上限**：`pokelids_api` に `mem_limit: 1g`。5枚同時処理の bulk API（7-9 フェーズ2）に25MB級の画像5枚を実際に投げて `/sys/fs/cgroup/memory.current` を20〜50ms間隔で測定し、ピーク約250MB・定常状態約200MB（リークなし）を確認した上で、約4倍の余裕を見て1gに決定。
+4. **ヘルスチェック**：`/health` を Docker の `healthcheck` に接続。**Docker の再起動ポリシーは `unhealthy` を見ないため**、`willfarrell/autoheal` を追加（`autoheal=true` ラベルを付けた `pokelids_api` のみ対象、`pokelids_postgres` は対象外）。systemd タイマーではなくこちらを選んだ理由は `docker-compose.yml` のコメントに残した。
+5. **グレースフルシャットダウン**（`apps/api/src/index.ts`）：`SIGTERM`/`SIGINT` で `server.close()` → `prisma.$disconnect()`、10秒フォールバック付き。
+6. **バックアップ先の分離**：`scripts/backup.sh` の `BACKUP_ROOT` を `/home/setoyama/pokelids-backups`（Postgresと同じ root LVM、当時84%使用・16GB空き）から `/mnt/photos/pokelids-backups`（RAID6、1.7TB空き）に変更。既存データは `rsync -aH` でハードリンク関係を保ったまま移行し、旧ディレクトリは削除、crontab のログ出力先も更新済み。
 
-2. **ログローテーション**（両サービス）
-   ```yaml
-   logging:
-     driver: json-file
-     options: { max-size: '10m', max-file: '3' }
-   ```
-   Docker のデフォルトは無制限に肥大化する。エラーハンドラが `console.error` で全エラーを吐くため、問題が起きるとログが加速度的に増える。Postgres のデータが同じディスクにあるため、**ディスクが埋まると DB が書き込み不能になる**。
-
-3. **メモリ上限**
-   `pokelids_api` に `mem_limit: 1g`。sharp が 25MB 画像を処理するとメモリがスパイクする。上限がないとホスト全体の OOM Killer が動き、**メモリ使用量が最大の Postgres が殺される**（アップロードが原因なのに DB が落ちる、という分かりにくい障害になる）。
-
-4. **ヘルスチェック**
-   `/health` は既に DB 接続まで確認する良い実装なので、Docker に繋ぐ。ただし**Docker の再起動ポリシーは `unhealthy` では再起動しない**ため、`willfarrell/autoheal` を1コンテナ足すか systemd タイマーで対処すること。
-
-5. **グレースフルシャットダウン**（`apps/api/src/index.ts`）
-   `SIGTERM` / `SIGINT` を受けて `server.close()` → `prisma.$disconnect()`。10秒のタイムアウトで強制終了するフォールバックも入れる。
-
-6. **バックアップ先の分離**
-   `backup.sh` の出力先が `/home/setoyama/pokelids-backups` で、Postgres のデータディレクトリと同じディスクにある。写真のフルコピー1本分が `/home` を消費するため、**写真が増えるほど DB が危険になる**。RAID 配列側に移すか `RETENTION_DAYS` を短くする。
+**受け入れ基準**
+- ✅ `docker compose up -d` で4サービス（api/migrate/postgres/autoheal）すべて起動し、`pokelids_api`・`pokelids_postgres`・`pokelids_autoheal` が healthy になることを確認した
+- ✅ **（最重要）** 本番DBに触れない使い捨てのDocker環境を用意し、構文的に不正なSQLを含むマイグレーションを実際に適用させて失敗させた上で、`pokelids_migrate` は exit 0、`pokelids_api` は正常に起動してHTTPリクエストに応答することを確認した（`docker compose logs` に実際のPrismaエラー`P3018`が出力されることも確認）
+- ✅ 本番の `pokelids_api` に対し、5枚・約23MBずつの画像を送る bulk アップロード（処理に約2.3秒かかる）の最中に `docker compose restart pokelids_api` を実行し、そのリクエストが201で正常完了すること、ログに `SIGTERM received, shutting down gracefully` が出ることを確認した
+- ✅ 外部ドメイン（`https://pokelids-collect.jp/`・`/map`・`/health`）が全て正常応答することを確認した
+- ✅ `scripts/backup.sh` を新しいデフォルトパスで手動実行し、正常完了することを確認した
 
 ---
 

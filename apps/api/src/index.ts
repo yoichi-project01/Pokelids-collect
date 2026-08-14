@@ -200,6 +200,35 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`API listening on port ${port}`);
 });
+
+// 5-3. `docker compose restart`/`stop` send SIGTERM (Ctrl+C sends SIGINT
+// locally); without a handler, Node kills the process immediately —
+// in-flight requests get hard-cut mid-response and Prisma's connections
+// aren't closed cleanly. `server.close()` stops accepting new connections
+// but waits for in-flight ones to finish before its callback fires, so
+// prisma.$disconnect() only runs once nothing is still using it.
+let shuttingDown = false;
+function shutdown(signal: string) {
+  // A second signal (e.g. an impatient double Ctrl+C, or SIGTERM followed
+  // by SIGINT) must not restart this from scratch — the force-exit timer
+  // below already guarantees an upper bound on how long shutdown can take.
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`${signal} received, shutting down gracefully`);
+
+  const forceExitTimer = setTimeout(() => {
+    console.error('Graceful shutdown timed out after 10s, forcing exit');
+    process.exit(1);
+  }, 10_000);
+
+  server.close(() => {
+    clearTimeout(forceExitTimer);
+    prisma.$disconnect().finally(() => process.exit(0));
+  });
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));

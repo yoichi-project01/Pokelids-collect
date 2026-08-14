@@ -9,17 +9,31 @@
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BACKUP_ROOT="/home/setoyama/pokelids-backups"
-DB_BACKUP_DIR="$BACKUP_ROOT/db"
-PHOTOS_BACKUP_DIR="$BACKUP_ROOT/photos"
 PHOTOS_SOURCE_DIR="/mnt/photos/pokelids"
 RETENTION_DAYS=14
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 
+# BACKUP_ROOT is resolved below (after sourcing .env), not here — a
+# .env-defined BACKUP_ROOT needs to exist in the environment before the
+# `${BACKUP_ROOT:-default}` expansion runs, same ordering docker-compose.yml
+# relies on for PHOTO_STORAGE_HOST_DIR/POSTGRES_DATA_HOST_DIR.
 set -a
 # shellcheck disable=SC1091
 source "$REPO_DIR/.env"
 set +a
+
+# 5-3. Used to default to /home/setoyama/pokelids-backups — the same root
+# LVM volume Postgres's own data directory lives on (98GB total, ~84% used
+# at the time this changed). A full photo-library copy competing with the
+# database for space on that disk meant the backup got more dangerous the
+# more successful it was at its job. /mnt/photos is the 1.9TB RAID6 array
+# the source photos already live on (1.7TB free at the time of this
+# change) — moving the backup there doesn't protect against losing that
+# array entirely (see the note above), but it does stop backups from being
+# the thing that starves the database of disk space.
+BACKUP_ROOT="${BACKUP_ROOT:-/mnt/photos/pokelids-backups}"
+DB_BACKUP_DIR="$BACKUP_ROOT/db"
+PHOTOS_BACKUP_DIR="$BACKUP_ROOT/photos"
 
 mkdir -p "$DB_BACKUP_DIR" "$PHOTOS_BACKUP_DIR"
 

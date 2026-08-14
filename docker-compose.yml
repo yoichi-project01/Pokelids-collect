@@ -1,5 +1,6 @@
 services:
   pokelids_api:
+    image: pokelids_api:latest
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -21,6 +22,111 @@ services:
       - ${PHOTO_STORAGE_HOST_DIR:-/mnt/photos/pokelids}:/data/photos
     ports:
       - '127.0.0.1:3000:3000'
+    # 5-3. Sized from an actual measurement, not the 1g target taken on
+    # faith: a bulk upload (7-9 phase 2, 5 photos at the 25MB/file ceiling —
+    # collections.ts's MAX_BULK_PHOTOS/multer limit) was fired at a running
+    # container while sampling /sys/fs/cgroup/memory.current every 20-50ms.
+    # Peak was ~250MB, settling to a ~200MB steady state after repeated
+    # requests (no climb across runs, so not a leak — just V8 not handing
+    # freed heap back to the OS immediately). 1g leaves roughly 4x that
+    # peak as headroom for a worse case (e.g. two bulk uploads landing at
+    # once, or a pathological PNG that decodes larger than a same-size
+    # JPEG) while still being small enough, on this 7.2GB host already
+    # running close to its limits, that pokelids_api hitting its own
+    # ceiling can't starve Postgres or anything else — that's the actual
+    # failure mode this exists to prevent (see the OOM note below).
+    mem_limit: 1g
+    # 5-3. Docker's default json-file driver has no size cap — an error
+    # storm (the global handler below console.error()s every 500, and this
+    # host has had real incidents that produced exactly that) grows the log
+    # file unbounded. Postgres's data directory lives on the same disk
+    # (root LVM, already at ~84% used per an actual `df -h` check during
+    # this change — see pokelids_postgres's identical block below for why
+    # that specific number matters), so an unbounded API log can starve the
+    # database of disk space it needs to keep accepting writes.
+    logging:
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
+    # 5-3. Wired to the /health endpoint 1-6 already hardened to check real
+    # schema access (Photo/Collection queries), not just DB connectivity —
+    # see that route's own comment for why a bare `SELECT 1` wasn't enough.
+    # start_period gives the process time to bind the port before failures
+    # start counting; interval/retries chosen so a container isn't flagged
+    # unhealthy from one slow request, only a sustained (90s+) outage.
+    #
+    # Docker's own restart policy (`unless-stopped` above) does NOT act on
+    # `unhealthy` status — it only restarts on the container actually
+    # exiting. Without something watching health status, an unhealthy
+    # container just sits there doing nothing, which defeats the point of
+    # detecting it at all. Chose willfarrell/autoheal (see that service
+    # below) over a systemd timer: autoheal is a single small container
+    # that speaks the same language as this file (labels, docker.sock) and
+    # needs zero new host-level state to maintain, where a timer would mean
+    # authoring, testing, and keeping in sync a separate bash script that
+    # re-derives logic autoheal already gets right — more moving parts for
+    # a personal-project host with no other systemd-timer precedent (cron
+    # is what this host already uses for periodic jobs, and autoheal fits
+    # the "container that watches containers" job better than either).
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # Opts this one container into autoheal's restarts (see that service's
+    # AUTOHEAL_CONTAINER_LABEL) — deliberately not applied to
+    # pokelids_postgres or pokelids_migrate. An API container is stateless
+    # and safe to kill-and-restart at any time; blindly doing the same to
+    # the database on a flaky healthcheck is a different risk profile this
+    # change isn't trying to take on.
+    labels:
+      - autoheal=true
+    depends_on:
+      pokelids_postgres:
+        condition: service_healthy
+      pokelids_migrate:
+        condition: service_completed_successfully
+
+  # 5-3. Runs `prisma migrate deploy` once and exits, instead of that living
+  # inside pokelids_api's own CMD — see the Dockerfile's comment on why
+  # bundling it there caused a full-site outage on 2026-08-08. Shares
+  # pokelids_api's already-built image (`image:` matches, no `build:` of
+  # its own) rather than rebuilding, so `docker compose build pokelids_api`
+  # (the existing deploy habit) is still the only build step needed.
+  #
+  # The command below always exits 0 even when the migration itself fails
+  # — this looks like it defeats `service_completed_successfully`, but it's
+  # deliberate: that condition genuinely blocks `docker compose up` from
+  # starting a dependent at all when the dependency exits non-zero (verified
+  # against this exact compose setup, not assumed), which would reproduce
+  # the 2026-08-08 outage in a new form — a bad migration would now block
+  # deployment entirely instead of merely crash-looping. The failure is
+  # still loud (stderr, `docker compose logs pokelids_migrate`) and still
+  # gets caught operationally by /health's existing 503 (1-6) once
+  # pokelids_api is actually running against the mismatched schema — this
+  # container's own exit code just isn't the mechanism carrying that signal
+  # anymore. `service_completed_successfully` here means "wait for the
+  # attempt to finish" rather than "wait for it to succeed" as a result.
+  pokelids_migrate:
+    image: pokelids_api:latest
+    container_name: pokelids_migrate
+    restart: 'no'
+    env_file: .env
+    command:
+      [
+        'sh',
+        '-c',
+        "/repo/node_modules/.bin/prisma migrate deploy || { echo 'MIGRATION FAILED — pokelids_api will still start (see this Dockerfile/compose file for why); check /health for 503s and fix the migration.' >&2; exit 0; }",
+      ]
+    logging:
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
     depends_on:
       pokelids_postgres:
         condition: service_healthy
@@ -38,8 +144,36 @@ services:
       - ${POSTGRES_DATA_HOST_DIR:-/home/setoyama/pokelids/postgres}:/var/lib/postgresql/data
     ports:
       - '127.0.0.1:5433:5432'
+    # 5-3. This data directory lives on the host's root LVM volume, which
+    # was at 84% used (16GB free of 98GB) when this was added — not the
+    # 1.9TB RAID array the photos live on. An unbounded API log filling
+    # that same disk (see pokelids_api's identical logging block) would
+    # eventually block Postgres's own writes, so this gets the same cap.
+    logging:
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 5s
       timeout: 5s
       retries: 10
+
+  # 5-3. Restarts any container labeled `autoheal=true` (currently just
+  # pokelids_api) once Docker reports it `unhealthy` — see pokelids_api's
+  # healthcheck comment for why this exists instead of relying on Docker's
+  # own restart policy, which never looks at health status. Needs
+  # docker.sock to call the Docker API for that restart; this is the one
+  # new host-level trust boundary this change introduces (root-equivalent
+  # access to the Docker daemon), accepted here as the tradeoff for not
+  # hand-rolling the same watch-and-restart logic in a systemd timer.
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: pokelids_autoheal
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }

@@ -65,4 +65,14 @@ WORKDIR /repo/apps/api
 USER node
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+
+# 5-3. Migrations no longer run as part of this CMD — see docker-compose.yml's
+# pokelids_migrate service for why. A failed `migrate deploy` used to fail
+# this whole `sh -c` chain (via `&&`), so the container never reached
+# `node dist/index.js` at all and crash-looped (2026-08-08's missing
+# original_filename column took the entire site down, not just the one
+# feature that needed the new column). Now this CMD only ever starts the
+# app itself, which doesn't touch the DB until the first request — so even
+# a broken schema degrades to /health reporting 503 (1-6) instead of the
+# whole container refusing to start.
+CMD ["node", "dist/index.js"]

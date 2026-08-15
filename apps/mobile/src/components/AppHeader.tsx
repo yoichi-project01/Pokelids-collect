@@ -11,6 +11,11 @@ import { colors, CONTENT_MAX_WIDTH, spacing } from '../theme';
 // but centers its content row at CONTENT_MAX_WIDTH, matching ScreenContainer
 // and the tab bar underneath it.
 const HEADER_HEIGHT = 56;
+// 3-3's 44x44 minimum touch target — the previous 32x43px back button (a
+// hitSlop=8 that, on web, doesn't actually enlarge the element's own
+// measured bounding box the way it does on native) was found too small in
+// real-device testing.
+const MIN_TAP_TARGET = 44;
 
 export function AppHeader({
   title,
@@ -66,9 +71,16 @@ const styles = StyleSheet.create({
   },
   // Balances the title's centering math (title is flex: 1 between two
   // equal-width sides) without needing to know in advance whether a back
-  // button will actually render on the left.
-  side: { minWidth: 32 },
-  backButton: { paddingVertical: spacing.xs, paddingHorizontal: spacing.xs },
+  // button will actually render on the left. Matches backButton's own
+  // minWidth so the two sides stay equal-width whether or not a button
+  // actually renders on the left.
+  side: { minWidth: MIN_TAP_TARGET },
+  backButton: {
+    minWidth: MIN_TAP_TARGET,
+    minHeight: MIN_TAP_TARGET,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   backChevron: { fontSize: 28, fontWeight: '400', color: colors.accent, marginTop: -2 },
   title: { flex: 1, fontSize: 17, fontWeight: '600', color: colors.textPrimary },
 });

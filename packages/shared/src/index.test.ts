@@ -4,6 +4,7 @@ import {
   buildExportCsv,
   buildRetrospectiveStats,
   chunk,
+  classifyCompletion,
   computeCelebrationMilestone,
   countsTowardProgress,
   decideGoogleAccountLink,
@@ -757,6 +758,35 @@ describe('computeCelebrationMilestone', () => {
       summaryOf({ prefecture: { id: 28, collected: 0, total: 0 }, collectedCount: 7 }),
     );
     expect(milestone).toBeNull();
+  });
+});
+
+describe('classifyCompletion', () => {
+  // The exact bug this function exists to prevent: a prefecture with zero
+  // poke lids (0/0, e.g. 群馬・山梨・広島・熊本・大分) is mathematically
+  // 100% but must never read as an achievement.
+  it('classifies zero total as no-lids, even with zero collected', () => {
+    expect(classifyCompletion(0, 0)).toBe('no-lids');
+  });
+
+  // Not reachable through any real caller (collected can't exceed total),
+  // but total===0 must win over the collected/total comparison regardless of
+  // what collected is, since this function's whole job is to not treat 0/0
+  // as complete.
+  it('classifies zero total as no-lids even if collected is somehow nonzero', () => {
+    expect(classifyCompletion(0, 3)).toBe('no-lids');
+  });
+
+  it('classifies a nonzero total with nothing collected as in-progress', () => {
+    expect(classifyCompletion(5, 0)).toBe('in-progress');
+  });
+
+  it('classifies a partially collected nonzero total as in-progress', () => {
+    expect(classifyCompletion(5, 4)).toBe('in-progress');
+  });
+
+  it('classifies collected === total (both nonzero) as complete', () => {
+    expect(classifyCompletion(5, 5)).toBe('complete');
   });
 });
 

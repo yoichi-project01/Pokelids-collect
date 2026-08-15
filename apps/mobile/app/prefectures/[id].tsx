@@ -2,7 +2,13 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useCallback, useMemo, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-import { isPokeLidVisible, PREFECTURES, type PokeLidDto } from '@pokelids/shared';
+import {
+  classifyCompletion,
+  countsTowardProgress,
+  isPokeLidVisible,
+  PREFECTURES,
+  type PokeLidDto,
+} from '@pokelids/shared';
 import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
@@ -139,11 +145,27 @@ export default function PrefecturePokeLidsScreen() {
         // total excludes retired lids, same rule as everywhere else
         // (packages/shared's countsTowardProgress) — collected does not, so
         // a retired-but-collected lid still counts toward "3/4" here.
-        total: items.filter((l) => l.retiredAt == null).length,
+        total: items.filter((l) => countsTowardProgress(l.retiredAt)).length,
         collected: items.filter((l) => collectedIds.has(l.id)).length,
         data: chunkIntoRows(items, columns),
       }));
   }, [visibleLids, collectedIds, columns]);
+
+  // Whole-prefecture state, independent of the "未収集のみ" filter above —
+  // `sections` being empty means either "genuinely nothing left to show
+  // under the current filter" (complete) or "this prefecture has zero
+  // visitable poke lids at all" (no-lids, e.g. 群馬・山梨・広島・熊本・大分),
+  // and those need different empty-state copy (see EmptyState below). Same
+  // total/collected rule as buildCollectionSummary's own `prefecture` field:
+  // total excludes retired lids, collected does not.
+  const completionState = useMemo(
+    () =>
+      classifyCompletion(
+        lids.filter((l) => countsTowardProgress(l.retiredAt)).length,
+        lids.filter((l) => collectedIds.has(l.id)).length,
+      ),
+    [lids, collectedIds],
+  );
 
   return (
     <ScreenContainer>
@@ -183,17 +205,28 @@ export default function PrefecturePokeLidsScreen() {
           }
           ListEmptyComponent={
             !loading ? (
-              <EmptyState
-                title={prefectureName ? `${prefectureName}をコンプリート！` : 'コンプリートしました！'}
-                message="他の都道府県にもポケふたが待っています。"
-                actionLabel="他の都道府県を見る"
-                // "次の都道府県へ"（達成率が最も低い県など、具体的な1件へ直接
-                // 飛ばす）も考えたが、それには全都道府県分の進捗を追加取得する
-                // 必要があり、この画面は今その1県分のデータしか持っていない。
-                // 一覧に戻せばどのみち各県の達成率バッジが並んでいて自分で選べ
-                // るので、まずは一覧に戻す形にした。
-                onAction={() => router.push('/')}
-              />
+              completionState === 'no-lids' ? (
+                <EmptyState
+                  title={
+                    prefectureName ? `${prefectureName}にはまだポケふたがありません` : 'ポケふたがありません'
+                  }
+                  message="新しいポケふたが設置され次第、ここに表示されます。"
+                  actionLabel="他の都道府県を見る"
+                  onAction={() => router.push('/')}
+                />
+              ) : (
+                <EmptyState
+                  title={prefectureName ? `${prefectureName}をコンプリート！` : 'コンプリートしました！'}
+                  message="他の都道府県にもポケふたが待っています。"
+                  actionLabel="他の都道府県を見る"
+                  // "次の都道府県へ"（達成率が最も低い県など、具体的な1件へ直接
+                  // 飛ばす）も考えたが、それには全都道府県分の進捗を追加取得する
+                  // 必要があり、この画面は今その1県分のデータしか持っていない。
+                  // 一覧に戻せばどのみち各県の達成率バッジが並んでいて自分で選べ
+                  // るので、まずは一覧に戻す形にした。
+                  onAction={() => router.push('/')}
+                />
+              )
             ) : null
           }
           renderSectionHeader={({ section }) => {

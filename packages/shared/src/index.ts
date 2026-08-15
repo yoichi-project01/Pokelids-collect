@@ -382,7 +382,7 @@ const MILESTONE_COUNTS = [10, 50, 100, 150, 200, 250, 300, 350, 400, 450];
 // milestone", not an error.
 export function computeCelebrationMilestone(summary: CollectionSummary): string | null {
   const { prefecture, municipality } = summary;
-  if (prefecture.total > 0 && prefecture.collected === prefecture.total) {
+  if (classifyCompletion(prefecture.total, prefecture.collected) === 'complete') {
     const prefName = PREFECTURES.find((p) => p.id === prefecture.id)?.nameJa ?? '';
     return `${prefName}コンプリート！`;
   }
@@ -393,6 +393,28 @@ export function computeCelebrationMilestone(summary: CollectionSummary): string 
     return `${summary.collectedCount}箇所達成！`;
   }
   return null;
+}
+
+// Classifies a scope's (a prefecture, a municipality, ...) collection state
+// for empty-state / celebration UI, given `total` (must already exclude
+// retired lids — see countsTowardProgress) and `collected` within that scope.
+//
+// The 'no-lids' case exists because `total === 0` is mathematically 100% (0
+// collected out of 0 possible) but is not an achievement — it means this
+// scope currently has zero visitable poke lids at all (as of 2026-08, five
+// real prefectures: 群馬・山梨・広島・熊本・大分), not "fully collected."
+// Presenting that as a celebration (e.g. prefectures/[id].tsx's old
+// unconditional "コンプリート！" empty state) is actively misleading to a
+// user who has never actually visited the prefecture. Every other call site
+// that already treats total===0 as non-complete (computeCelebrationMilestone
+// above, ProgressBar, progressPercent) independently arrived at the same
+// rule — this centralizes it as one named, tested function instead of a
+// `total > 0 &&` guard repeated ad hoc at each site.
+export type CompletionState = 'no-lids' | 'in-progress' | 'complete';
+
+export function classifyCompletion(total: number, collected: number): CompletionState {
+  if (total === 0) return 'no-lids';
+  return collected >= total ? 'complete' : 'in-progress';
 }
 
 export interface NearbyPokeLidDto {

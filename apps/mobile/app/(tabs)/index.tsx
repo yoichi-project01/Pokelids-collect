@@ -1,16 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useCallback, useMemo, useState } from 'react';
-import {
-  Image,
-  Platform,
-  SectionList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, Platform, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   haversineDistanceMeters,
   municipalityKey,
@@ -21,6 +12,7 @@ import {
   type ProgressDto,
 } from '@pokelids/shared';
 import { ErrorState } from '../../src/components/ErrorState';
+import { HorizontalFadeScroll } from '../../src/components/HorizontalFadeScroll';
 import { ListRow } from '../../src/components/ListRow';
 import { ProgressBar } from '../../src/components/ProgressBar';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
@@ -269,11 +261,7 @@ export default function PrefecturesScreen() {
                   <View style={styles.nextTitleRow}>
                     <Text style={styles.nextTitleText}>もう少しで達成</Text>
                   </View>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.nextRow}
-                  >
+                  <HorizontalFadeScroll contentContainerStyle={styles.nextRow}>
                     {municipalityGoals.map((goal) => (
                       <TouchableOpacity
                         key={municipalityKey(goal.prefectureId, goal.municipality)}
@@ -295,7 +283,7 @@ export default function PrefecturesScreen() {
                         <Text style={styles.nextGoalRemaining}>あと{goal.remaining}つ</Text>
                       </TouchableOpacity>
                     ))}
-                  </ScrollView>
+                  </HorizontalFadeScroll>
                 </View>
               )}
 
@@ -311,11 +299,7 @@ export default function PrefecturesScreen() {
                       onRequest={() => requestLocationPermission()}
                     />
                   )}
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.nextRow}
-                  >
+                  <HorizontalFadeScroll contentContainerStyle={styles.nextRow}>
                     {nextToCollect.map((lid) => (
                       <TouchableOpacity
                         key={lid.id}
@@ -332,7 +316,7 @@ export default function PrefecturesScreen() {
                         </Text>
                       </TouchableOpacity>
                     ))}
-                  </ScrollView>
+                  </HorizontalFadeScroll>
                 </View>
               )}
             </View>

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildCollectionSummary,
   buildExportCsv,
+  buildRetrospectiveStats,
   chunk,
   computeCelebrationMilestone,
   countsTowardProgress,
@@ -23,6 +24,7 @@ import {
   type CollectionSummary,
   type ExportCollectionRecord,
   type MunicipalityProgressDto,
+  type RetrospectiveLidInfo,
 } from './index';
 
 function municipality(overrides: Partial<MunicipalityProgressDto>): MunicipalityProgressDto {
@@ -821,5 +823,344 @@ describe('buildExportCsv', () => {
   it('produces only the header row for an empty record list', () => {
     const csv = buildExportCsv([]);
     expect(csv).toBe('ポケふた名,都道府県,市区町村,訪問日,メダル,メモ,距離(m),写真枚数');
+  });
+});
+
+describe('buildRetrospectiveStats', () => {
+  // Real coordinates (Tokyo Station / Osaka Station) so the expected
+  // distance is a value that can be sanity-checked against a real map,
+  // not an arbitrary test fixture number.
+  const TOKYO = {
+    id: 'tokyo',
+    prefectureId: 13,
+    municipality: '千代田区',
+    latitude: 35.681236,
+    longitude: 139.767125,
+  };
+  const OSAKA = {
+    id: 'osaka',
+    prefectureId: 27,
+    municipality: '大阪市',
+    latitude: 34.702485,
+    longitude: 135.495951,
+  };
+  // Two lids in the same (small) region so "completed region" is reachable
+  // without needing to fabricate every prefecture in Shikoku.
+  const KOCHI_A = {
+    id: 'kochi-a',
+    prefectureId: 39,
+    municipality: '高知市',
+    latitude: 33.56,
+    longitude: 133.53,
+  };
+  const KOCHI_B = {
+    id: 'kochi-b',
+    prefectureId: 39,
+    municipality: '高知市',
+    latitude: 33.57,
+    longitude: 133.54,
+  };
+  const RETIRED = {
+    id: 'retired',
+    prefectureId: 39,
+    municipality: '高知市',
+    latitude: 33.58,
+    longitude: 133.55,
+    retiredAt: '2026-01-01T00:00:00.000Z',
+  };
+
+  function lid(overrides: Partial<RetrospectiveLidInfo> & { id: string }): RetrospectiveLidInfo {
+    return {
+      prefectureId: 13,
+      municipality: 'テスト市',
+      latitude: 35,
+      longitude: 135,
+      retiredAt: null,
+      ...overrides,
+    };
+  }
+
+  const ALL_LIDS: RetrospectiveLidInfo[] = [lid(TOKYO), lid(OSAKA), lid(KOCHI_A), lid(KOCHI_B), lid(RETIRED)];
+
+  function collection(overrides: {
+    pokeLidId: string;
+    visitedAt: string;
+    medal?: 'GOLD' | 'SILVER' | 'NONE' | null;
+  }) {
+    return { medal: null, ...overrides };
+  }
+
+  describe('totalDistanceKm', () => {
+    it('is null with zero collections', () => {
+      expect(buildRetrospectiveStats([], ALL_LIDS).totalDistanceKm).toBeNull();
+    });
+
+    it('is null with exactly one collection (nothing to measure between)', () => {
+      const stats = buildRetrospectiveStats(
+        [collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z' })],
+        ALL_LIDS,
+      );
+      expect(stats.totalDistanceKm).toBeNull();
+    });
+
+    it('sums the Tokyo–Osaka leg for two collections', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-01-02T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.totalDistanceKm).toBeCloseTo(403.06, 1);
+    });
+
+    it('counts a round trip as two legs, not a net span of ~0', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-01-02T00:00:00.000Z' }),
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-03T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.totalDistanceKm).toBeCloseTo(806.12, 1);
+    });
+
+    it('orders by visitedAt, not by array order', () => {
+      // Osaka recorded first in the array, but its visitedAt is *later* —
+      // the leg distance is the same either way here, but this guards
+      // against a naive "sum consecutive array entries" implementation
+      // that ignores visitedAt entirely.
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-01-02T00:00:00.000Z' }),
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.totalDistanceKm).toBeCloseTo(403.06, 1);
+    });
+
+    it('skips a collection whose poke lid is not in allLids', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'unknown-lid', visitedAt: '2026-01-02T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      // Only one resolvable collection remains — same as the one-collection case.
+      expect(stats.totalDistanceKm).toBeNull();
+    });
+  });
+
+  describe('goldRate', () => {
+    it('is null when no collection has a photo at all', () => {
+      const stats = buildRetrospectiveStats(
+        [collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z', medal: null })],
+        ALL_LIDS,
+      );
+      expect(stats.goldRate).toBeNull();
+    });
+
+    it('excludes photo-less records from the denominator', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z', medal: 'GOLD' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-01-02T00:00:00.000Z', medal: null }),
+        ],
+        ALL_LIDS,
+      );
+      // Not 1/2 (50%) — the photo-less record was never eligible for a medal.
+      expect(stats.goldRate).toEqual({ goldCount: 1, photographedCount: 1, percent: 100 });
+    });
+
+    it('computes the percentage among only photographed records', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z', medal: 'GOLD' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-01-02T00:00:00.000Z', medal: 'SILVER' }),
+          collection({ pokeLidId: 'kochi-a', visitedAt: '2026-01-03T00:00:00.000Z', medal: 'NONE' }),
+          collection({ pokeLidId: 'kochi-b', visitedAt: '2026-01-04T00:00:00.000Z', medal: 'GOLD' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.goldRate).toEqual({ goldCount: 2, photographedCount: 4, percent: 50 });
+    });
+  });
+
+  describe('completedRegions', () => {
+    it('is empty with zero collections', () => {
+      expect(buildRetrospectiveStats([], ALL_LIDS).completedRegions).toEqual([]);
+    });
+
+    it('does not list a region until every non-retired lid in it is collected', () => {
+      const stats = buildRetrospectiveStats(
+        [collection({ pokeLidId: 'kochi-a', visitedAt: '2026-01-01T00:00:00.000Z' })],
+        ALL_LIDS,
+      );
+      expect(stats.completedRegions).toEqual([]);
+    });
+
+    it('lists a region once every non-retired lid in it is collected', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'kochi-a', visitedAt: '2026-01-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'kochi-b', visitedAt: '2026-01-02T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      // 'retired' is in Shikoku too but must not count toward the
+      // denominator, or Shikoku could never complete while it exists.
+      expect(stats.completedRegions).toEqual(['Shikoku']);
+    });
+
+    it('never requires a retired lid to be collected', () => {
+      // Same as the previous case in substance — restated explicitly
+      // because this is the one behavior a naive "total = allLids.length"
+      // implementation would get wrong.
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'kochi-a', visitedAt: '2026-01-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'kochi-b', visitedAt: '2026-01-02T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.completedRegions).toContain('Shikoku');
+    });
+  });
+
+  describe('longestStreakMonths', () => {
+    it('is null with zero collections', () => {
+      expect(buildRetrospectiveStats([], ALL_LIDS).longestStreakMonths).toBeNull();
+    });
+
+    it('is null for a single month (not a streak)', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-05T00:00:00.000Z' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-01-20T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.longestStreakMonths).toBeNull();
+    });
+
+    it('counts two consecutive calendar months as a streak of 2', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-31T00:00:00.000Z' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-02-01T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.longestStreakMonths).toBe(2);
+    });
+
+    it('does not bridge a skipped month', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-15T00:00:00.000Z' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-03-15T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.longestStreakMonths).toBeNull();
+    });
+
+    it('finds the longest of several runs, not just the most recent', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          // Jan-Feb-Mar: a 3-month run.
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-02-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'kochi-a', visitedAt: '2026-03-01T00:00:00.000Z' }),
+          // gap
+          // Jun-Jul: a 2-month run.
+          collection({ pokeLidId: 'kochi-b', visitedAt: '2026-06-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'retired', visitedAt: '2026-07-01T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.longestStreakMonths).toBe(3);
+    });
+
+    it('crosses a JST year boundary correctly (Dec → Jan is consecutive)', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2025-12-31T10:00:00.000Z' }), // 2025-12-31 19:00 JST
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-01-01T00:00:00.000Z' }), // 2026-01-01 09:00 JST
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.longestStreakMonths).toBe(2);
+    });
+
+    it('does NOT treat an instant just before JST midnight as the next UTC day would suggest', () => {
+      // 2025-12-31T23:00:00Z is 2026-01-01T08:00 JST — still crosses into
+      // January, which is the point: this guards against a naive
+      // `new Date(iso).getUTCMonth()` implementation that would read this
+      // same instant as December (UTC), understating the streak by one.
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2025-12-15T00:00:00.000Z' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2025-12-31T23:00:00.000Z' }),
+          collection({ pokeLidId: 'kochi-a', visitedAt: '2026-01-05T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.longestStreakMonths).toBe(2);
+    });
+
+    it('is unaffected by duplicate records in the same month', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'tokyo', visitedAt: '2026-01-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'osaka', visitedAt: '2026-01-20T00:00:00.000Z' }),
+          collection({ pokeLidId: 'kochi-a', visitedAt: '2026-02-01T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      expect(stats.longestStreakMonths).toBe(2);
+    });
+  });
+
+  describe('municipalityCount', () => {
+    it('is zero with zero collections', () => {
+      expect(buildRetrospectiveStats([], ALL_LIDS).municipalityCount).toBe(0);
+    });
+
+    it('counts each distinct municipality once', () => {
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'kochi-a', visitedAt: '2026-01-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'kochi-b', visitedAt: '2026-01-02T00:00:00.000Z' }),
+        ],
+        ALL_LIDS,
+      );
+      // Both kochi-a and kochi-b are 高知市 — one municipality, not two.
+      expect(stats.municipalityCount).toBe(1);
+    });
+
+    it('does not conflate the same municipality name in two different prefectures', () => {
+      const lids: RetrospectiveLidInfo[] = [
+        lid({ id: 'fuchu-tokyo', prefectureId: 13, municipality: '府中市', latitude: 35, longitude: 139 }),
+        lid({
+          id: 'fuchu-hiroshima',
+          prefectureId: 34,
+          municipality: '府中市',
+          latitude: 34,
+          longitude: 133,
+        }),
+      ];
+      const stats = buildRetrospectiveStats(
+        [
+          collection({ pokeLidId: 'fuchu-tokyo', visitedAt: '2026-01-01T00:00:00.000Z' }),
+          collection({ pokeLidId: 'fuchu-hiroshima', visitedAt: '2026-01-02T00:00:00.000Z' }),
+        ],
+        lids,
+      );
+      expect(stats.municipalityCount).toBe(2);
+    });
   });
 });

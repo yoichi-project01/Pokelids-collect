@@ -3,7 +3,8 @@ import Head from 'expo-router/head';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import {
-  haversineDistanceMeters,
+  buildRetrospectiveStats,
+  regionNameJa,
   type CollectionDto,
   type PhotoMedal,
   type PokeLidDto,
@@ -17,7 +18,6 @@ import { useAuth } from '../../src/lib/auth';
 import { formatDateJST } from '../../src/lib/date';
 import { getAllGuestPhotos, type GuestPhotoWithUri } from '../../src/lib/guestPhotoStorage';
 import { getGuestCollections, type GuestCollection } from '../../src/lib/guestStorage';
-import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import { isStoragePersisted } from '../../src/lib/storagePersistence';
 import {
   GRID_CELL_PADDING,
@@ -54,7 +54,6 @@ export default function CollectionScreen() {
   // mistaken for a synced/confirmed record.
   const [guestCollections, setGuestCollections] = useState<GuestCollection[]>([]);
   const [guestPhotos, setGuestPhotos] = useState<GuestPhotoWithUri[]>([]);
-  const [location, setLocation] = useState<Coordinates | null>(null);
   // Starts true (the calmer wording) rather than false, so the banner
   // doesn't flash the more cautious copy for the instant before this
   // resolves — a wrong-for-a-moment "persisted" reads as harmless, a
@@ -66,7 +65,6 @@ export default function CollectionScreen() {
   const isNarrow = useIsNarrowScreen();
 
   useEffect(() => {
-    getCurrentLocation().then(setLocation);
     isStoragePersisted().then(setStoragePersisted);
   }, []);
 
@@ -163,34 +161,36 @@ export default function CollectionScreen() {
         .map((c) => lidsById.get(c.pokeLidId)?.prefectureId)
         .filter((id): id is number => id != null),
     );
-    const goldCount = collections.filter(
-      (c) => (c.photos.find((p) => p.isPrimary) ?? c.photos[0])?.medal === 'GOLD',
-    ).length;
     const dates = collections.map((c) => new Date(c.visitedAt).getTime()).sort((a, b) => a - b);
     const firstDate = new Date(dates[0]);
     const latestDate = new Date(dates[dates.length - 1]);
 
-    let farthest: { municipality: string; distanceKm: number } | null = null;
-    if (location) {
-      for (const c of collections) {
-        const lid = lidsById.get(c.pokeLidId);
-        if (!lid) continue;
-        const distanceKm =
-          haversineDistanceMeters(location.latitude, location.longitude, lid.latitude, lid.longitude) / 1000;
-        if (!farthest || distanceKm > farthest.distanceKm) {
-          farthest = { municipality: lid.municipality, distanceKm };
-        }
-      }
-    }
+    // 7-1: everything else (total distance, gold rate, completed regions,
+    // longest streak, municipality count) is pure derivation from the same
+    // `collections`/`lidsById` this screen already has in hand — see
+    // buildRetrospectiveStats's own doc comment in packages/shared for why
+    // these 5 specifically, and why "一番遠くまで行った記録" (the previous
+    // 5th stat here, computed from the *device's current* location) was
+    // dropped rather than kept alongside them: unlike these 5, it isn't a
+    // fixed fact about the collection history, and it silently disappeared
+    // whenever location permission was denied. Removing it also means this
+    // screen no longer needs a location fix at all.
+    const retro = buildRetrospectiveStats(
+      collections.map((c) => ({
+        pokeLidId: c.pokeLidId,
+        visitedAt: c.visitedAt,
+        medal: (c.photos.find((p) => p.isPrimary) ?? c.photos[0])?.medal ?? null,
+      })),
+      [...lidsById.values()],
+    );
 
     return {
       prefectureCount: prefectureIds.size,
-      goldCount,
       firstDate,
       latestDate,
-      farthest,
+      retro,
     };
-  }, [collections, lidsById, location]);
+  }, [collections, lidsById]);
 
   // Server records take precedence over a guest-local one for the same poke
   // lid — the only way that overlap happens is stale guest data left behind
@@ -280,17 +280,57 @@ export default function CollectionScreen() {
                 <View style={styles.statsCard}>
                   <View style={[styles.statsRow, isNarrow && styles.statsRowNarrow]}>
                     <Stat label="訪問した都道府県" value={`${stats.prefectureCount} / 47`} />
-                    <Stat label="🥇獲得数" value={String(stats.goldCount)} />
+                    {/* Upgrades the old bare "🥇獲得数" count into the rate
+                        ROADMAP.md asked for (7-1) — the count alone is still
+                        right there in the value string, so nothing is lost.
+                        Denominator is *photographed* records only: a
+                        photo-less "訪問済み" record was never eligible for a
+                        medal, so counting it against the rate would just
+                        make careful photographers look worse for no reason
+                        (see buildRetrospectiveStats's own doc comment). */}
+                    {stats.retro.goldRate && (
+                      <Stat
+                        label="🥇率"
+                        value={`${stats.retro.goldRate.percent}%（${stats.retro.goldRate.goldCount}/${stats.retro.goldRate.photographedCount}）`}
+                      />
+                    )}
                   </View>
                   <View style={[styles.statsRow, isNarrow && styles.statsRowNarrow]}>
                     <Stat label="最初の記録" value={formatDateJST(stats.firstDate)} />
                     <Stat label="最新の記録" value={formatDateJST(stats.latestDate)} />
                   </View>
-                  {stats.farthest && (
-                    <Stat
-                      label="一番遠くまで行った記録"
-                      value={`${stats.farthest.municipality}（${stats.farthest.distanceKm.toFixed(1)}km）`}
-                    />
+                  {/* 訪問した市区町村数 always renders once there's at least
+                      one record (7-5's municipalityKey — see
+                      buildRetrospectiveStats — keeps a same-named
+                      municipality in two prefectures from being conflated).
+                      移動した総距離 needs a second point to measure to, so it
+                      sits out entirely on exactly one record rather than
+                      claiming "0km" — see this stat's own null case in
+                      buildRetrospectiveStats. */}
+                  <View style={[styles.statsRow, isNarrow && styles.statsRowNarrow]}>
+                    {stats.retro.totalDistanceKm !== null && (
+                      <Stat label="移動した総距離" value={`${stats.retro.totalDistanceKm.toFixed(1)}km`} />
+                    )}
+                    <Stat label="訪問した市区町村数" value={`${stats.retro.municipalityCount}市区町村`} />
+                  </View>
+                  {/* Both of these are milestone-style stats with nothing
+                      motivating to show at zero (7-5's "達成不可能に見える
+                      表示はしない" principle, applied here too) — the whole
+                      row disappears rather than showing "0地方" or being
+                      omitted with an awkward gap when neither has anything
+                      to say yet. */}
+                  {(stats.retro.completedRegions.length > 0 || stats.retro.longestStreakMonths !== null) && (
+                    <View style={[styles.statsRow, isNarrow && styles.statsRowNarrow]}>
+                      {stats.retro.completedRegions.length > 0 && (
+                        <Stat
+                          label="制覇した地方"
+                          value={stats.retro.completedRegions.map(regionNameJa).join('・')}
+                        />
+                      )}
+                      {stats.retro.longestStreakMonths !== null && (
+                        <Stat label="最長連続記録月数" value={`${stats.retro.longestStreakMonths}ヶ月`} />
+                      )}
+                    </View>
                   )}
                 </View>
               )}
@@ -374,8 +414,9 @@ const styles = StyleSheet.create({
   },
   statsRow: { flexDirection: 'row', gap: spacing.lg },
   // Below THREE_COLUMN_MIN_WIDTH a 2-column stat card leaves ~130px per
-  // cell — not enough for values like "稚内市（1,203.4km）" — so stack
-  // to one column instead of shrinking further.
+  // cell — not enough for values like "82%（12/15）" or, worst case, a
+  // completedRegions list of several region names joined with "・" — so
+  // stack to one column instead of shrinking further.
   statsRowNarrow: { flexDirection: 'column', gap: spacing.md },
   stat: { flex: 1 },
   statValue: { ...typography.bodyMedium, fontSize: 18 },

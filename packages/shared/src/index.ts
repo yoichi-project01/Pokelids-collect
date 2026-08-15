@@ -778,3 +778,179 @@ export function buildExportCsv(records: readonly ExportCollectionRecord[]): stri
   // misreading the whole file as one line on Windows.
   return [EXPORT_CSV_HEADER.join(','), ...rows].join('\r\n');
 }
+
+// 7-1. Collection screen's stats card ("振り返り"). Same
+// pure-function-plus-vitest pattern as buildCollectionSummary above —
+// derives everything from data the screen already has in hand (its own
+// /api/collections/me + /api/poke-lids fetches), so none of this needs a
+// new API round trip.
+//
+// ROADMAP.md listed 7 candidate stats and asked for 5, "多すぎると何も
+// 印象に残らない" (5個程度に絞る). Chosen here: total distance traveled,
+// gold-medal rate, completed regions, longest consecutive-month streak,
+// and distinct municipalities visited (7-5's own municipalityKey reused
+// for the last one, so a same-named municipality in two different
+// prefectures — 府中市, 伊達市, 太子町, all real cases in this dataset —
+// is never miscounted as one place).
+//
+// Dropped, deliberately, not just left out for time:
+//   - 月別・年別の記録推移 (a bar chart) — the one candidate that isn't a
+//     single number. It would need a genuinely new chart UI component
+//     (this app has no charting library), with its own 320px-width /
+//     large-font-scale behavior (3-5) to get right, for a payoff that's
+//     more "interesting to skim" than "motivating at a glance" — a worse
+//     effort-to-impact ratio than the other 6 candidates, all of which
+//     reuse the same plain stat-tile shape already on screen.
+//   - 一番遠くまで行った記録 (already implemented, kept out of this
+//     function on purpose) — it doesn't actually describe a fixed
+//     historical fact. It's computed from the *device's current* GPS
+//     position to each collected poke lid, so the same collection history
+//     produces a different answer depending on where the phone happens to
+//     be when the screen opens (open it from home in Tokyo vs. mid-trip in
+//     Osaka: different "farthest" answer, same data). That instability —
+//     plus it silently disappearing whenever location permission is
+//     denied — makes it a worse fit for a *retrospective* than the 5
+//     stats below, every one of which is a fixed function of the
+//     collection records alone and never changes just because the viewer
+//     moved.
+export interface RetrospectiveCollectionInput {
+  pokeLidId: string;
+  visitedAt: string; // ISO instant
+  // The record's primary photo's medal — null if the record has no photo
+  // at all (matches ExportCollectionRecord's own convention above, and
+  // CollectionDto.photos[].isPrimary elsewhere).
+  medal: PhotoMedal | null;
+}
+
+// Minimal poke-lid shape this needs to resolve each collected pokeLidId's
+// location/region/municipality, and to compute each region's *total*
+// non-retired lid count (the "制覇した地方" denominator). Deliberately
+// loose — matches PokeLidDto's own field names — so a caller can pass its
+// already-fetched poke-lid list straight through, same spirit as
+// buildCollectionSummary's own PokeLidSummaryCandidate above.
+export interface RetrospectiveLidInfo {
+  id: string;
+  prefectureId: number;
+  municipality: string;
+  latitude: number;
+  longitude: number;
+  retiredAt: string | null;
+}
+
+export interface RetrospectiveStats {
+  // Sum of consecutive-visit distances, sorted by visitedAt — see this
+  // function's own inline comment for why a "there and back" round trip is
+  // counted twice rather than netted out to a straight-line span. null
+  // when fewer than 2 collections resolve to a real poke lid (nothing to
+  // measure between yet) — the caller should hide this stat entirely
+  // rather than show "0km" or omit it silently, per 7-1's own note that a
+  // single record can't produce this number.
+  totalDistanceKm: number | null;
+  // null when no collection has a photo at all — an empty-denominator rate
+  // has nothing meaningful to show (this is about the *fraction of
+  // photographed visits* that were close enough to prove, not a fraction
+  // of all visits including ones nobody tried to photograph).
+  goldRate: { goldCount: number; photographedCount: number; percent: number } | null;
+  // Region codes (PrefectureDto.region, e.g. 'Kansai') where every
+  // non-retired poke lid has been collected. Deliberately just the
+  // completed ones, never a partial-progress number per region — same
+  // "don't show an unmotivating near-zero state" principle 7-5's
+  // pickMunicipalityGoals already applies to municipality goals.
+  completedRegions: string[];
+  // Longest run of consecutive calendar months (JST) containing at least
+  // one record. null below 2 — a "1ヶ月連続" streak isn't a streak, so per
+  // 7-1's own note the caller should hide this stat rather than show it.
+  longestStreakMonths: number | null;
+  // Distinct (prefectureId, municipality) pairs — see municipalityKey.
+  municipalityCount: number;
+}
+
+export function buildRetrospectiveStats(
+  collections: readonly RetrospectiveCollectionInput[],
+  allLids: readonly RetrospectiveLidInfo[],
+): RetrospectiveStats {
+  const lidsById = new Map(allLids.map((l) => [l.id, l]));
+  const regionByPrefectureId = new Map(PREFECTURES.map((p) => [p.id, p.region]));
+
+  const withLocation = collections
+    .map((c) => ({ visitedAt: c.visitedAt, lid: lidsById.get(c.pokeLidId) }))
+    .filter((c): c is { visitedAt: string; lid: RetrospectiveLidInfo } => c.lid !== undefined)
+    .sort((a, b) => new Date(a.visitedAt).getTime() - new Date(b.visitedAt).getTime());
+
+  // "東京→大阪→東京" counts as two legs, not a net span of ~0 — a round
+  // trip really did cover that much ground, and (c)'s alternative (some
+  // notion of bounding-box span) answers a different question ("how
+  // spread out is your collection") that isn't what "移動した総距離" asks.
+  let totalDistanceKm: number | null = null;
+  if (withLocation.length >= 2) {
+    let sumMeters = 0;
+    for (let i = 1; i < withLocation.length; i++) {
+      sumMeters += haversineDistanceMeters(
+        withLocation[i - 1].lid.latitude,
+        withLocation[i - 1].lid.longitude,
+        withLocation[i].lid.latitude,
+        withLocation[i].lid.longitude,
+      );
+    }
+    totalDistanceKm = sumMeters / 1000;
+  }
+
+  const photographed = collections.filter((c) => c.medal !== null);
+  const goldCount = photographed.filter((c) => c.medal === 'GOLD').length;
+  const goldRate =
+    photographed.length > 0
+      ? {
+          goldCount,
+          photographedCount: photographed.length,
+          percent: Math.round((goldCount / photographed.length) * 100),
+        }
+      : null;
+
+  const collectedLidIds = new Set(collections.map((c) => c.pokeLidId));
+  const regionTotals = new Map<string, number>();
+  const regionCollected = new Map<string, number>();
+  for (const lid of allLids) {
+    // Matches countsTowardProgress's own denominator convention elsewhere
+    // (a retired poke lid drops out of every completion-style tally, not
+    // just the prefecture-level one).
+    if (lid.retiredAt !== null) continue;
+    const region = regionByPrefectureId.get(lid.prefectureId);
+    if (!region) continue;
+    regionTotals.set(region, (regionTotals.get(region) ?? 0) + 1);
+    if (collectedLidIds.has(lid.id)) {
+      regionCollected.set(region, (regionCollected.get(region) ?? 0) + 1);
+    }
+  }
+  const completedRegions = [...regionTotals.entries()]
+    .filter(([region, total]) => total > 0 && regionCollected.get(region) === total)
+    .map(([region]) => region);
+
+  // toJstIsoDate (above, buildExportCsv's own helper) already solves "which
+  // calendar day does this instant fall on in Japan" — reused here via
+  // .slice(0, 7) rather than re-deriving JST month boundaries a second way.
+  const monthIndices = new Set(
+    collections.map((c) => {
+      const [year, month] = toJstIsoDate(c.visitedAt).slice(0, 7).split('-').map(Number);
+      return year * 12 + (month - 1); // linear month index — consecutive iff differs by exactly 1
+    }),
+  );
+  const sortedMonths = [...monthIndices].sort((a, b) => a - b);
+  let longestStreak = 0;
+  let currentStreak = 0;
+  let previousMonth: number | null = null;
+  for (const month of sortedMonths) {
+    currentStreak = previousMonth !== null && month === previousMonth + 1 ? currentStreak + 1 : 1;
+    longestStreak = Math.max(longestStreak, currentStreak);
+    previousMonth = month;
+  }
+  const longestStreakMonths = longestStreak >= 2 ? longestStreak : null;
+
+  const municipalityCount = new Set(
+    collections
+      .map((c) => lidsById.get(c.pokeLidId))
+      .filter((lid): lid is RetrospectiveLidInfo => lid !== undefined)
+      .map((lid) => municipalityKey(lid.prefectureId, lid.municipality)),
+  ).size;
+
+  return { totalDistanceKm, goldRate, completedRegions, longestStreakMonths, municipalityCount };
+}

@@ -572,6 +572,55 @@ export function isBulkSyncStopStatus(status: number): boolean {
 // should stay stable once users are relying on it to mean something.
 export const QUICK_RECORD_RADIUS_METERS = 200;
 
+// apps/mobile's PhotoPreviewModal (4-4): warns, before the photo is ever
+// recorded, when its EXIF GPS is far from the poke lid the user selected —
+// so a "picked poke lid A, photographed poke lid B" mix-up can be caught
+// and fixed on the spot instead of only showing up afterward, in the
+// medal/distance display this same distance already feeds.
+//
+// Deliberately a THIRD, separate constant from GEO_VERIFY_RADIUS_METERS
+// (apps/api's collections.ts, 200m, medal determination) and
+// QUICK_RECORD_RADIUS_METERS above (200m, live-GPS map gate) — same
+// reasoning QUICK_RECORD_RADIUS_METERS's own comment gives for being split
+// from GEO_VERIFY_RADIUS_METERS: each answers a different question, and
+// must be free to move independently. GEO_VERIFY_RADIUS_METERS asks "is
+// this close enough to count as proof" (tight — it's the bar for GOLD);
+// this one asks "is this far enough away that the user probably picked the
+// wrong poke lid" (loose — it exists to catch gross mistakes, not to
+// verify precision). The two must never converge: a slightly-off GPS fix
+// at the *correct* poke lid should get a NONE/SILVER medal without ever
+// triggering this warning, which only fires on a much bigger gap.
+//
+// 1000m — chosen from the actual poke lid distance distribution
+// (apps/mobile/src/data/poke-lids.json, 481 poke lids, checked 2026-08),
+// not picked in the abstract. Many poke lids share a single park/shopping
+// street/shrine complex with several others — 21 pairs sit under 200m
+// apart nationwide, the closest just 13m — so a threshold anywhere near
+// the GPS-noise ceiling this codebase already assumes elsewhere (100–200m;
+// see QUICK_RECORD_RADIUS_METERS's own comment on indoor/underground fix
+// error) would misfire constantly for anyone standing in one of those
+// clusters and simply getting a slightly-off reading at the *correct* one.
+// 1000m is 5x that noise ceiling — comfortably clear of every real cluster
+// found in the dataset (none extend much past ~200m) — while staying well
+// under "a few km", so it still catches most (112 of 177, ~63%) pairs of
+// poke lids in the *same* municipality that are genuinely different
+// locations, not just the same spot photographed twice. The accepted
+// trade-off: 55 of 481 poke lids (~11%) have some other poke lid within
+// 1000m, so a genuine wrong-pick confined to one of those tight clusters
+// won't trigger this warning — the same "don't cry wolf" trade-off
+// QUICK_RECORD_RADIUS_METERS already makes, just applied in the opposite
+// direction (favoring silence over false alarms).
+export const PHOTO_LOCATION_MISMATCH_THRESHOLD_METERS = 1000;
+
+// Pure predicate so PhotoPreviewModal doesn't reimplement the null/NaN
+// handling itself — same "one source of truth" reasoning as
+// determinePhotoMedal above. `distanceMeters === null` (no GPS in the
+// EXIF at all) must never warn: this feature has nothing to say about a
+// photo it can't measure, which is not evidence of a mistake.
+export function isPhotoLocationMismatch(distanceMeters: number | null, thresholdMeters: number): boolean {
+  return distanceMeters !== null && Number.isFinite(distanceMeters) && distanceMeters > thresholdMeters;
+}
+
 // No poke lid was installed before this date; a Collection.visitedAt earlier
 // than it can only be bad client input, and would otherwise corrupt the
 // collection screen's "first/latest record" stats and the orderBy sort.

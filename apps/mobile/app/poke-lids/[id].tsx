@@ -34,6 +34,7 @@ import {
 import { useAuth } from '../../src/lib/auth';
 import { confirmAsync } from '../../src/lib/confirm';
 import { formatDateJST } from '../../src/lib/date';
+import { formatDistanceMeters } from '../../src/lib/formatDistance';
 import { captureGuestPhoto } from '../../src/lib/guestPhotoCapture';
 import {
   getGuestPhotos,
@@ -51,6 +52,7 @@ import {
 import { maybeShowInstallPrompt } from '../../src/lib/installPrompt';
 import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
+import { extractPhotoExif } from '../../src/lib/photoExif';
 import { showToast } from '../../src/lib/toast';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
@@ -74,18 +76,16 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
   return POKE_LIDS.map((l) => ({ id: l.id }));
 }
 
-// Meter precision below 1km — a guest photo's distance is meant to read as
-// "close enough to prove it" (the example in 7-9 is "現地から12m"), which a
-// single decimal of km would round away entirely.
+// a guest photo's distance is meant to read as "close enough to prove it"
+// (the example in 7-9 is "現地から12m") — formatDistanceMeters already gives
+// meter precision below 1km for exactly that reason.
 function formatPhotoDistance(distanceMeters: number | null): string {
   // !Number.isFinite, not `=== null` alone — validateCoordinates
   // (@pokelids/shared) should already keep NaN out of distanceMeters
   // upstream, but this is the display layer's own backstop against ever
   // rendering "現地からNaNkm" again, whatever produced the bad value.
   if (distanceMeters === null || !Number.isFinite(distanceMeters)) return '位置情報なし';
-  return distanceMeters < 1000
-    ? `現地から${Math.round(distanceMeters)}m`
-    : `現地から${(distanceMeters / 1000).toFixed(1)}km`;
+  return `現地から${formatDistanceMeters(distanceMeters)}`;
 }
 
 export default function PokeLidDetailScreen() {
@@ -106,6 +106,13 @@ export default function PokeLidDetailScreen() {
   const [pendingPhoto, setPendingPhoto] = useState<
     (UploadPhotoInput & { source: 'camera' | 'library' }) | null
   >(null);
+  // The EXIF distance for `pendingPhoto`, read at pick time so
+  // PhotoPreviewModal can warn about a likely wrong-poke-lid mix-up before
+  // the photo is ever recorded — not the server's (or, for a guest,
+  // captureGuestPhoto's) own later, authoritative read. Only informational
+  // here, same "client-side reading is advisory, never a promise" stance
+  // QUICK_RECORD_RADIUS_METERS's own doc comment takes.
+  const [pendingPhotoDistanceMeters, setPendingPhotoDistanceMeters] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
   // Fraction (0–1), not a percent int — the progress bar below does its own
   // rounding for display so this stays the raw value from the transport.
@@ -239,6 +246,19 @@ export default function PokeLidDetailScreen() {
     if (result.canceled) return;
 
     const asset = result.assets[0];
+    // Read before opening PhotoPreviewModal (not after confirming) so its
+    // location-mismatch warning can show immediately, with no flicker —
+    // this is a second, independent EXIF read from the one
+    // uploadCollection/captureGuestPhoto do later for the real medal/
+    // distance; kept separate rather than threaded through so this
+    // screen's "preview" and "commit" steps stay as decoupled as
+    // PhotoPreviewModal's own design already treats them (4-4).
+    const exif = await extractPhotoExif({ uri: asset.uri, webFile: asset.file });
+    setPendingPhotoDistanceMeters(
+      exif.latitude !== null && exif.longitude !== null && lid
+        ? haversineDistanceMeters(exif.latitude, exif.longitude, lid.latitude, lid.longitude)
+        : null,
+    );
     setPendingPhoto({
       source,
       uri: asset.uri,
@@ -252,17 +272,20 @@ export default function PokeLidDetailScreen() {
   function onRetakePhoto() {
     const source = pendingPhoto?.source;
     setPendingPhoto(null);
+    setPendingPhotoDistanceMeters(null);
     if (source) void onPickPhoto(source);
   }
 
   function onDismissPreview() {
     setPendingPhoto(null);
+    setPendingPhotoDistanceMeters(null);
   }
 
   async function onConfirmUpload() {
     if (!pendingPhoto || !lid) return;
     const { source, ...photo } = pendingPhoto;
     setPendingPhoto(null);
+    setPendingPhotoDistanceMeters(null);
 
     if (!user) {
       await onConfirmGuestPhoto(photo, lid);
@@ -592,6 +615,8 @@ export default function PokeLidDetailScreen() {
         visible={pendingPhoto !== null}
         uri={pendingPhoto?.uri ?? null}
         source={pendingPhoto?.source ?? 'camera'}
+        distanceMeters={pendingPhotoDistanceMeters}
+        pokeLidMunicipality={lid.municipality}
         onConfirm={onConfirmUpload}
         onRetake={onRetakePhoto}
         onDismiss={onDismissPreview}

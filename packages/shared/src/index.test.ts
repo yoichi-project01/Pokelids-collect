@@ -9,6 +9,7 @@ import {
   determinePhotoMedal,
   haversineDistanceMeters,
   isBulkSyncStopStatus,
+  isPhotoLocationMismatch,
   isPokeLidVisible,
   isValidVisitedAt,
   municipalityKey,
@@ -234,6 +235,38 @@ describe('determinePhotoMedal', () => {
 
   it('is NONE when far away', () => {
     expect(determinePhotoMedal(50_000, RADIUS)).toBe('NONE');
+  });
+});
+
+describe('isPhotoLocationMismatch', () => {
+  const THRESHOLD = 1000;
+
+  it('never warns when there is no location data at all', () => {
+    expect(isPhotoLocationMismatch(null, THRESHOLD)).toBe(false);
+  });
+
+  it('never warns on a NaN distance (defensive — should not reach here in practice)', () => {
+    expect(isPhotoLocationMismatch(NaN, THRESHOLD)).toBe(false);
+  });
+
+  it('does not warn exactly at the threshold', () => {
+    expect(isPhotoLocationMismatch(1000, THRESHOLD)).toBe(false);
+  });
+
+  it('does not warn just under the threshold', () => {
+    expect(isPhotoLocationMismatch(999.99, THRESHOLD)).toBe(false);
+  });
+
+  it('warns just over the threshold', () => {
+    expect(isPhotoLocationMismatch(1000.01, THRESHOLD)).toBe(true);
+  });
+
+  it('does not warn at zero distance', () => {
+    expect(isPhotoLocationMismatch(0, THRESHOLD)).toBe(false);
+  });
+
+  it('warns when far away', () => {
+    expect(isPhotoLocationMismatch(1_203_000, THRESHOLD)).toBe(true);
   });
 });
 

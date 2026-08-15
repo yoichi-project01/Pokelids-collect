@@ -169,3 +169,33 @@ postinstall がスキーマを見つけられず型が生成されないまま `
 ポケふたのマスタデータは `apps/api/etl/scrape.ts` が `local.pokemon.jp` から取得する。
 セレクタ依存なので公式サイトのリニューアルで壊れる。ETL を触るときは
 件数の安全装置（前回比を下回ったら中断）を必ず維持すること。
+
+**定期実行（対応済み・2026-08-15）**: `scripts/etl-cron.sh` が毎週日曜5:00 JST
+（crontabの記述はホストのシステム時刻がUTCのため土曜20:00）に host cron から
+直接実行する（`docker exec` ではない — ETLソース自体がAPIコンテナのイメージに
+含まれていないため実行不可。DBは`127.0.0.1:5433`、写真は`/mnt/photos/pokelids`と、
+ホストから直接到達できるので `docker exec` は元々不要）。ログは
+`/mnt/photos/pokelids-backups/etl.log`（backup.sh と同じ場所）。失敗時
+（1-1の安全装置が発火した場合を含む）は `~/.msmtprc` の msmtp 経由で
+`setoyama.yoichi@gmail.com` にアラートメールを送る（pc-monitorと同じ仕組みを再利用、
+新規の通知基盤は作っていない）。安全装置が発火した場合、DBは更新されない
+（テスト済み）。
+
+**ETL成功後の反映は自動化していない**（意図的な判断）。新規ポケふたは年に数十件
+程度で頻度が低く、`apps/mobile/src/data/poke-lids.json`（バンドル済みスナップショット、
+7-4/7-5/5-1が参照）への反映には Docker の再ビルド（5-10分、コンテナ再作成を伴う）が
+必要になるため、無人の週次ジョブで自動的に走らせるほどの価値がないと判断した。
+`etl.log` に `Upserted`/`retired`/`restored` の件数が0より大きい行があれば、
+以下を手動で実行して反映すること:
+
+```bash
+DATABASE_URL=postgresql://<user>:<pass>@127.0.0.1:5433/pokelids \
+  npm run dump-poke-lids --workspace=@pokelids/api
+sudo docker compose build pokelids_api
+sudo docker compose up -d pokelids_api
+```
+
+sitemap.xml は `/sitemap.xml` ルートが毎回DBを直接クエリしているため、
+ETL後は再ビルド不要で自動的に反映される（`Cache-Control: public, max-age=3600`は
+クライアント/CDN側のキャッシュ指示のみで、サーバー側では都度最新を返す。
+2026-08-15に本番で確認済み）。

@@ -14,10 +14,17 @@ enum PhotoMedal {
 }
 
 model Prefecture {
-  id           Int    @id
-  nameJa       String @map("name_ja")
-  nameEn       String @map("name_en")
-  region       String
+  id     Int    @id
+  nameJa String @map("name_ja")
+  nameEn String @map("name_en")
+  region String
+  // 2-4での調査時点では seed.ts が id と同じ値を入れているため、id 順ソート
+  // と区別がつかない（冗長）。それでも id とは別カラムとして残しているのは、
+  // 将来「特定の県を上位に出す」「地方内の並びを手で調整する」といった
+  // 表示順の編集がseedデータの書き換えだけで（スキーマ変更・マイグレーション
+  // なしで）できるようにするため。id 自体（都道府県コード相当）を並び替えの
+  // 手段に使うと、他の場所（都道府県コードとしての参照）との意味の混同を
+  // 招く。
   displayOrder Int    @map("display_order")
 
   pokeLids PokeLid[]
@@ -39,7 +46,6 @@ model User {
   // wrong-password error.
   passwordHash    String?   @map("password_hash")
   displayName     String    @map("display_name")
-  isAdmin         Boolean   @default(false) @map("is_admin")
   // Google's stable per-account `sub` claim — never the email, which can
   // change on Google's side independently of this row. Unique, nullable:
   // Postgres unique indexes treat NULL as distinct from every other NULL,
@@ -130,10 +136,8 @@ model PokeLid {
   address           String
   latitude          Decimal   @db.Decimal(9, 6)
   longitude         Decimal   @db.Decimal(9, 6)
-  installDate       DateTime? @map("install_date") @db.Date
   officialImageUrl  String?   @map("official_image_url")
   officialSourceUrl String    @map("official_source_url")
-  notes             String?
   lastSyncedAt      DateTime? @map("last_synced_at")
   // Set by the ETL when a previously-seen officialRef is missing from a scrape
   // (physically removed/closed), cleared again if it later reappears (a
@@ -168,6 +172,9 @@ model Collection {
   @@unique([userId, pokeLidId])
   @@index([userId])
   @@index([pokeLidId])
+  // コレクション画面の GET /api/collections/me（orderBy: visitedAt desc、
+  // 7-6でContext化されて呼び出し回数自体は減ったが、クエリは残っている）用。
+  @@index([userId, visitedAt])
   @@map("collections")
 }
 

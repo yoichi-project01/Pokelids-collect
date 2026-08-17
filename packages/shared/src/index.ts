@@ -91,10 +91,8 @@ export interface PokeLidDto {
   address: string;
   latitude: number;
   longitude: number;
-  installDate: string | null;
   officialImageUrl: string | null;
   officialSourceUrl: string;
-  notes: string | null;
   // Set once the ETL no longer finds this poke lid on the official site.
   // Absent from a stale bundled snapshot predating this field — callers
   // should compare with `!= null` (not `!==`) so `undefined` there is

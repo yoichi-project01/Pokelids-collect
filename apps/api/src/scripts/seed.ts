@@ -22,18 +22,21 @@ async function main() {
   console.log(`Seeded ${PREFECTURES.length} prefectures`);
   console.log('Poke lid master data is populated separately via `npm run etl:scrape` (see etl/scrape.ts)');
 
-  const adminEmail = process.env.ADMIN_SEED_EMAIL;
-  const adminPassword = process.env.ADMIN_SEED_PASSWORD;
-  if (adminEmail && adminPassword) {
-    const passwordHash = await bcrypt.hash(adminPassword, 12);
+  // 2-4: 「管理者」ではなく単なる最初のユーザーアカウントを作るための値
+  // （管理者専用の機能・チェックは存在しない。かつてUser.isAdminを設定
+  // していたが、未使用だったため2-4で削除した）。
+  const seedUserEmail = process.env.SEED_USER_EMAIL;
+  const seedUserPassword = process.env.SEED_USER_PASSWORD;
+  if (seedUserEmail && seedUserPassword) {
+    const passwordHash = await bcrypt.hash(seedUserPassword, 12);
     await prisma.user.upsert({
-      where: { email: adminEmail },
-      update: { passwordHash, isAdmin: true },
-      create: { email: adminEmail, passwordHash, displayName: 'Admin', isAdmin: true },
+      where: { email: seedUserEmail },
+      update: { passwordHash },
+      create: { email: seedUserEmail, passwordHash, displayName: 'Owner' },
     });
-    console.log(`Seeded admin user ${adminEmail}`);
+    console.log(`Seeded user ${seedUserEmail}`);
   } else {
-    console.log('ADMIN_SEED_EMAIL / ADMIN_SEED_PASSWORD not set, skipping admin user seed');
+    console.log('SEED_USER_EMAIL / SEED_USER_PASSWORD not set, skipping user seed');
   }
 }
 

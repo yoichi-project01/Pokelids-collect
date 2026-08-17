@@ -97,10 +97,8 @@ export function serializePokeLid(lid: {
   address: string;
   latitude: unknown;
   longitude: unknown;
-  installDate: Date | null;
   officialImageUrl: string | null;
   officialSourceUrl: string;
-  notes: string | null;
   retiredAt: Date | null;
 }) {
   return {
@@ -113,10 +111,8 @@ export function serializePokeLid(lid: {
     address: lid.address,
     latitude: Number(lid.latitude),
     longitude: Number(lid.longitude),
-    installDate: lid.installDate?.toISOString() ?? null,
     officialImageUrl: lid.officialImageUrl,
     officialSourceUrl: lid.officialSourceUrl,
     retiredAt: lid.retiredAt?.toISOString() ?? null,
-    notes: lid.notes,
   };
 }

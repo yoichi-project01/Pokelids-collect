@@ -48,11 +48,13 @@ import { colors, radius, spacing, typography } from '../../src/theme';
 // 10kmではなく、あと1つ("何が近くにあるか")を見せることに主眼を置いた範囲。
 // HomeMapPreviewのバッジ、グリッドの見出しの両方で使う唯一のソース。
 const NEARBY_RANGE_KM = 10;
-// 「20〜30件＋もっと見る」の目安（背景参照）。2/3/6列いずれでも大きく余らない
-// キリのいい数にした（5列時だけ端数が出るが、既存のuseGridDataのプレース
-// ホルダーで吸収される）。
-const GRID_INITIAL_COUNT = 24;
-const GRID_PAGE_SIZE = 24;
+// 件数は「列数 × 行数」で決める（固定件数だと画面幅によって行数がばらつき、
+// 端数行で下端が揃わなくなるため）。2行にしたのは、実機（PC・1920px・6列）で
+// 確認したうえでの判断: 6列×2行=12件がPCで「2行に収まる」という目安と一致し、
+// 375px・2〜3列でも1スクロール以内に下端が来る。「もっと見る」も同じ単位
+// （列数×2行）で増やす。
+const GRID_ROWS_INITIAL = 2;
+const GRID_ROWS_PER_PAGE = 2;
 const MEDAL_EMOJI: Record<'GOLD' | 'SILVER', string> = { GOLD: '🥇', SILVER: '🥈' };
 
 interface HomeData {
@@ -175,7 +177,12 @@ export default function HomeScreen() {
   const [error, setError] = useState(false);
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationStatus, setLocationStatus] = useState<LocationPermissionStatus | null>(null);
-  const [visibleGridCount, setVisibleGridCount] = useState(GRID_INITIAL_COUNT);
+  // How many extra "もっと見る" pages have been revealed — not a raw item
+  // count, so that resizing the window (changing `columns`, e.g. rotating a
+  // tablet or resizing a browser) recomputes both the initial and per-page
+  // sizes against the *current* column count rather than freezing whatever
+  // was true at the first render.
+  const [revealedPages, setRevealedPages] = useState(0);
   const columns = useResponsiveColumns();
 
   const checkLocation = useCallback(async () => {
@@ -270,9 +277,17 @@ export default function HomeScreen() {
     [collections, data?.guestItems],
   );
   const gridItemsFull = nearbyGrid ?? recentGrid;
+  const visibleGridCount = columns * GRID_ROWS_INITIAL + revealedPages * columns * GRID_ROWS_PER_PAGE;
   const gridItems = gridItemsFull.slice(0, visibleGridCount);
   const hasMoreGridItems = gridItemsFull.length > gridItems.length;
   const gridData = useGridData(gridItems, columns);
+  // "始めたばかりのユーザーには一面グレーに見える" 対策 — 並び替え・混在の
+  // ロジック自体（「近くの」という前提）は変えず、実際に見えている範囲
+  // （gridItems、フルリストではない）に収集済みが1件もないときだけ、
+  // Onboarding.tsxと同じ「訪れて撮影すると、色がつきます」のコピーを
+  // 添える。距離を無視して収集済みを混ぜる案（背景で挙げられていたもう
+  // 一方）は「近くの」の前提を崩すため見送った。
+  const visibleGridAllGray = gridItems.length > 0 && gridItems.every((item) => !item.collected);
 
   const nearbyWithinRangeCount = useMemo(() => {
     if (!nearbyGrid) return null;
@@ -392,6 +407,12 @@ export default function HomeScreen() {
                   {location && <Text style={styles.gridSortedLabel}>📍現在地から近い順</Text>}
                 </View>
               )}
+              {/* 表示中の範囲に収集済みが1件もないとき（例: 記録が1件だけ
+                  あり、かつ現在地がそこから遠い）、一面グレーだけが理由も
+                  なく並ぶと「まだ何もない」と誤解されやすい。Onboarding
+                  の導入と同じコピーで、これは意図した見た目であることを
+                  補足する。 */}
+              {visibleGridAllGray && <Text style={styles.grayscaleHint}>訪れて撮影すると、色がつきます</Text>}
               {!location && gridItemsFull.length > 0 && (
                 <LocationPermissionCta
                   status={locationStatus}
@@ -441,7 +462,7 @@ export default function HomeScreen() {
                 <Button
                   title="もっと見る"
                   variant="ghost"
-                  onPress={() => setVisibleGridCount((c) => c + GRID_PAGE_SIZE)}
+                  onPress={() => setRevealedPages((p) => p + 1)}
                   style={styles.moreButton}
                 />
               )}
@@ -542,6 +563,12 @@ const styles = StyleSheet.create({
   },
   gridTitleText: { ...typography.caption, textTransform: 'uppercase' },
   gridSortedLabel: { ...typography.footnote },
+  grayscaleHint: {
+    ...typography.footnote,
+    color: colors.textSecondary,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
   locationCta: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.sm,

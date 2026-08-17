@@ -16,9 +16,10 @@ import { HorizontalFadeScroll } from '../../src/components/HorizontalFadeScroll'
 import { ListRow } from '../../src/components/ListRow';
 import { ProgressBar } from '../../src/components/ProgressBar';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
-import { fetchMyCollections, fetchNearbyPokeLids, fetchPrefectureProgress } from '../../src/lib/api';
+import { fetchNearbyPokeLids, fetchPrefectureProgress } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
-import { getGuestCollections, mergeGuestProgress } from '../../src/lib/guestStorage';
+import { useCollections } from '../../src/lib/collections';
+import { getGuestCollections, mergeGuestProgress, type GuestCollection } from '../../src/lib/guestStorage';
 import {
   getCurrentLocation,
   getLocationPermissionStatus,
@@ -41,30 +42,28 @@ const NEARBY_RANGE_KM = 10;
 
 interface HomeData {
   progress: ProgressDto;
-  // Unsliced — the horizontal card row below only shows the first
-  // NEXT_TO_COLLECT_COUNT, but the "今日行ける範囲" stat needs the full
-  // fetched set to count how many fall within NEARBY_RANGE_KM.
-  uncollected: NearbyPokeLidDto[];
+  guestItems: GuestCollection[];
+  // Unfiltered by collected status — see the `uncollected` useMemo below,
+  // which combines this with the shared collections context (7-6)
+  // reactively. Kept separate from that filtering so a collections-context
+  // update (a mutation on another screen, or the context's own 40-minute
+  // safety refresh) doesn't have to re-fetch progress/nearby to reflect it —
+  // it's a pure client-side re-filter instead.
+  nearbyRaw: NearbyPokeLidDto[];
 }
 
 type PrefectureProgress = ProgressDto['byPrefecture'][number];
 
 async function loadHomeData(location: Coordinates | null): Promise<HomeData> {
-  const [progressRes, guestItems, collections, nearby] = await Promise.all([
+  const [progressRes, guestItems, nearby] = await Promise.all([
     fetchPrefectureProgress(),
     getGuestCollections(),
-    fetchMyCollections(),
     fetchNearbyPokeLids(location, NEARBY_FETCH_COUNT),
   ]);
 
-  const collectedIds = new Set([
-    ...collections.map((c) => c.pokeLidId),
-    ...guestItems.map((g) => g.pokeLidId),
-  ]);
   const progress = guestItems.length > 0 ? mergeGuestProgress(progressRes, guestItems) : progressRes;
-  const uncollected = nearby.filter((l) => !collectedIds.has(l.id));
 
-  return { progress, uncollected };
+  return { progress, guestItems, nearbyRaw: nearby };
 }
 
 function countWithinRange(uncollected: NearbyPokeLidDto[], location: Coordinates | null): number {
@@ -136,6 +135,7 @@ function LocationPermissionCta({
 export default function PrefecturesScreen() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
+  const { collections, refresh: refreshCollections } = useCollections();
   const [data, setData] = useState<HomeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -193,10 +193,14 @@ export default function PrefecturesScreen() {
     }, [authLoading, user, location]),
   );
 
+  // Explicit refresh — also re-fetches the shared collections context
+  // (7-6's "明示的な更新手段では再取得すること"), since a stale
+  // `collections` here would let an already-collected poke lid keep showing
+  // in "次に集めよう" until something else happens to refresh it.
   function onRefresh() {
     setLoading(true);
-    loadHomeData(location)
-      .then((result) => {
+    Promise.all([loadHomeData(location), refreshCollections()])
+      .then(([result]) => {
         setData(result);
         setError(false);
       })
@@ -206,10 +210,22 @@ export default function PrefecturesScreen() {
 
   const progress = data?.progress ?? null;
   const percent = progress ? progressPercent(progress.collectedCount, progress.totalPokeLids) : 0;
-  const nextToCollect = (data?.uncollected ?? []).slice(0, NEXT_TO_COLLECT_COUNT);
+  // Reactive, not part of loadHomeData's own fetch — re-filtering against the
+  // latest `collections` (context) whenever it changes costs nothing extra
+  // over the network, unlike putting `collections` in the focus effect's own
+  // deps below would (see HomeData's doc comment).
+  const uncollected = useMemo(() => {
+    if (!data) return [];
+    const collectedIds = new Set([
+      ...collections.map((c) => c.pokeLidId),
+      ...data.guestItems.map((g) => g.pokeLidId),
+    ]);
+    return data.nearbyRaw.filter((l) => !collectedIds.has(l.id));
+  }, [data, collections]);
+  const nextToCollect = uncollected.slice(0, NEXT_TO_COLLECT_COUNT);
   const nearbyWithinRangeCount = useMemo(
-    () => countWithinRange(data?.uncollected ?? [], location),
-    [data?.uncollected, location],
+    () => countWithinRange(uncollected, location),
+    [uncollected, location],
   );
   const municipalityGoals = useMemo(
     () => pickMunicipalityGoals(progress?.byMunicipality ?? [], location),

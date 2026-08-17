@@ -1,11 +1,12 @@
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { haversineDistanceMeters, isPokeLidVisible, QUICK_RECORD_RADIUS_METERS } from '@pokelids/shared';
-import { fetchMyCollections, fetchPokeLids } from './api';
 import { useAuth } from './auth';
+import { useCollections } from './collections';
 import { getGuestCollectedIds } from './guestStorage';
 import { getCurrentLocation, type Coordinates } from './location';
 import type { MapMarkerData } from './mapHtml';
+import { getFreshPokeLids } from './pokeLidsData';
 
 // Bare marker data — everything except canQuickRecord, which depends on
 // `location` and is computed separately below (see `markers`) so a location
@@ -25,6 +26,7 @@ export function useMapMarkers(): {
   reload: () => void;
 } {
   const { user, isLoading: authLoading } = useAuth();
+  const { collections, refresh: refreshCollections } = useCollections();
   const [rawMarkers, setRawMarkers] = useState<RawMarkerData[] | null>(null);
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [error, setError] = useState(false);
@@ -34,6 +36,23 @@ export function useMapMarkers(): {
   useEffect(() => {
     getCurrentLocation().then(setLocation);
   }, []);
+
+  // Read via a ref, not a direct dependency of the focus effect below — a
+  // quick-record upload right here on the map (useQuickRecord.ts) already
+  // calls upsertCollection, which would change `collections`' identity and,
+  // if it were a dependency, retrigger this *entire* effect: a full
+  // getFreshPokeLids() version-check + rawMarkers rebuild + WebView/iframe
+  // HTML regeneration, resetting the map's pan/zoom right when the user
+  // most wants it to hold still — exactly what onCollected's own
+  // postMessage-based in-place pin patch (see map.tsx/map.web.tsx) exists to
+  // avoid. Reading through a ref means a background collections change (a
+  // mutation on another screen, the context's 40-minute safety refresh)
+  // still shows correctly next time this effect naturally re-runs (a real
+  // focus event, or reload()), without forcing that rebuild immediately.
+  const collectionsRef = useRef(collections);
+  useEffect(() => {
+    collectionsRef.current = collections;
+  }, [collections]);
 
   // Refetch on every focus, not just on mount: both map screens live in a
   // persistent tab and never unmount, so without this a newly-recorded poke
@@ -45,10 +64,10 @@ export function useMapMarkers(): {
       if (authLoading) return;
       let cancelled = false;
       setRefreshing(true);
-      Promise.all([fetchPokeLids(), fetchMyCollections(), getGuestCollectedIds()])
-        .then(([lids, collections, guestIds]) => {
+      Promise.all([getFreshPokeLids(), getGuestCollectedIds()])
+        .then(([lids, guestIds]) => {
           if (cancelled) return;
-          const collectedIds = new Set([...collections.map((c) => c.pokeLidId), ...guestIds]);
+          const collectedIds = new Set([...collectionsRef.current.map((c) => c.pokeLidId), ...guestIds]);
           setRawMarkers(
             lids
               .filter((l) => isPokeLidVisible(l.retiredAt, collectedIds.has(l.id)))
@@ -74,7 +93,8 @@ export function useMapMarkers(): {
       };
       // `user` isn't read in the body, but its identity changes on
       // login/logout and that's exactly when collections/guest-merge data
-      // needs to be refetched.
+      // needs to be refetched. `collections` is deliberately NOT a
+      // dependency here — see collectionsRef above.
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [authLoading, user, reloadKey]),
   );
@@ -95,5 +115,14 @@ export function useMapMarkers(): {
     }));
   }, [rawMarkers, location]);
 
-  return { markers, location, error, refreshing, reload: () => setReloadKey((k) => k + 1) };
+  // The manual refresh button (7-6's own "地図の更新ボタン") also re-fetches
+  // the shared collections context — the focus effect above deliberately
+  // doesn't (see collectionsRef), so this is the map's one explicit trigger
+  // for it.
+  function reload() {
+    void refreshCollections();
+    setReloadKey((k) => k + 1);
+  }
+
+  return { markers, location, error, refreshing, reload };
 }

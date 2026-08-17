@@ -1,15 +1,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  computeCelebrationMilestone,
-  countsTowardProgress,
-  type CollectionSummary,
-  type PhotoMedal,
-  type PokeLidDto,
-} from '@pokelids/shared';
-import POKE_LIDS from '../data/poke-lids.json';
+import { computeCelebrationMilestone, type CollectionSummary, type PhotoMedal } from '@pokelids/shared';
 import { ApiError, uploadCollection, type UploadPhotoInput } from './api';
+import { useCollections } from './collections';
+import { TOTAL_POKE_LIDS_NATIONWIDE } from './pokeLidsData';
 import { showToast } from './toast';
 
 interface PendingQuickPhoto extends UploadPhotoInput {
@@ -36,6 +31,7 @@ interface QuickCelebration {
 // whole map, which would reset the user's pan/zoom.
 export function useQuickRecord(onCollected: (pokeLidId: string) => void) {
   const router = useRouter();
+  const { upsertCollection } = useCollections();
   const [pendingPhoto, setPendingPhoto] = useState<PendingQuickPhoto | null>(null);
   const [uploading, setUploading] = useState(false);
   // Fraction (0–1) — see UploadProgressBanner, which does its own rounding.
@@ -93,6 +89,11 @@ export function useQuickRecord(onCollected: (pokeLidId: string) => void) {
         { pokeLidId, photo },
         setUploadProgress,
       );
+      // Patches the shared collections context (7-6) so other tabs — the
+      // collection grid, home's collectedIds filter, prefecture detail —
+      // reflect this record immediately without a refetch. Separate from
+      // onCollected below, which only patches this map's own rendered pin.
+      upsertCollection(updated);
       onCollected(pokeLidId);
 
       // The photo this request just added is the newest one — the server
@@ -136,9 +137,7 @@ export function useQuickRecord(onCollected: (pokeLidId: string) => void) {
   // Only computed when it'll actually be shown (isFirstCollection) — see
   // CelebrationModal's own doc comment for why. Sourced from the bundled
   // snapshot (7-7) rather than an API field, same as the detail screen.
-  const totalPokeLidsNationwide = celebration?.summary.isFirstCollection
-    ? (POKE_LIDS as PokeLidDto[]).filter((l) => countsTowardProgress(l.retiredAt)).length
-    : null;
+  const totalPokeLidsNationwide = celebration?.summary.isFirstCollection ? TOTAL_POKE_LIDS_NATIONWIDE : null;
 
   return {
     pendingPhoto,

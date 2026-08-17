@@ -6,6 +6,7 @@ import { InstallPrompt } from '../src/components/InstallPrompt';
 import { Onboarding } from '../src/components/Onboarding';
 import { Toast } from '../src/components/Toast';
 import { AuthProvider } from '../src/lib/auth';
+import { CollectionsProvider } from '../src/lib/collections';
 import { colors } from '../src/theme';
 
 // Baseline description for every route; a screen that renders its own
@@ -43,25 +44,29 @@ const screenOptions = {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <Head>
-        <meta name="description" content={DEFAULT_DESCRIPTION} />
-      </Head>
-      <Stack screenOptions={screenOptions}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ title: 'ログイン' }} />
-        <Stack.Screen name="register" options={{ title: '新規登録' }} />
-        <Stack.Screen name="forgot-password" options={{ title: 'パスワードをお忘れの方' }} />
-        <Stack.Screen name="reset-password" options={{ title: 'パスワードの再設定' }} />
-        <Stack.Screen name="verify-email" options={{ title: 'メールアドレスの確認' }} />
-        <Stack.Screen name="auth/google/callback" options={{ title: 'Googleでログイン' }} />
-        <Stack.Screen name="prefectures/[id]" options={{ title: '都道府県別一覧' }} />
-        <Stack.Screen name="poke-lids/[id]" options={{ title: 'ポケふた詳細' }} />
-        <Stack.Screen name="privacy" options={{ title: 'プライバシーポリシー' }} />
-        <Stack.Screen name="terms" options={{ title: '利用規約' }} />
-      </Stack>
-      <Toast />
-      <Onboarding />
-      <InstallPrompt />
+      {/* Nested inside AuthProvider — it needs user/isLoading to know when
+          to fetch (see collections.tsx). */}
+      <CollectionsProvider>
+        <Head>
+          <meta name="description" content={DEFAULT_DESCRIPTION} />
+        </Head>
+        <Stack screenOptions={screenOptions}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ title: 'ログイン' }} />
+          <Stack.Screen name="register" options={{ title: '新規登録' }} />
+          <Stack.Screen name="forgot-password" options={{ title: 'パスワードをお忘れの方' }} />
+          <Stack.Screen name="reset-password" options={{ title: 'パスワードの再設定' }} />
+          <Stack.Screen name="verify-email" options={{ title: 'メールアドレスの確認' }} />
+          <Stack.Screen name="auth/google/callback" options={{ title: 'Googleでログイン' }} />
+          <Stack.Screen name="prefectures/[id]" options={{ title: '都道府県別一覧' }} />
+          <Stack.Screen name="poke-lids/[id]" options={{ title: 'ポケふた詳細' }} />
+          <Stack.Screen name="privacy" options={{ title: 'プライバシーポリシー' }} />
+          <Stack.Screen name="terms" options={{ title: '利用規約' }} />
+        </Stack>
+        <Toast />
+        <Onboarding />
+        <InstallPrompt />
+      </CollectionsProvider>
     </AuthProvider>
   );
 }

@@ -1,13 +1,11 @@
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   computeCelebrationMilestone,
-  countsTowardProgress,
   haversineDistanceMeters,
-  type CollectionDto,
   type CollectionSummary,
   type PhotoMedal,
   type PokeLidDto,
@@ -18,12 +16,10 @@ import { ErrorState } from '../../src/components/ErrorState';
 import { PhotoPreviewModal } from '../../src/components/PhotoPreviewModal';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { TextField } from '../../src/components/TextField';
-import POKE_LIDS from '../../src/data/poke-lids.json';
 import {
   ApiError,
   deleteCollection,
   deleteCollectionPhoto,
-  fetchMyCollections,
   fetchPokeLid,
   photoUrl,
   setPrimaryPhoto,
@@ -32,6 +28,7 @@ import {
   type UploadPhotoInput,
 } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
+import { useCollections } from '../../src/lib/collections';
 import { confirmAsync } from '../../src/lib/confirm';
 import { formatDateJST } from '../../src/lib/date';
 import { formatDistanceMeters } from '../../src/lib/formatDistance';
@@ -53,6 +50,7 @@ import { maybeShowInstallPrompt } from '../../src/lib/installPrompt';
 import { getCurrentLocation, type Coordinates } from '../../src/lib/location';
 import { MEDAL_BADGE_COLOR, MEDAL_LABEL } from '../../src/lib/medal';
 import { extractPhotoExif } from '../../src/lib/photoExif';
+import { POKE_LIDS, TOTAL_POKE_LIDS_NATIONWIDE } from '../../src/lib/pokeLidsData';
 import { showToast } from '../../src/lib/toast';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
@@ -92,9 +90,14 @@ export default function PokeLidDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const staticLid = (POKE_LIDS as PokeLidDto[]).find((l) => l.id === id) ?? null;
+  const { collections, upsertCollection, removeCollection } = useCollections();
+  const staticLid = POKE_LIDS.find((l) => l.id === id) ?? null;
   const [lid, setLid] = useState<PokeLidDto | null>(staticLid);
-  const [collection, setCollection] = useState<CollectionDto | null>(null);
+  // Derived from the shared context (7-6), not local state — every mutation
+  // handler below patches the context directly (upsertCollection/
+  // removeCollection), so this always reflects the latest write with no
+  // local copy to keep in sync.
+  const collection = useMemo(() => collections.find((c) => c.pokeLidId === id) ?? null, [collections, id]);
   const [guestCollection, setGuestCollectionState] = useState<GuestCollection | null>(null);
   // Photos a guest has saved to this device for this poke lid (7-9, phase
   // 1) — separate from `collection.photos` (server-confirmed, with a real
@@ -143,18 +146,12 @@ export default function PokeLidDetailScreen() {
   useEffect(() => {
     if (authLoading) return;
     let cancelled = false;
-    Promise.all([fetchPokeLid(id), fetchMyCollections(), getGuestCollection(id), getGuestPhotos(id)])
-      .then(([lidRes, collectionsRes, guestRes, guestPhotosRes]) => {
+    Promise.all([fetchPokeLid(id), getGuestCollection(id), getGuestPhotos(id)])
+      .then(([lidRes, guestRes, guestPhotosRes]) => {
         if (cancelled) return;
         setLid(lidRes);
-        const existingCollection = collectionsRes.find((c) => c.pokeLidId === id) ?? null;
-        setCollection(existingCollection);
         setGuestCollectionState(guestRes);
         setGuestPhotos(guestPhotosRes);
-        // Prefer the account's own saved notes; the guest-storage note (if
-        // any) is only relevant before the record has synced to an account.
-        const existingNotes = existingCollection?.notes ?? guestRes?.notes;
-        if (existingNotes) setNotes(existingNotes);
         setError(false);
       })
       .catch(() => {
@@ -164,6 +161,30 @@ export default function PokeLidDetailScreen() {
       cancelled = true;
     };
   }, [id, authLoading, user, reloadKey]);
+
+  // Seeds the notes field once from whichever source has it: the synced
+  // collection (sourced from the shared context, which CollectionsProvider
+  // loads once at the app root — see its own doc comment for why that
+  // fetch isn't guaranteed to have landed before this screen's first
+  // render) or the guest-local note. Runs whenever `collection`/
+  // `guestCollection` change rather than only once on mount, specifically to
+  // cover that race — but the ref guard below stops it from ever seeding
+  // *twice*, which matters because a later change (e.g. the context's
+  // 40-minute safety refresh, or another screen editing this same record)
+  // must never stomp on notes the user is actively typing here.
+  const notesSeededRef = useRef(false);
+  useEffect(() => {
+    if (notesSeededRef.current) return;
+    const existingNotes = collection?.notes ?? guestCollection?.notes;
+    if (!existingNotes) return;
+    // Promise.resolve().then(...), not a direct setNotes() call here — see
+    // collections.tsx's own effect for why (react-hooks' set-state-in-effect
+    // rule; same idiom as auth/google/callback.tsx).
+    Promise.resolve().then(() => {
+      setNotes(existingNotes);
+      notesSeededRef.current = true;
+    });
+  }, [collection, guestCollection]);
 
   // Checked after every guest record write (both here and
   // onConfirmGuestPhoto below), not on a timer — see maybeShowInstallPrompt
@@ -206,7 +227,7 @@ export default function PokeLidDetailScreen() {
     setSavingNotes(true);
     try {
       await updateCollectionNotes(collection.id, notes || null);
-      setCollection({ ...collection, notes: notes || null });
+      upsertCollection({ ...collection, notes: notes || null });
     } catch (err) {
       // Validation rejections (e.g. notes too long) carry a specific
       // Japanese message from the server; anything else falls back to a
@@ -299,7 +320,7 @@ export default function PokeLidDetailScreen() {
         { pokeLidId: id, notes: notes || undefined, photo },
         setUploadProgress,
       );
-      setCollection(updated);
+      upsertCollection(updated);
 
       // The photo this request just added is the newest one — the server
       // always returns `photos` ordered oldest-first (see collections.ts's
@@ -372,7 +393,7 @@ export default function PokeLidDetailScreen() {
     setDeleting(true);
     try {
       await deleteCollection(collection.id);
-      setCollection(null);
+      removeCollection(collection.id);
     } catch {
       showToast('エラー', '削除に失敗しました');
     } finally {
@@ -387,7 +408,7 @@ export default function PokeLidDetailScreen() {
     setPhotoActionId(photoId);
     try {
       const { collection: updated } = await deleteCollectionPhoto(collection.id, photoId);
-      setCollection(updated);
+      upsertCollection(updated);
     } catch (err) {
       showToast('エラー', err instanceof ApiError ? err.message : '写真の削除に失敗しました');
     } finally {
@@ -400,7 +421,7 @@ export default function PokeLidDetailScreen() {
     setPhotoActionId(photoId);
     try {
       const { collection: updated } = await setPrimaryPhoto(collection.id, photoId);
-      setCollection(updated);
+      upsertCollection(updated);
     } catch (err) {
       showToast('エラー', err instanceof ApiError ? err.message : '主写真の変更に失敗しました');
     } finally {
@@ -633,11 +654,7 @@ export default function PokeLidDetailScreen() {
         // isFirstCollection's purpose (see its doc comment in
         // packages/shared): showing "the scale of it all" on every
         // subsequent record would just be noise.
-        totalPokeLidsNationwide={
-          celebration?.summary.isFirstCollection
-            ? (POKE_LIDS as PokeLidDto[]).filter((l) => countsTowardProgress(l.retiredAt)).length
-            : null
-        }
+        totalPokeLidsNationwide={celebration?.summary.isFirstCollection ? TOTAL_POKE_LIDS_NATIONWIDE : null}
         onClose={() => setCelebration(null)}
         onRetake={onRetakeFromCelebration}
         onNavigateToNext={onNavigateToNext}

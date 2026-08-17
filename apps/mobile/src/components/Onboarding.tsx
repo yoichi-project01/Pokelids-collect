@@ -1,28 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { countsTowardProgress, type PokeLidDto } from '@pokelids/shared';
-import POKE_LIDS from '../data/poke-lids.json';
+import type { PokeLidDto } from '@pokelids/shared';
 import { Button } from './Button';
 import { grayscaleStyle } from './PokeLidCard';
 import { requestLocationPermission } from '../lib/location';
 import { hasSeenOnboarding, markOnboardingSeen } from '../lib/onboarding';
+import { POKE_LIDS, TOTAL_POKE_LIDS_NATIONWIDE } from '../lib/pokeLidsData';
 import { colors, radius, spacing, typography } from '../theme';
 
 type Step = 'intro' | 'location';
-
-// Static across the app's lifetime (bundled JSON, same source as 7-4's
-// totalPokeLidsNationwide) — computed once at module scope rather than
-// inside the component so it isn't redone on every mount.
-const TOTAL_POKE_LIDS_NATIONWIDE = (POKE_LIDS as PokeLidDto[]).filter((l) =>
-  countsTowardProgress(l.retiredAt),
-).length;
 
 // First three with an image, deterministic (not random) so the screen
 // doesn't shift between runs. Two are shown desaturated and one in full
 // color purely to illustrate "collecting fills it in" — which three doesn't
 // matter, since nothing here claims these specific ones are collected.
-const SAMPLE_IMAGES = (POKE_LIDS as PokeLidDto[])
-  .filter((l): l is PokeLidDto & { officialImageUrl: string } => Boolean(l.officialImageUrl))
+const SAMPLE_IMAGES = POKE_LIDS.filter((l): l is PokeLidDto & { officialImageUrl: string } =>
+  Boolean(l.officialImageUrl),
+)
   .slice(0, 3)
   .map((l) => l.officialImageUrl);
 

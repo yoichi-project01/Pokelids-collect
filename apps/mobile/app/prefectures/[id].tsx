@@ -14,8 +14,9 @@ import { ErrorState } from '../../src/components/ErrorState';
 import { FilterChip } from '../../src/components/FilterChip';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
-import { fetchMyCollections, fetchPokeLids } from '../../src/lib/api';
+import { fetchPokeLids } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
+import { useCollections } from '../../src/lib/collections';
 import { getGuestCollectedIds } from '../../src/lib/guestStorage';
 import {
   chunkIntoRows,
@@ -42,8 +43,9 @@ export default function PrefecturePokeLidsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
+  const { collections, refresh: refreshCollections } = useCollections();
   const [lids, setLids] = useState<PokeLidDto[]>([]);
-  const [collectedIds, setCollectedIds] = useState<Set<string>>(new Set());
+  const [guestIds, setGuestIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [uncollectedOnly, setUncollectedOnly] = useState(false);
@@ -52,22 +54,21 @@ export default function PrefecturePokeLidsScreen() {
   const prefectureName = PREFECTURES.find((p) => p.id === Number(id))?.nameJa ?? null;
 
   // Single fetch used by both the focus refetch below and pull-to-refresh.
+  // `collections` (server-side) comes from the shared context (7-6) instead
+  // — see the collectedIds useMemo below.
   const loadPrefectureData = useCallback(async () => {
-    const [lidsRes, collectionsRes, guestIds] = await Promise.all([
-      fetchPokeLids(Number(id)),
-      fetchMyCollections(),
-      getGuestCollectedIds(),
-    ]);
-    return {
-      lids: lidsRes,
-      collectedIds: new Set([...collectionsRes.map((c) => c.pokeLidId), ...guestIds]),
-    };
+    const [lidsRes, guestIdsRes] = await Promise.all([fetchPokeLids(Number(id)), getGuestCollectedIds()]);
+    return { lids: lidsRes, guestIds: guestIdsRes };
   }, [id]);
 
   // Refetch on every focus, not just on mount: this screen is pushed on top
   // of the tab it was opened from and stays mounted while e.g. a poke-lid
-  // detail screen is on top of it, so without this, collecting a lid there
-  // and coming back here wouldn't update its card until the app restarted.
+  // detail screen is on top of it, so without this, a new poke lid list for
+  // a different prefecture (navigating between two prefectures without
+  // fully unmounting) wouldn't load. `collections` itself no longer needs
+  // this — it's shared context, patched in place by every mutation call
+  // site (7-6), so a lid collected on the detail screen already shows here
+  // via the collectedIds useMemo below with no refetch.
   useFocusEffect(
     useCallback(() => {
       if (authLoading) return;
@@ -77,7 +78,7 @@ export default function PrefecturePokeLidsScreen() {
         .then((result) => {
           if (cancelled) return;
           setLids(result.lids);
-          setCollectedIds(result.collectedIds);
+          setGuestIds(result.guestIds);
           setError(false);
         })
         .catch(() => {
@@ -90,23 +91,30 @@ export default function PrefecturePokeLidsScreen() {
         cancelled = true;
       };
       // `user` isn't read in the body, but its identity changes on
-      // login/logout and that's exactly when collections/guest-merge data
-      // needs to be refetched.
+      // login/logout and that's exactly when guest-merge data needs to be
+      // refetched.
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [authLoading, user, loadPrefectureData]),
   );
 
+  // Explicit refresh (7-6's own "明示的な更新手段では再取得すること") — also
+  // re-fetches the shared collections context, unlike the focus effect above.
   function onRefresh() {
     setLoading(true);
-    loadPrefectureData()
-      .then((result) => {
+    Promise.all([refreshCollections(), loadPrefectureData()])
+      .then(([, result]) => {
         setLids(result.lids);
-        setCollectedIds(result.collectedIds);
+        setGuestIds(result.guestIds);
         setError(false);
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }
+
+  const collectedIds = useMemo(
+    () => new Set([...collections.map((c) => c.pokeLidId), ...guestIds]),
+    [collections, guestIds],
+  );
 
   const visibleLids = useMemo(() => {
     // A retired lid only stays in the list if it's already been collected

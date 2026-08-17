@@ -249,6 +249,17 @@ export async function fetchPokeLids(prefectureId?: number) {
   return request<PokeLidDto[]>(`/api/poke-lids${query}`);
 }
 
+// 7-7. A tiny, frequently-checked probe pokeLidsData.ts uses to decide
+// whether the bundled poke-lids.json snapshot has fallen behind the DB —
+// see that module for the actual comparison/caching logic. Screens that
+// need the full list should call getFreshPokeLids() there, not
+// fetchPokeLids() above (which stays for prefectures/[id].tsx's
+// per-prefecture fetch — a naturally small, id-scoped list that doesn't
+// need this version-check machinery).
+export async function fetchPokeLidsVersion() {
+  return request<{ updatedAt: string }>('/api/poke-lids/version');
+}
+
 export async function fetchPokeLid(id: string) {
   return request<PokeLidDto>(`/api/poke-lids/${id}`);
 }

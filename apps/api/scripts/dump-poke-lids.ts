@@ -18,14 +18,23 @@ async function main() {
     orderBy: [{ prefectureId: 'asc' }, { name: 'asc' }],
   });
   const serialized = lids.map(serializePokeLid);
-  await fs.writeFile(OUTPUT_PATH, JSON.stringify(serialized, null, 2) + '\n', 'utf8');
+  // The latest of every row's own `updatedAt` (bumped by Prisma on both an
+  // ETL upsert and a 2-1 retire/restore) — read alongside GET
+  // /api/poke-lids/version by apps/mobile's pokeLidsData.ts to detect that
+  // this bundled snapshot has fallen behind the DB, without shipping the
+  // full ~230KB list on every app load just to find out (7-7).
+  const updatedAt = lids
+    .reduce((max, l) => (l.updatedAt > max ? l.updatedAt : max), new Date(0))
+    .toISOString();
+  const output = { updatedAt, pokeLids: serialized };
+  await fs.writeFile(OUTPUT_PATH, JSON.stringify(output, null, 2) + '\n', 'utf8');
   // Match the repo's Prettier formatting so `npm run format:check` (run in
   // CI) doesn't flag this generated file.
   execFileSync('npx', ['prettier', '--write', OUTPUT_PATH], {
     cwd: path.join(__dirname, '..', '..', '..'),
     stdio: 'inherit',
   });
-  console.log(`Wrote ${serialized.length} poke lids to ${OUTPUT_PATH}`);
+  console.log(`Wrote ${serialized.length} poke lids (updatedAt=${updatedAt}) to ${OUTPUT_PATH}`);
 }
 
 main()

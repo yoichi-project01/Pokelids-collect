@@ -2,22 +2,18 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import {
-  buildRetrospectiveStats,
-  regionNameJa,
-  type CollectionDto,
-  type PhotoMedal,
-  type PokeLidDto,
-} from '@pokelids/shared';
+import { buildRetrospectiveStats, regionNameJa, type PhotoMedal, type PokeLidDto } from '@pokelids/shared';
 import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
-import { fetchMyCollections, fetchPokeLids, photoUrl } from '../../src/lib/api';
+import { photoUrl } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
+import { useCollections } from '../../src/lib/collections';
 import { formatDateJST } from '../../src/lib/date';
 import { getAllGuestPhotos, type GuestPhotoWithUri } from '../../src/lib/guestPhotoStorage';
 import { getGuestCollections, type GuestCollection } from '../../src/lib/guestStorage';
+import { getFreshPokeLids } from '../../src/lib/pokeLidsData';
 import { isStoragePersisted } from '../../src/lib/storagePersistence';
 import {
   GRID_CELL_PADDING,
@@ -47,7 +43,7 @@ const MEDAL_EMOJI: Record<'GOLD' | 'SILVER', string> = { GOLD: '🥇', SILVER: '
 export default function CollectionScreen() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
-  const [collections, setCollections] = useState<CollectionDto[]>([]);
+  const { collections, error: collectionsError, refresh: refreshCollections } = useCollections();
   const [lidsById, setLidsById] = useState<Map<string, PokeLidDto>>(new Map());
   // Guest-local data (7-9) — kept separate from `collections`/server state
   // throughout, never merged into it, so nothing here can accidentally be
@@ -68,17 +64,18 @@ export default function CollectionScreen() {
     isStoragePersisted().then(setStoragePersisted);
   }, []);
 
-  // Single fetch used by both the focus refetch below and pull-to-refresh,
-  // so the two triggers can't drift into fetching different things.
-  const loadCollections = useCallback(async () => {
-    const [collectionsRes, lidsRes, guestCollectionsRes, guestPhotosRes] = await Promise.all([
-      fetchMyCollections(),
-      fetchPokeLids(),
+  // `collections` itself now comes from the shared context (7-6) — this
+  // fetches everything else the grid/stats need: lids (for municipality
+  // names, images, retired badges) and guest-local data. Single function
+  // used by both the focus refetch below and pull-to-refresh, so the two
+  // triggers can't drift into fetching different things.
+  const loadOtherData = useCallback(async () => {
+    const [lidsRes, guestCollectionsRes, guestPhotosRes] = await Promise.all([
+      getFreshPokeLids(),
       getGuestCollections(),
       getAllGuestPhotos(),
     ]);
     return {
-      collections: collectionsRes,
       lidsById: new Map(lidsRes.map((l) => [l.id, l])),
       guestCollections: guestCollectionsRes,
       guestPhotos: guestPhotosRes,
@@ -88,9 +85,12 @@ export default function CollectionScreen() {
   // Refetch on every focus, not just on mount: this screen lives in a
   // persistent tab and never unmounts, so without this it would keep
   // showing whatever was loaded the first time the tab was opened — missing
-  // records added from the map tab, and eventually serving photo thumbnail
-  // URLs whose signed access tokens have expired. The same staleness risk
-  // applies to guest photos now too (added on the poke-lid detail screen).
+  // guest photos added on the poke-lid detail screen, or a poke-lids version
+  // bump from an ETL re-scrape. `collections` itself doesn't need this
+  // anymore (7-6) — it's shared context, patched in place by every mutation
+  // call site, and refreshed independently by CollectionsProvider (initial
+  // load, login/logout, its own 40-minute safety timer) or by this screen's
+  // own pull-to-refresh below.
   //
   // The authLoading gate (and authLoading/user in the deps below) mirrors
   // (tabs)/index.tsx and useMapMarkers.ts, and fixes a real bug: a direct
@@ -107,19 +107,18 @@ export default function CollectionScreen() {
   // in-app tab switch. Depending on authLoading gives it exactly that
   // second chance: once token restoration finishes, the callback's identity
   // changes, and useFocusEffect re-runs it for an already-focused screen —
-  // independent of whether the original focus event was ever caught. This
-  // also incidentally fixes a second, latent bug: without the gate, a fetch
-  // could fire before token restoration completed and be treated as a
-  // logged-out guest (fetchMyCollections silently returns [] with no
-  // token), flashing an empty account state for an actually-logged-in user.
+  // independent of whether the original focus event was ever caught.
+  // getFreshPokeLids/getGuestCollections/getAllGuestPhotos don't themselves
+  // need a token, but `user` still belongs in the deps: it's what should
+  // trigger this screen's own re-render/re-evaluation around login/logout
+  // (e.g. a guest's local records staying visible through that transition).
   useFocusEffect(
     useCallback(() => {
       if (authLoading) return;
       let cancelled = false;
-      loadCollections()
+      loadOtherData()
         .then((result) => {
           if (cancelled) return;
-          setCollections(result.collections);
           setLidsById(result.lidsById);
           setGuestCollections(result.guestCollections);
           setGuestPhotos(result.guestPhotos);
@@ -131,19 +130,17 @@ export default function CollectionScreen() {
       return () => {
         cancelled = true;
       };
-      // `user` isn't read in the body, but its identity changes on
-      // login/logout and that's exactly when server-side collections need
-      // to be refetched (see the block comment above for the other reason
-      // this dependency matters).
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [authLoading, user, loadCollections]),
+    }, [authLoading, user, loadOtherData]),
   );
 
+  // Explicit refresh (7-6's own "明示的な更新手段では再取得すること") — the
+  // one place on this screen that also re-fetches `collections`, since the
+  // focus effect above deliberately doesn't.
   function onRefresh() {
     setRefreshing(true);
-    loadCollections()
-      .then((result) => {
-        setCollections(result.collections);
+    Promise.all([refreshCollections(), loadOtherData()])
+      .then(([, result]) => {
         setLidsById(result.lidsById);
         setGuestCollections(result.guestCollections);
         setGuestPhotos(result.guestPhotos);
@@ -241,7 +238,7 @@ export default function CollectionScreen() {
       <Head>
         <title>収集記録 - ポケふたコレクト</title>
       </Head>
-      {error && gridItems.length === 0 ? (
+      {(error || collectionsError) && gridItems.length === 0 ? (
         <ErrorState onRetry={onRefresh} />
       ) : (
         <FlatList

@@ -6,22 +6,19 @@ import {
   partitionGuestRecordsForSync,
   tallyMedalCounts,
   type PhotoMedal,
-  type PokeLidDto,
   type ProgressDto,
 } from '@pokelids/shared';
-import POKE_LIDS from '../data/poke-lids.json';
 import { ApiError, uploadCollection, uploadCollectionsBulk, type BulkUploadItem } from './api';
 import { getAllGuestPhotos, getGuestPhotoForUpload, removeGuestPhoto } from './guestPhotoStorage';
+// Resolves a guest record's municipality from just its pokeLidId — a guest
+// record only carries prefectureId (recorded at save time), not
+// municipality, so this lookup is what makes mergeGuestProgress's
+// municipality merge below possible without changing GuestCollection's
+// stored shape (which would strand already-saved AsyncStorage data from
+// before this field existed).
+import { POKE_LIDS_BY_ID } from './pokeLidsData';
 
 const STORAGE_KEY = 'pokelids_guest_collections';
-
-// Built once from the bundled snapshot (7-7) so mergeGuestProgress below can
-// resolve a guest record's municipality from just its pokeLidId — a guest
-// record only carries prefectureId (recorded at save time), not
-// municipality, so this lookup is what makes the 7-5 merge possible without
-// changing GuestCollection's stored shape (which would strand already-saved
-// AsyncStorage data from before this field existed).
-const POKE_LIDS_BY_ID = new Map((POKE_LIDS as PokeLidDto[]).map((l) => [l.id, l]));
 
 export interface GuestCollection {
   pokeLidId: string;

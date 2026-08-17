@@ -47,6 +47,27 @@ pokeLidsRouter.get('/nearby', async (req, res) => {
   res.json(sorted.slice(0, limit));
 });
 
+// Registered before `/:id` — otherwise Express would match "version" as an
+// :id. Lets apps/mobile's pokeLidsData.ts (7-7) decide whether its bundled
+// snapshot has fallen behind the DB (an ETL re-scrape adding/retiring poke
+// lids) without paying for the full ~230KB list on every check — this body
+// is a couple dozen bytes. `updatedAt` is the latest of every row's own
+// `updatedAt` (bumped by Prisma on both an ETL upsert and a 2-1
+// retire/restore), the same value apps/api/scripts/dump-poke-lids.ts embeds
+// into the bundled JSON it produces, so the two are directly comparable as
+// plain ISO 8601 strings (lexical order == chronological order for a fixed
+// UTC format) with no Date parsing needed on the client.
+pokeLidsRouter.get('/version', async (_req, res) => {
+  const result = await prisma.pokeLid.aggregate({ _max: { updatedAt: true } });
+  const updatedAt = result._max.updatedAt?.toISOString() ?? new Date(0).toISOString();
+  // Deliberately not STATIC_CACHE_CONTROL — the whole point of this route is
+  // to be checked cheaply and often (every collection/map screen focus) to
+  // decide whether the full list needs refetching, so serving it from a
+  // stale CDN/browser cache would defeat its purpose.
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ updatedAt });
+});
+
 pokeLidsRouter.get('/', async (req, res) => {
   const prefectureId = req.query.prefectureId ? Number(req.query.prefectureId) : undefined;
 

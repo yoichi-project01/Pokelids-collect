@@ -6,14 +6,33 @@ import { spacing } from '../theme';
 // cells, so the two can't drift apart from each other independently.
 export const GRID_CELL_PADDING = spacing.xs;
 
-// Breakpoints are on window width, not the (up to 720px) content width
-// ScreenContainer caps the grid at on web — a wide window still means a wide
-// content area, so this still lands on 5 columns there.
+// Breakpoints are on window width, not the content width ScreenContainer
+// actually caps the grid at on web (CONTENT_MAX_WIDTH, theme.ts) — a wide
+// window still means a wide content area up to that cap, so a window this
+// wide still gets the wider tiers below even past the point where the grid
+// itself stops growing.
+//
+// SIX_COLUMN was added alongside CONTENT_MAX_WIDTH's 2026-08-17 widening
+// (720 → 1200) — before that, no window was ever wide enough for the
+// *capped* grid to usefully fit more than 5 columns, so there was nothing
+// between 5 and "however many happened to fit," which never came up.
+// Deliberately stops at 6, not 7: at CONTENT_MAX_WIDTH=1200, 7 columns works
+// out to ~139px/card — the same size as a 320px phone's existing 2-column
+// layout, i.e. "more small cards," not "bigger cards." 6 columns
+// (~189px/card) actually reads as bigger, which matters more for an
+// illustration-forward app than raw column count — see theme.ts's own
+// comment on CONTENT_MAX_WIDTH for the same reasoning applied to the width
+// cap itself. The threshold is picked relative to CONTENT_MAX_WIDTH itself
+// (roughly window-width-at-which-the-1200px cap is already reached, plus
+// margin) rather than an independent guess, since past that point window
+// width no longer changes the grid's actual available space.
+const SIX_COLUMN_MIN_WIDTH = 1300;
 const FIVE_COLUMN_MIN_WIDTH = 600;
 const THREE_COLUMN_MIN_WIDTH = 380;
 
 export function useResponsiveColumns(): number {
   const { width } = useWindowDimensions();
+  if (width >= SIX_COLUMN_MIN_WIDTH) return 6;
   if (width >= FIVE_COLUMN_MIN_WIDTH) return 5;
   if (width >= THREE_COLUMN_MIN_WIDTH) return 3;
   return 2;

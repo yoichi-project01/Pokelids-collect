@@ -45,7 +45,7 @@ export default function Root({ children }: PropsWithChildren) {
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
         />
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#0B5A50" />
 
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="ポケふたコレクト" />
@@ -55,8 +55,9 @@ export default function Root({ children }: PropsWithChildren) {
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
         <meta name="twitter:card" content="summary_large_image" />
 
-        <link rel="icon" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" />
+        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
 
         <ScrollViewStyleReset />

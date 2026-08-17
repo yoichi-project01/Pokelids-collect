@@ -68,7 +68,32 @@ export const colors = {
 // (and the root Stack's headerStyle) — react-native-web doesn't constrain
 // width on its own, so a wide desktop browser would otherwise stretch every
 // one of them full-bleed independently.
-export const CONTENT_MAX_WIDTH = 720;
+//
+// Raised from 720 (3-4's original value) to 1200 — on a 1920px monitor, 720
+// left roughly 600px of unused margin on each side, which for an
+// illustration-forward app (poke lid artwork is the main content) reads as
+// wasted space rather than restraint. Picked by actually comparing
+// screenshots at 1920/1280px against a few candidate widths together with
+// useGridData's new 6-column tier: bigger, not just more, cards is the
+// priority (see useResponsiveColumns' own comment for why that tier
+// deliberately stops at 6, not 7) — at 1200px, 6 columns works out to
+// ~189px/card, noticeably larger than a 320px phone's 2-column ~139px
+// cards, without the grid reading as few-and-sparse the way 4-5 columns at
+// this width did in the same comparison. AppHeader's own row and
+// (tabs)/_layout.tsx's tabBarStyle intentionally do NOT follow this
+// constant up to 1200 — see their own comments for why chrome (header
+// text, 4 tab icons) doesn't benefit from the same widening that card
+// grids do.
+export const CONTENT_MAX_WIDTH = 1200;
+// AppHeader's and the tab bar's own width cap — deliberately narrower than
+// CONTENT_MAX_WIDTH. A 4-icon tab bar stretched to 1200px spreads the icons
+// so far apart that they stop reading as one connected control (checked by
+// actually looking at it); a centered header title at 1200px just adds
+// empty space on both sides of a short screen name, no clearer than at a
+// narrower width. Kept at the pre-2026-08-17 CONTENT_MAX_WIDTH value rather
+// than inventing a new number, since that's the width these two elements
+// were already designed and tuned at.
+export const CHROME_MAX_WIDTH = 720;
 
 export const spacing = {
   xs: 4,

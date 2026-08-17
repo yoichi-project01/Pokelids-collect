@@ -18,7 +18,7 @@ const DEFAULT_DESCRIPTION =
   'ポケふた(ご当地ポケモンマンホール)を実際に訪問して写真を撮り、収集記録として残すアプリ。';
 
 // Renders AppHeader (a header whose content row is capped at
-// CONTENT_MAX_WIDTH) instead of the default header — see AppHeader's comment
+// CHROME_MAX_WIDTH) instead of the default header — see AppHeader's comment
 // for why headerStyle's maxWidth can't do this itself. Web only; native
 // keeps the platform header untouched.
 function renderWebHeader({ options, route, back, navigation }: NativeStackHeaderProps) {

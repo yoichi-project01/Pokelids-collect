@@ -1,4 +1,5 @@
 import { Link, useRouter } from 'expo-router';
+import Head from 'expo-router/head';
 import { useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../src/components/Button';
@@ -68,6 +69,9 @@ export default function SettingsScreen() {
 
   return (
     <ScreenContainer padded>
+      <Head>
+        <title>設定 - ポケふたコレクト</title>
+      </Head>
       {user && (
         <View style={styles.card}>
           <Text style={styles.email}>{user.displayName}</Text>

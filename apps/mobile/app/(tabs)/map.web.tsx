@@ -72,8 +72,10 @@ export default function MapScreen() {
 
   // Not ScreenContainer here: the success state below is intentionally
   // full-width (a map benefits from all the screen it can get), and
-  // ScreenContainer's 720px cap would make the loading/error states narrower
-  // than the map they're standing in for.
+  // ScreenContainer's CONTENT_MAX_WIDTH cap would make the loading/error
+  // states narrower than the map they're standing in for. Unaffected by
+  // 2026-08-17's CONTENT_MAX_WIDTH widening for the same reason it was
+  // never at 720 either — this screen never imports that constant.
   if (error && !visibleMarkers) {
     return (
       <View style={styles.fullWidthCenter}>

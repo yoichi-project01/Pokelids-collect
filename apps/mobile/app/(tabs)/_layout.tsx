@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { AppHeader } from '../../src/components/AppHeader';
 import { hapticLight } from '../../src/lib/haptics';
-import { colors, CONTENT_MAX_WIDTH } from '../../src/theme';
+import { CHROME_MAX_WIDTH, colors } from '../../src/theme';
 
 // Fires on every tab-bar button press, including re-tapping the already-
 // active tab (React Navigation's `tabPress` doesn't distinguish that from an
@@ -13,13 +13,16 @@ import { colors, CONTENT_MAX_WIDTH } from '../../src/theme';
 const tabHapticListeners = { tabPress: () => hapticLight() };
 
 // On a wide desktop browser, the tab bar is drawn by the navigator itself
-// (outside ScreenContainer), so without this it stretches full-bleed while
-// the content below stays capped at CONTENT_MAX_WIDTH — the tab icons end up
-// spread edge-to-edge instead of lining up with the content. (The header
-// needs a different fix — see AppHeader's comment for why headerStyle can't
-// do this for the header the way tabBarStyle does here.)
+// (outside ScreenContainer), so without this it stretches full-bleed. Capped
+// at CHROME_MAX_WIDTH, not ScreenContainer's own (wider) CONTENT_MAX_WIDTH —
+// see that constant's comment in theme.ts: 4 tab icons spread across a
+// 1040px bar leave awkwardly large gaps between them, so this stays at the
+// narrower pre-2026-08-17 width intentionally, same choice AppHeader makes
+// for its own row. (The header needs a different fix — see AppHeader's
+// comment for why headerStyle can't do this for the header the way
+// tabBarStyle does here.)
 const webCenteredBar = Platform.select({
-  web: { maxWidth: CONTENT_MAX_WIDTH, alignSelf: 'center' as const, width: '100%' as const },
+  web: { maxWidth: CHROME_MAX_WIDTH, alignSelf: 'center' as const, width: '100%' as const },
 });
 
 export default function TabsLayout() {

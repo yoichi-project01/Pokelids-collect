@@ -8,7 +8,6 @@ import type {
   AuthTokensDto,
   CollectionDto,
   CollectionSummary,
-  NearbyPokeLidDto,
   PhotoMedal,
   PokeLidDto,
   ProgressDto,
@@ -262,18 +261,6 @@ export async function fetchPokeLidsVersion() {
 
 export async function fetchPokeLid(id: string) {
   return request<PokeLidDto>(`/api/poke-lids/${id}`);
-}
-
-export async function fetchNearbyPokeLids(
-  coordinates: { latitude: number; longitude: number } | null,
-  limit: number,
-) {
-  const params = new URLSearchParams({ limit: String(limit) });
-  if (coordinates) {
-    params.set('lat', String(coordinates.latitude));
-    params.set('lng', String(coordinates.longitude));
-  }
-  return request<NearbyPokeLidDto[]>(`/api/poke-lids/nearby?${params.toString()}`);
 }
 
 export async function fetchMyCollections() {

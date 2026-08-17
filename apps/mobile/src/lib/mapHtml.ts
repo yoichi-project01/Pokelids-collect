@@ -32,13 +32,33 @@ export interface MapMarkerData {
 // `assetBaseUrl` is the API/web origin (empty string on web = relative to
 // the current page; an absolute URL on native, where there's no "current
 // origin" for a WebView-rendered HTML string).
+//
+// `options` is used by the home screen's map preview (HomeMapPreview) —
+// omitted entirely by the real map tab (map.tsx/map.web.tsx), which keeps
+// getting the exact same HTML it always has (default all-Japan view,
+// fully interactive):
+//   - `initialView`: centers/zooms the map on load instead of the hardcoded
+//     all-Japan view — the preview wants to open already centered on the
+//     user, not have them pan/zoom there themselves.
+//   - `interactive: false`: disables pan/zoom/drag entirely. The preview
+//     sits inside a normally-scrollable page and is itself just a tappable
+//     link to the real map tab — leaving dragging enabled would fight the
+//     page's own scroll gesture (a well-known problem with embedded
+//     interactive maps) for no benefit, since there's nowhere for the user
+//     to usefully pan/zoom *to* in a preview this size anyway.
 export function buildMapHtml(
   markers: MapMarkerData[],
   assetBaseUrl: string,
   currentLocation: { lat: number; lng: number } | null,
+  options?: { initialView?: { lat: number; lng: number; zoom: number }; interactive?: boolean },
 ): string {
   const asset = (path: string) => `${assetBaseUrl}/vendor/leaflet/${path}`;
-  const mapDataJson = JSON.stringify({ markers, currentLocation }).replace(/</g, '\\u003c');
+  const mapDataJson = JSON.stringify({
+    markers,
+    currentLocation,
+    initialView: options?.initialView ?? null,
+    interactive: options?.interactive ?? true,
+  }).replace(/</g, '\\u003c');
   return `<!DOCTYPE html>
 <html>
 <head>

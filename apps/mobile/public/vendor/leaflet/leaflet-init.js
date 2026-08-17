@@ -3,8 +3,31 @@
   var data = JSON.parse(dataEl.textContent);
   var markers = data.markers;
   var currentLocation = data.currentLocation;
+  // Both added for the home screen's map preview (HomeMapPreview) — absent
+  // (undefined) for the real map tab's own buildMapHtml() calls, which
+  // don't pass a 4th argument at all, so `data.initialView`/`data.interactive`
+  // there are `null`/`true` via buildMapHtml's own defaults and this
+  // behaves exactly as before.
+  var initialView = data.initialView;
+  var interactive = data.interactive !== false;
 
-  var map = L.map('map').setView([36.5, 138.0], 5);
+  var map = L.map('map', {
+    zoomControl: interactive,
+    dragging: interactive,
+    touchZoom: interactive,
+    scrollWheelZoom: interactive,
+    doubleClickZoom: interactive,
+    boxZoom: interactive,
+    keyboard: interactive,
+    // A non-interactive preview has no popups to tap open either — without
+    // this, Leaflet's own marker tap handler still opens one, which then
+    // has no way to close again (no dragging/tapping-elsewhere-to-dismiss
+    // gesture reaches it once the whole map is otherwise inert).
+    tap: interactive,
+  }).setView(
+    initialView ? [initialView.lat, initialView.lng] : [36.5, 138.0],
+    initialView ? initialView.zoom : 5,
+  );
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
     maxZoom: 19,
@@ -73,7 +96,12 @@
 
   var cluster = L.markerClusterGroup();
   markers.forEach(function (m) {
-    var marker = L.marker([m.lat, m.lng], { icon: pinIcon(m) });
+    // interactive: interactive — a marker's own click->popup handling is
+    // independent of the map-level pan/zoom options above; without this, a
+    // "non-interactive" preview (interactive: false) would still pop open a
+    // marker's card on click/tap, fighting the outer tap-to-navigate
+    // gesture HomeMapPreview wraps the whole map in.
+    var marker = L.marker([m.lat, m.lng], { icon: pinIcon(m), interactive: interactive });
     marker.bindPopup(popupHtml(m), { minWidth: 180 });
     // Tapping the pin only opens the popup (Leaflet's own bindPopup
     // behavior) — the two actions inside the popup are what actually notify

@@ -1,22 +1,28 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import Head from 'expo-router/head';
 import { useCallback, useMemo, useState } from 'react';
-import { Image, Platform, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   haversineDistanceMeters,
+  isPokeLidVisible,
   municipalityKey,
   pickMunicipalityGoals,
   progressPercent,
   regionNameJa,
-  type NearbyPokeLidDto,
+  type CollectionDto,
+  type PokeLidDto,
   type ProgressDto,
 } from '@pokelids/shared';
+import { Button } from '../../src/components/Button';
+import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
+import { HomeMapPreview } from '../../src/components/HomeMapPreview';
 import { HorizontalFadeScroll } from '../../src/components/HorizontalFadeScroll';
 import { ListRow } from '../../src/components/ListRow';
+import { PokeLidCard } from '../../src/components/PokeLidCard';
 import { ProgressBar } from '../../src/components/ProgressBar';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
-import { fetchNearbyPokeLids, fetchPrefectureProgress } from '../../src/lib/api';
+import { fetchPrefectureProgress } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
 import { useCollections } from '../../src/lib/collections';
 import { getGuestCollections, mergeGuestProgress, type GuestCollection } from '../../src/lib/guestStorage';
@@ -29,50 +35,37 @@ import {
   type Coordinates,
   type LocationPermissionStatus,
 } from '../../src/lib/location';
+import type { MapMarkerData } from '../../src/lib/mapHtml';
+import { POKE_LIDS, POKE_LIDS_BY_ID } from '../../src/lib/pokeLidsData';
+import {
+  GRID_CELL_PADDING,
+  gridKeyExtractor,
+  useGridData,
+  useResponsiveColumns,
+} from '../../src/lib/useGridData';
 import { colors, radius, spacing, typography } from '../../src/theme';
 
-const NEXT_TO_COLLECT_COUNT = 12;
-// Over-fetch nearby candidates since some of the nearest ones may already be
-// collected and get filtered out below. Also doubles as the pool the "今日
-// 行ける範囲" stat (7-5) counts within NEARBY_RANGE_KM — a dense area could
-// in principle have more than this within range, undercounting slightly,
-// but this is a motivational number, not an exhaustive one.
-const NEARBY_FETCH_COUNT = NEXT_TO_COLLECT_COUNT * 3;
+// 10kmではなく、あと1つ("何が近くにあるか")を見せることに主眼を置いた範囲。
+// HomeMapPreviewのバッジ、グリッドの見出しの両方で使う唯一のソース。
 const NEARBY_RANGE_KM = 10;
+// 「20〜30件＋もっと見る」の目安（背景参照）。2/3/6列いずれでも大きく余らない
+// キリのいい数にした（5列時だけ端数が出るが、既存のuseGridDataのプレース
+// ホルダーで吸収される）。
+const GRID_INITIAL_COUNT = 24;
+const GRID_PAGE_SIZE = 24;
+const MEDAL_EMOJI: Record<'GOLD' | 'SILVER', string> = { GOLD: '🥇', SILVER: '🥈' };
 
 interface HomeData {
   progress: ProgressDto;
   guestItems: GuestCollection[];
-  // Unfiltered by collected status — see the `uncollected` useMemo below,
-  // which combines this with the shared collections context (7-6)
-  // reactively. Kept separate from that filtering so a collections-context
-  // update (a mutation on another screen, or the context's own 40-minute
-  // safety refresh) doesn't have to re-fetch progress/nearby to reflect it —
-  // it's a pure client-side re-filter instead.
-  nearbyRaw: NearbyPokeLidDto[];
 }
 
 type PrefectureProgress = ProgressDto['byPrefecture'][number];
 
-async function loadHomeData(location: Coordinates | null): Promise<HomeData> {
-  const [progressRes, guestItems, nearby] = await Promise.all([
-    fetchPrefectureProgress(),
-    getGuestCollections(),
-    fetchNearbyPokeLids(location, NEARBY_FETCH_COUNT),
-  ]);
-
+async function loadHomeData(): Promise<HomeData> {
+  const [progressRes, guestItems] = await Promise.all([fetchPrefectureProgress(), getGuestCollections()]);
   const progress = guestItems.length > 0 ? mergeGuestProgress(progressRes, guestItems) : progressRes;
-
-  return { progress, guestItems, nearbyRaw: nearby };
-}
-
-function countWithinRange(uncollected: NearbyPokeLidDto[], location: Coordinates | null): number {
-  if (!location) return 0;
-  const rangeMeters = NEARBY_RANGE_KM * 1000;
-  return uncollected.filter(
-    (l) =>
-      haversineDistanceMeters(location.latitude, location.longitude, l.latitude, l.longitude) <= rangeMeters,
-  ).length;
+  return { progress, guestItems };
 }
 
 function groupByRegion(byPrefecture: PrefectureProgress[]) {
@@ -89,6 +82,47 @@ function groupByRegion(byPrefecture: PrefectureProgress[]) {
     }
   }
   return sections;
+}
+
+interface GridItem {
+  lid: PokeLidDto;
+  collected: boolean;
+  distanceMeters: number | null;
+}
+
+// The grid's own home-screen redesign rationale (see this file's own big
+// comment block below) — nearby, distance-sorted, collected and uncollected
+// mixed together. Pure client-side computation from the bundled POKE_LIDS
+// snapshot (7-7) and the already-resolved collectedIds Set: no network call,
+// so switching the grid's sort axis (or paging it) never costs a request.
+function buildNearbyGrid(location: Coordinates, collectedIds: Set<string>): GridItem[] {
+  return POKE_LIDS.filter((l) => isPokeLidVisible(l.retiredAt, collectedIds.has(l.id)))
+    .map((l) => ({
+      lid: l,
+      collected: collectedIds.has(l.id),
+      distanceMeters: haversineDistanceMeters(location.latitude, location.longitude, l.latitude, l.longitude),
+    }))
+    .sort((a, b) => a.distanceMeters! - b.distanceMeters!);
+}
+
+// No-location fallback: collected only, newest visit first — "近くの" no
+// longer applies with no fix to sort against (see this screen's own render
+// for the different section heading this pairs with). Server records take
+// precedence over a guest-local one for the same poke lid, same rule
+// collection.tsx's own grid already uses.
+function buildRecentGrid(collections: CollectionDto[], guestItems: GuestCollection[]): GridItem[] {
+  const serverIds = new Set(collections.map((c) => c.pokeLidId));
+  const records = [
+    ...collections.map((c) => ({ pokeLidId: c.pokeLidId, visitedAt: c.visitedAt })),
+    ...guestItems
+      .filter((g) => !serverIds.has(g.pokeLidId))
+      .map((g) => ({ pokeLidId: g.pokeLidId, visitedAt: g.visitedAt })),
+  ];
+  records.sort((a, b) => new Date(b.visitedAt).getTime() - new Date(a.visitedAt).getTime());
+  return records.flatMap((r) => {
+    const lid = POKE_LIDS_BY_ID.get(r.pokeLidId);
+    return lid ? [{ lid, collected: true, distanceMeters: null }] : [];
+  });
 }
 
 // Denied is a dead end for requestLocationPermission — iOS/Android won't
@@ -132,7 +166,7 @@ function LocationPermissionCta({
   return null;
 }
 
-export default function PrefecturesScreen() {
+export default function HomeScreen() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { collections, refresh: refreshCollections } = useCollections();
@@ -141,6 +175,8 @@ export default function PrefecturesScreen() {
   const [error, setError] = useState(false);
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locationStatus, setLocationStatus] = useState<LocationPermissionStatus | null>(null);
+  const [visibleGridCount, setVisibleGridCount] = useState(GRID_INITIAL_COUNT);
+  const columns = useResponsiveColumns();
 
   const checkLocation = useCallback(async () => {
     const status = await getLocationPermissionStatus();
@@ -166,12 +202,16 @@ export default function PrefecturesScreen() {
     }, [checkLocation]),
   );
 
+  // Only fetches progress (for the 1-line count/percent + prefecture list +
+  // "もう少しで達成") and guest-local data now — the grid itself needs
+  // neither a poke-lids fetch (bundled JSON, 7-7) nor a collections fetch
+  // (shared context, 7-6), so this is lighter than it looks at first glance.
   useFocusEffect(
     useCallback(() => {
       if (authLoading) return;
       let cancelled = false;
       setLoading(true);
-      loadHomeData(location)
+      loadHomeData()
         .then((result) => {
           if (cancelled) return;
           setData(result);
@@ -187,19 +227,17 @@ export default function PrefecturesScreen() {
         cancelled = true;
       };
       // `user` isn't read in the body, but its identity changes on
-      // login/logout and that's exactly when collections/guest-merge data
-      // needs to be refetched.
+      // login/logout and that's exactly when guest-merge data needs to be
+      // refetched.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [authLoading, user, location]),
+    }, [authLoading, user]),
   );
 
   // Explicit refresh — also re-fetches the shared collections context
-  // (7-6's "明示的な更新手段では再取得すること"), since a stale
-  // `collections` here would let an already-collected poke lid keep showing
-  // in "次に集めよう" until something else happens to refresh it.
+  // (7-6's "明示的な更新手段では再取得すること").
   function onRefresh() {
     setLoading(true);
-    Promise.all([loadHomeData(location), refreshCollections()])
+    Promise.all([loadHomeData(), refreshCollections()])
       .then(([result]) => {
         setData(result);
         setError(false);
@@ -210,23 +248,58 @@ export default function PrefecturesScreen() {
 
   const progress = data?.progress ?? null;
   const percent = progress ? progressPercent(progress.collectedCount, progress.totalPokeLids) : 0;
-  // Reactive, not part of loadHomeData's own fetch — re-filtering against the
-  // latest `collections` (context) whenever it changes costs nothing extra
-  // over the network, unlike putting `collections` in the focus effect's own
-  // deps below would (see HomeData's doc comment).
-  const uncollected = useMemo(() => {
-    if (!data) return [];
-    const collectedIds = new Set([
-      ...collections.map((c) => c.pokeLidId),
-      ...data.guestItems.map((g) => g.pokeLidId),
-    ]);
-    return data.nearbyRaw.filter((l) => !collectedIds.has(l.id));
-  }, [data, collections]);
-  const nextToCollect = uncollected.slice(0, NEXT_TO_COLLECT_COUNT);
-  const nearbyWithinRangeCount = useMemo(
-    () => countWithinRange(uncollected, location),
-    [uncollected, location],
+
+  const collectedIds = useMemo(
+    () =>
+      new Set([...collections.map((c) => c.pokeLidId), ...(data?.guestItems ?? []).map((g) => g.pokeLidId)]),
+    [collections, data?.guestItems],
   );
+
+  // The whole grid's sort axis switches on whether we have a location fix —
+  // see buildNearbyGrid/buildRecentGrid's own doc comments. Both are pure,
+  // synchronous, client-side computations (bundled POKE_LIDS + the already-
+  // loaded collections context/guest data), so switching between them, or
+  // recomputing when `collections` changes elsewhere, costs nothing over
+  // the network.
+  const nearbyGrid = useMemo(
+    () => (location ? buildNearbyGrid(location, collectedIds) : null),
+    [location, collectedIds],
+  );
+  const recentGrid = useMemo(
+    () => buildRecentGrid(collections, data?.guestItems ?? []),
+    [collections, data?.guestItems],
+  );
+  const gridItemsFull = nearbyGrid ?? recentGrid;
+  const gridItems = gridItemsFull.slice(0, visibleGridCount);
+  const hasMoreGridItems = gridItemsFull.length > gridItems.length;
+  const gridData = useGridData(gridItems, columns);
+
+  const nearbyWithinRangeCount = useMemo(() => {
+    if (!nearbyGrid) return null;
+    const rangeMeters = NEARBY_RANGE_KM * 1000;
+    return nearbyGrid.filter((item) => !item.collected && item.distanceMeters! <= rangeMeters).length;
+  }, [nearbyGrid]);
+
+  // HomeMapPreview's own markers — every visible poke lid nationwide (same
+  // fidelity as the real map tab's useMapMarkers), not just the sliced grid
+  // above — clustering handles rendering all of them cheaply, and this way
+  // panning the *real* map tab afterward doesn't reveal a suspiciously
+  // different pin set. canQuickRecord is always false here — 6-6's
+  // quick-record button is the map tab's own job, not this preview's.
+  const mapMarkers = useMemo<MapMarkerData[]>(
+    () =>
+      POKE_LIDS.filter((l) => isPokeLidVisible(l.retiredAt, collectedIds.has(l.id))).map((l) => ({
+        id: l.id,
+        lat: l.latitude,
+        lng: l.longitude,
+        name: `${l.municipality}｜${l.pokemonFeatured.join('・')}`,
+        imageUrl: l.officialImageUrl,
+        collected: collectedIds.has(l.id),
+        canQuickRecord: false,
+      })),
+    [collectedIds],
+  );
+
   const municipalityGoals = useMemo(
     () => pickMunicipalityGoals(progress?.byMunicipality ?? [], location),
     [progress?.byMunicipality, location],
@@ -241,34 +314,37 @@ export default function PrefecturesScreen() {
       {error && !data ? (
         <ErrorState onRetry={onRefresh} />
       ) : (
-        <SectionList
-          sections={sections}
-          keyExtractor={(item) => String(item.prefectureId)}
+        <FlatList
+          data={gridData}
+          key={columns}
+          numColumns={columns}
+          keyExtractor={gridKeyExtractor((item: GridItem) => item.lid.id)}
           refreshing={loading}
           onRefresh={onRefresh}
-          style={styles.list}
-          stickySectionHeadersEnabled={false}
+          contentContainerStyle={styles.listContent}
           ListHeaderComponent={
             <View>
-              <View style={styles.hero}>
-                <Text style={styles.heroLabel}>ポケふたコレクト</Text>
-                <View style={styles.heroStatRow}>
-                  <Text style={styles.heroCount}>{progress?.collectedCount ?? 0}</Text>
-                  <Text style={styles.heroTotal}>/ {progress?.totalPokeLids ?? '—'} 箇所</Text>
+              <View style={styles.mapSection}>
+                <HomeMapPreview
+                  markers={mapMarkers}
+                  location={location}
+                  nearbyCount={nearbyWithinRangeCount}
+                  nearbyRangeKm={NEARBY_RANGE_KM}
+                  onPress={() => router.push('/map')}
+                />
+              </View>
+
+              <View style={styles.progressSection}>
+                <View style={styles.progressRow}>
+                  <Text style={styles.progressText}>
+                    {progress?.collectedCount ?? 0} / {progress?.totalPokeLids ?? '—'} 箇所
+                  </Text>
                   <View style={styles.percentBadge}>
                     <Text style={styles.percentBadgeText}>{percent}%</Text>
                   </View>
                 </View>
-                {progress && (
-                  <ProgressBar total={progress.totalPokeLids} collected={progress.collectedCount} />
-                )}
                 {!user && !authLoading && (
                   <Text style={styles.guestNotice}>ログインすると収集記録を保存できます</Text>
-                )}
-                {location && nearbyWithinRangeCount > 0 && (
-                  <Text style={styles.rangeStat}>
-                    📍現在地から{NEARBY_RANGE_KM}km以内に未収集が{nearbyWithinRangeCount}個
-                  </Text>
                 )}
               </View>
 
@@ -303,58 +379,105 @@ export default function PrefecturesScreen() {
                 </View>
               )}
 
-              {nextToCollect.length > 0 && (
-                <View style={styles.nextSection}>
-                  <View style={styles.nextTitleRow}>
-                    <Text style={styles.nextTitleText}>{location ? '次に集めよう' : 'ポケふたを探す'}</Text>
-                    {location && <Text style={styles.nextSortedLabel}>📍現在地から近い順</Text>}
-                  </View>
-                  {!location && (
-                    <LocationPermissionCta
-                      status={locationStatus}
-                      onRequest={() => requestLocationPermission()}
-                    />
-                  )}
-                  <HorizontalFadeScroll contentContainerStyle={styles.nextRow}>
-                    {nextToCollect.map((lid) => (
-                      <TouchableOpacity
-                        key={lid.id}
-                        style={styles.nextCard}
-                        onPress={() => router.push(`/poke-lids/${lid.id}`)}
-                      >
-                        <Image
-                          source={{ uri: lid.officialImageUrl! }}
-                          style={styles.nextImage}
-                          accessibilityLabel={lid.municipality}
-                        />
-                        <Text style={styles.nextCaption} numberOfLines={1}>
-                          {lid.municipality}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </HorizontalFadeScroll>
+              {/* Skipped entirely when there's nothing to head — 0 records
+                  and no location means ListEmptyComponent's own "探しに
+                  行こう" EmptyState is about to render right below, and a
+                  "最近の記録" heading plus a location prompt stacked on top
+                  of that would just be three different framings of the same
+                  "there's nothing here yet" moment competing with each
+                  other. */}
+              {gridItemsFull.length > 0 && (
+                <View style={styles.gridTitleRow}>
+                  <Text style={styles.gridTitleText}>{location ? '近くのポケふた' : '最近の記録'}</Text>
+                  {location && <Text style={styles.gridSortedLabel}>📍現在地から近い順</Text>}
                 </View>
+              )}
+              {!location && gridItemsFull.length > 0 && (
+                <LocationPermissionCta
+                  status={locationStatus}
+                  onRequest={() => requestLocationPermission()}
+                />
               )}
             </View>
           }
-          renderSectionHeader={({ section }) => (
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>{section.title}</Text>
-              <Text style={styles.sectionPercent}>{progressPercent(section.collected, section.total)}%</Text>
+          ListEmptyComponent={
+            !loading ? (
+              <EmptyState
+                title="はじめての1枚を探しに行こう"
+                message="地図で近くのポケふたを探して、訪れた記録を残していきましょう。"
+                actionLabel="地図で探す"
+                onAction={() => router.push('/map')}
+              />
+            ) : null
+          }
+          renderItem={({ item }) => {
+            if (item === null) return <View style={styles.placeholder} />;
+            const primaryMedal = collections
+              .find((c) => c.pokeLidId === item.lid.id)
+              ?.photos.find((p) => p.isPrimary)?.medal;
+            const retired = item.lid.retiredAt != null;
+            return (
+              <PokeLidCard
+                title={item.lid.municipality}
+                subtitle={item.lid.pokemonFeatured.join('・')}
+                imageUri={item.lid.officialImageUrl}
+                collected={item.collected}
+                badge={
+                  retired ? (
+                    <View style={styles.retiredBadge}>
+                      <Text style={styles.retiredBadgeText}>撤去済み</Text>
+                    </View>
+                  ) : primaryMedal && primaryMedal !== 'NONE' ? (
+                    <Text style={styles.medal}>{MEDAL_EMOJI[primaryMedal]}</Text>
+                  ) : undefined
+                }
+                onPress={() => router.push(`/poke-lids/${item.lid.id}`)}
+              />
+            );
+          }}
+          ListFooterComponent={
+            <View>
+              {hasMoreGridItems && (
+                <Button
+                  title="もっと見る"
+                  variant="ghost"
+                  onPress={() => setVisibleGridCount((c) => c + GRID_PAGE_SIZE)}
+                  style={styles.moreButton}
+                />
+              )}
+
+              {/* 47件と長い一覧なので、グリッドより下に移した（背景参照）。
+                  折りたたみ式も検討したが、位置を下げるだけで「画面の大半を
+                  占める」問題自体は解消するため、開閉の状態管理・アニメー
+                  ションを追加するコストに見合わないと判断した。*/}
+              <View style={styles.prefectureSection}>
+                <Text style={styles.prefectureSectionTitle}>都道府県一覧</Text>
+                {sections.map((section) => (
+                  <View key={section.title}>
+                    <View style={styles.sectionHeader}>
+                      <Text style={styles.sectionTitle}>{section.title}</Text>
+                      <Text style={styles.sectionPercent}>
+                        {progressPercent(section.collected, section.total)}%
+                      </Text>
+                    </View>
+                    {section.data.map((item) => (
+                      <ListRow
+                        key={item.prefectureId}
+                        title={item.nameJa}
+                        imageUri={item.imageUrl}
+                        onPress={() => router.push(`/prefectures/${item.prefectureId}`)}
+                        right={
+                          <View style={styles.rowProgress}>
+                            <ProgressBar total={item.total} collected={item.collected} />
+                          </View>
+                        }
+                      />
+                    ))}
+                  </View>
+                ))}
+              </View>
             </View>
-          )}
-          renderItem={({ item }) => (
-            <ListRow
-              title={item.nameJa}
-              imageUri={item.imageUrl}
-              onPress={() => router.push(`/prefectures/${item.prefectureId}`)}
-              right={
-                <View style={styles.rowProgress}>
-                  <ProgressBar total={item.total} collected={item.collected} />
-                </View>
-              }
-            />
-          )}
+          }
         />
       )}
     </ScreenContainer>
@@ -362,22 +485,15 @@ export default function PrefecturesScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: { flex: 1 },
-  hero: {
-    padding: spacing.lg,
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+  listContent: { paddingBottom: spacing.xl },
+  mapSection: { padding: spacing.sm },
+  progressSection: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.xs,
   },
-  heroLabel: { ...typography.caption },
-  // flexWrap: RN's Text defaults to allowFontScaling: true, so maxing out
-  // the OS font size setting can make heroCount + heroTotal + percentBadge
-  // wider than the screen. Wrapping lets the badge (marginLeft: 'auto')
-  // drop to its own line and still hug the right edge there.
-  heroStatRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', gap: spacing.xs },
-  heroCount: { fontSize: 40, fontWeight: '800', color: colors.textPrimary },
-  heroTotal: { ...typography.body, color: colors.textSecondary, marginRight: spacing.sm },
+  progressRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  progressText: { ...typography.bodyMedium, fontSize: 18 },
   percentBadge: {
     marginLeft: 'auto',
     backgroundColor: colors.accent,
@@ -389,26 +505,11 @@ const styles = StyleSheet.create({
   // Was colors.danger — that's reserved for errors and destructive actions
   // (account deletion, etc.), not a plain informational nudge to log in.
   guestNotice: { ...typography.footnote, color: colors.accent },
-  rangeStat: { ...typography.footnote, color: colors.accent, fontWeight: '600' },
-  // flex: 1 with min/max caps instead of a fixed width: 320px screens need
-  // the bar to shrink so it doesn't crowd the prefecture name, and 720px
-  // (web's ScreenContainer cap) shouldn't stretch it into a thin sliver.
-  rowProgress: { flex: 1, maxWidth: 160, minWidth: 80 },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-    backgroundColor: colors.background,
-  },
-  sectionTitle: { ...typography.caption, textTransform: 'uppercase' },
-  sectionPercent: { ...typography.footnote, fontWeight: '600', color: colors.accent },
   nextSection: {
     backgroundColor: colors.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   nextTitleRow: {
     flexDirection: 'row',
@@ -419,7 +520,28 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
   },
   nextTitleText: { ...typography.caption, textTransform: 'uppercase' },
-  nextSortedLabel: { ...typography.footnote },
+  nextRow: { paddingHorizontal: spacing.lg, gap: spacing.md, paddingBottom: spacing.lg },
+  nextCard: { width: 96, gap: spacing.xs },
+  nextImage: { width: 96, height: 96, borderRadius: radius.md, backgroundColor: colors.background },
+  nextImagePlaceholder: { backgroundColor: colors.border },
+  nextCaption: { ...typography.footnote, textAlign: 'center' },
+  // "あと1つ" (7-5) — the one number on this card worth calling attention to.
+  nextGoalRemaining: {
+    ...typography.footnote,
+    textAlign: 'center',
+    color: colors.attention,
+    fontWeight: '600',
+  },
+  gridTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
+  gridTitleText: { ...typography.caption, textTransform: 'uppercase' },
+  gridSortedLabel: { ...typography.footnote },
   locationCta: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.sm,
@@ -428,18 +550,40 @@ const styles = StyleSheet.create({
     backgroundColor: colors.accentLight,
   },
   locationCtaText: { ...typography.footnote, color: colors.accent, fontWeight: '600' },
-  nextRow: { paddingHorizontal: spacing.lg, gap: spacing.md, paddingBottom: spacing.lg },
-  nextCard: { width: 96, gap: spacing.xs },
-  nextImage: { width: 96, height: 96, borderRadius: radius.md, backgroundColor: colors.background },
-  nextImagePlaceholder: { backgroundColor: colors.border },
-  nextCaption: { ...typography.footnote, textAlign: 'center' },
-  // "あと1つ" (7-5) — the one number on this card worth calling attention to.
-  // `attention` (7-6) rather than `accent`, since this is a low-urgency
-  // nudge, not the screen's primary action.
-  nextGoalRemaining: {
-    ...typography.footnote,
-    textAlign: 'center',
-    color: colors.attention,
-    fontWeight: '600',
+  placeholder: { flex: 1, padding: GRID_CELL_PADDING },
+  medal: { fontSize: 20 },
+  retiredBadge: {
+    backgroundColor: colors.textSecondary,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
   },
+  retiredBadgeText: { color: colors.white, fontSize: 10, fontWeight: '600' },
+  moreButton: { marginHorizontal: spacing.lg, marginTop: spacing.sm },
+  prefectureSection: {
+    marginTop: spacing.xl,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  prefectureSectionTitle: {
+    ...typography.caption,
+    textTransform: 'uppercase',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
+  sectionTitle: { ...typography.caption, textTransform: 'uppercase' },
+  sectionPercent: { ...typography.footnote, fontWeight: '600', color: colors.accent },
+  // flex: 1 with min/max caps instead of a fixed width: 320px screens need
+  // the bar to shrink so it doesn't crowd the prefecture name, and wide web
+  // screens shouldn't stretch it into a thin sliver.
+  rowProgress: { flex: 1, maxWidth: 160, minWidth: 80 },
 });

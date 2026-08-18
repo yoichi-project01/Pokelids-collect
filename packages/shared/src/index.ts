@@ -212,6 +212,96 @@ export function pickMunicipalityGoals(
   return candidates.slice(0, MUNICIPALITY_GOAL_COUNT);
 }
 
+export interface PokemonAggregate {
+  name: string;
+  total: number;
+  collected: number;
+}
+
+// 図鑑タブの「ポケモン別」の集計。POKE_LIDS（バンドル済みJSON、7-7）と
+// 既に読み込み済みの collectedIds から純粋にクライアント側で計算する —
+// サーバーに専用エンドポイントを作ると、7-6/7-7・ホーム刷新で7回→4回→
+// 1往復に減らしたばかりの往復数がまた増えてしまうため。
+//
+// `total`/`collected` の非対称は countsTowardProgress/isPokeLidVisible と
+// 同じ規則（buildCollectionSummary の prefecture/municipality と同一）:
+// 撤去済みは total から除外するが、既に収集済みなら collected には残す
+// （撤去されても訪れた記憶は消えない）。撤去済みかつ未収集の掲載は
+// スキップする（一覧に出す意味がない＝isPokeLidVisible と同じ判定）。
+//
+// 出現数の降順でソートする（五十音順にしない）。2026-08時点で549種中429種
+// （78%）が1件のみに出現しており、五十音順だと大半が「1件」で埋まって
+// 探しにくくなる。同数はスキップせず日本語ロケールの名前順で並べ、
+// 見た目の順序を安定させる。
+export function aggregatePokemonCounts(
+  lids: readonly Pick<PokeLidDto, 'id' | 'pokemonFeatured' | 'retiredAt'>[],
+  collectedIds: ReadonlySet<string>,
+): PokemonAggregate[] {
+  const counts = new Map<string, { total: number; collected: number }>();
+  for (const lid of lids) {
+    const collected = collectedIds.has(lid.id);
+    if (!isPokeLidVisible(lid.retiredAt, collected)) continue;
+    for (const name of lid.pokemonFeatured) {
+      const entry = counts.get(name) ?? { total: 0, collected: 0 };
+      if (countsTowardProgress(lid.retiredAt)) entry.total += 1;
+      if (collected) entry.collected += 1;
+      counts.set(name, entry);
+    }
+  }
+  const result = [...counts.entries()].map(([name, c]) => ({ name, ...c }));
+  result.sort((a, b) => (b.total !== a.total ? b.total - a.total : a.name.localeCompare(b.name, 'ja')));
+  return result;
+}
+
+export interface PrefectureAggregate {
+  prefectureId: number;
+  nameJa: string;
+  region: string;
+  total: number;
+  collected: number;
+  imageUrl: string | null;
+}
+
+// 図鑑タブの「都道府県別」の集計。apps/api の progress.ts の buildProgress()
+// が返す byPrefecture と同じ意味論（total は撤去済み除外、collected は
+// 除外しない、imageUrl は撤去済みを除く name 昇順の先頭1件）を、同じ理由
+// （追加のAPI往復を増やさない）でクライアント側に再実装したもの。
+// これまでホーム画面の下部にあった都道府県一覧を図鑑タブに移すために
+// 追加した — ホーム側は自分の /api/progress 呼び出しをそのまま使い続け
+// られるので、双方が独立に呼ぶと合計往復数が増えてしまう問題を避けている。
+export function aggregatePrefectures(
+  lids: readonly Pick<PokeLidDto, 'id' | 'name' | 'prefectureId' | 'officialImageUrl' | 'retiredAt'>[],
+  collectedIds: ReadonlySet<string>,
+): PrefectureAggregate[] {
+  const totals = new Map<number, number>();
+  const collectedCounts = new Map<number, number>();
+  const images = new Map<number, { name: string; url: string }>();
+
+  for (const lid of lids) {
+    if (countsTowardProgress(lid.retiredAt)) {
+      totals.set(lid.prefectureId, (totals.get(lid.prefectureId) ?? 0) + 1);
+      if (lid.officialImageUrl) {
+        const current = images.get(lid.prefectureId);
+        if (!current || lid.name < current.name) {
+          images.set(lid.prefectureId, { name: lid.name, url: lid.officialImageUrl });
+        }
+      }
+    }
+    if (collectedIds.has(lid.id)) {
+      collectedCounts.set(lid.prefectureId, (collectedCounts.get(lid.prefectureId) ?? 0) + 1);
+    }
+  }
+
+  return PREFECTURES.map((pref) => ({
+    prefectureId: pref.id,
+    nameJa: pref.nameJa,
+    region: pref.region,
+    total: totals.get(pref.id) ?? 0,
+    collected: collectedCounts.get(pref.id) ?? 0,
+    imageUrl: images.get(pref.id)?.url ?? null,
+  }));
+}
+
 // Rounds to a whole percent, but never down to 0 once the user has actually
 // collected something — a plain Math.round(1/481*100) gives 0%, and a first
 // record landing on the exact same "0%" the screen showed before anyone had

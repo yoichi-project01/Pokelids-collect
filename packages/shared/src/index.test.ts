@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  aggregatePokemonCounts,
+  aggregatePrefectures,
   buildCollectionSummary,
   buildExportCsv,
   buildRetrospectiveStats,
@@ -25,6 +27,7 @@ import {
   type CollectionSummary,
   type ExportCollectionRecord,
   type MunicipalityProgressDto,
+  type PokeLidDto,
   type RetrospectiveLidInfo,
 } from './index';
 
@@ -1192,5 +1195,173 @@ describe('buildRetrospectiveStats', () => {
       );
       expect(stats.municipalityCount).toBe(2);
     });
+  });
+});
+
+describe('aggregatePokemonCounts', () => {
+  function pokemonLid(
+    overrides: Partial<PokeLidDto> = {},
+  ): Pick<PokeLidDto, 'id' | 'pokemonFeatured' | 'retiredAt'> {
+    return {
+      id: 'lid-1',
+      pokemonFeatured: ['ピカチュウ'],
+      retiredAt: null,
+      ...overrides,
+    };
+  }
+
+  it('counts each featured pokemon once per poke lid it appears on', () => {
+    const lids = [
+      pokemonLid({ id: 'a', pokemonFeatured: ['ピカチュウ', 'イーブイ'] }),
+      pokemonLid({ id: 'b', pokemonFeatured: ['ピカチュウ'] }),
+    ];
+    const result = aggregatePokemonCounts(lids, new Set());
+    expect(result).toEqual([
+      { name: 'ピカチュウ', total: 2, collected: 0 },
+      { name: 'イーブイ', total: 1, collected: 0 },
+    ]);
+  });
+
+  it('sorts by total appearance count descending, not alphabetically', () => {
+    // あ column would sort 'あかい' before 'んば' alphabetically — this
+    // asserts the opposite, since 549種中429種が1件のみ (2026-08調査) では
+    // 五十音順は使い物にならない。
+    const lids = [
+      pokemonLid({ id: 'a', pokemonFeatured: ['あかい'] }),
+      pokemonLid({ id: 'b', pokemonFeatured: ['んば'] }),
+      pokemonLid({ id: 'c', pokemonFeatured: ['んば'] }),
+    ];
+    const result = aggregatePokemonCounts(lids, new Set());
+    expect(result.map((r) => r.name)).toEqual(['んば', 'あかい']);
+  });
+
+  it('breaks a tie in total count by Japanese-locale name order', () => {
+    const lids = [
+      pokemonLid({ id: 'a', pokemonFeatured: ['ライチュウ'] }),
+      pokemonLid({ id: 'b', pokemonFeatured: ['ピカチュウ'] }),
+    ];
+    const result = aggregatePokemonCounts(lids, new Set());
+    expect(result.map((r) => r.name)).toEqual(['ピカチュウ', 'ライチュウ']);
+  });
+
+  it('excludes a retired, never-collected lid from every pokemon it features', () => {
+    const lids = [pokemonLid({ id: 'a', retiredAt: '2026-01-01T00:00:00.000Z' })];
+    const result = aggregatePokemonCounts(lids, new Set());
+    expect(result).toEqual([]);
+  });
+
+  it('keeps a retired-but-collected lid out of total but still counted in collected', () => {
+    // Same asymmetry as countsTowardProgress/isPokeLidVisible elsewhere —
+    // a retired lid the user already visited stays out of the "how many
+    // are there" denominator but isn't erased from their own tally.
+    const lids = [pokemonLid({ id: 'a', retiredAt: '2026-01-01T00:00:00.000Z' })];
+    const result = aggregatePokemonCounts(lids, new Set(['a']));
+    expect(result).toEqual([{ name: 'ピカチュウ', total: 0, collected: 1 }]);
+  });
+
+  it('counts a collected non-retired lid toward both total and collected', () => {
+    const lids = [pokemonLid({ id: 'a' })];
+    const result = aggregatePokemonCounts(lids, new Set(['a']));
+    expect(result).toEqual([{ name: 'ピカチュウ', total: 1, collected: 1 }]);
+  });
+
+  it('returns an empty list for an empty input', () => {
+    expect(aggregatePokemonCounts([], new Set())).toEqual([]);
+  });
+});
+
+describe('aggregatePrefectures', () => {
+  function prefectureLid(
+    overrides: Partial<PokeLidDto> = {},
+  ): Pick<PokeLidDto, 'id' | 'name' | 'prefectureId' | 'officialImageUrl' | 'retiredAt'> {
+    return {
+      id: 'lid-1',
+      name: '札幌市｜ピカチュウ',
+      prefectureId: 1,
+      officialImageUrl: 'https://example.com/a.png',
+      retiredAt: null,
+      ...overrides,
+    };
+  }
+
+  it('returns all 47 prefectures even when no poke lid is passed in', () => {
+    const result = aggregatePrefectures([], new Set());
+    expect(result).toHaveLength(47);
+    expect(result.every((r) => r.total === 0 && r.collected === 0 && r.imageUrl === null)).toBe(true);
+  });
+
+  it('carries nameJa/region straight from PREFECTURES', () => {
+    const result = aggregatePrefectures([], new Set());
+    const hokkaido = result.find((r) => r.prefectureId === 1)!;
+    expect(hokkaido.nameJa).toBe('北海道');
+    expect(hokkaido.region).toBe('Hokkaido');
+  });
+
+  it('excludes a retired lid from total but not from collected (same asymmetry as buildCollectionSummary)', () => {
+    const lids = [prefectureLid({ id: 'a', retiredAt: '2026-01-01T00:00:00.000Z' })];
+    const result = aggregatePrefectures(lids, new Set(['a']));
+    const hokkaido = result.find((r) => r.prefectureId === 1)!;
+    expect(hokkaido.total).toBe(0);
+    expect(hokkaido.collected).toBe(1);
+  });
+
+  it('counts a collected non-retired lid toward both total and collected', () => {
+    const lids = [prefectureLid({ id: 'a' })];
+    const result = aggregatePrefectures(lids, new Set(['a']));
+    const hokkaido = result.find((r) => r.prefectureId === 1)!;
+    expect(hokkaido.total).toBe(1);
+    expect(hokkaido.collected).toBe(1);
+  });
+
+  it('picks the alphabetically-first named non-retired lid with an image as the representative image', () => {
+    const lids = [
+      prefectureLid({
+        id: 'a',
+        name: '札幌市｜ピカチュウ',
+        officialImageUrl: 'https://example.com/sapporo.png',
+      }),
+      prefectureLid({
+        id: 'b',
+        name: '函館市｜イーブイ',
+        officialImageUrl: 'https://example.com/hakodate.png',
+      }),
+    ];
+    const result = aggregatePrefectures(lids, new Set());
+    const hokkaido = result.find((r) => r.prefectureId === 1)!;
+    // '函館市...' < '札幌市...' in plain string order.
+    expect(hokkaido.imageUrl).toBe('https://example.com/hakodate.png');
+  });
+
+  it('skips a lid with no official image when picking the representative image', () => {
+    const lids = [
+      prefectureLid({ id: 'a', name: '函館市｜イーブイ', officialImageUrl: null }),
+      prefectureLid({
+        id: 'b',
+        name: '札幌市｜ピカチュウ',
+        officialImageUrl: 'https://example.com/sapporo.png',
+      }),
+    ];
+    const result = aggregatePrefectures(lids, new Set());
+    const hokkaido = result.find((r) => r.prefectureId === 1)!;
+    expect(hokkaido.imageUrl).toBe('https://example.com/sapporo.png');
+  });
+
+  it('excludes a retired lid entirely from representative-image selection, even if it would otherwise sort first', () => {
+    const lids = [
+      prefectureLid({
+        id: 'a',
+        name: '函館市｜イーブイ',
+        officialImageUrl: 'https://example.com/hakodate.png',
+        retiredAt: '2026-01-01T00:00:00.000Z',
+      }),
+      prefectureLid({
+        id: 'b',
+        name: '札幌市｜ピカチュウ',
+        officialImageUrl: 'https://example.com/sapporo.png',
+      }),
+    ];
+    const result = aggregatePrefectures(lids, new Set());
+    const hokkaido = result.find((r) => r.prefectureId === 1)!;
+    expect(hokkaido.imageUrl).toBe('https://example.com/sapporo.png');
   });
 });

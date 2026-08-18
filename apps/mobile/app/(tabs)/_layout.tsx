@@ -64,7 +64,7 @@ function TabsInner() {
       <Tabs.Screen
         name="index"
         options={{
-          title: '一覧',
+          title: 'ホーム',
           headerTitle: '収集進捗',
           tabBarIcon: ({ color, size }) => <Ionicons name="albums" color={color} size={size} />,
         }}
@@ -76,6 +76,15 @@ function TabsInner() {
           title: '地図',
           headerTitle: '地図で見る',
           tabBarIcon: ({ color, size }) => <Ionicons name="map" color={color} size={size} />,
+        }}
+        listeners={tabHapticListeners}
+      />
+      <Tabs.Screen
+        name="pokedex"
+        options={{
+          title: '図鑑',
+          headerTitle: 'ポケふた図鑑',
+          tabBarIcon: ({ color, size }) => <Ionicons name="book" color={color} size={size} />,
         }}
         listeners={tabHapticListeners}
       />

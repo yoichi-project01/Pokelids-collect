@@ -8,7 +8,6 @@ import {
   municipalityKey,
   pickMunicipalityGoals,
   progressPercent,
-  regionNameJa,
   type CollectionDto,
   type PokeLidDto,
   type ProgressDto,
@@ -18,9 +17,7 @@ import { EmptyState } from '../../src/components/EmptyState';
 import { ErrorState } from '../../src/components/ErrorState';
 import { HomeMapPreview } from '../../src/components/HomeMapPreview';
 import { HorizontalFadeScroll } from '../../src/components/HorizontalFadeScroll';
-import { ListRow } from '../../src/components/ListRow';
 import { PokeLidCard } from '../../src/components/PokeLidCard';
-import { ProgressBar } from '../../src/components/ProgressBar';
 import { ScreenContainer } from '../../src/components/ScreenContainer';
 import { fetchPrefectureProgress } from '../../src/lib/api';
 import { useAuth } from '../../src/lib/auth';
@@ -62,28 +59,10 @@ interface HomeData {
   guestItems: GuestCollection[];
 }
 
-type PrefectureProgress = ProgressDto['byPrefecture'][number];
-
 async function loadHomeData(): Promise<HomeData> {
   const [progressRes, guestItems] = await Promise.all([fetchPrefectureProgress(), getGuestCollections()]);
   const progress = guestItems.length > 0 ? mergeGuestProgress(progressRes, guestItems) : progressRes;
   return { progress, guestItems };
-}
-
-function groupByRegion(byPrefecture: PrefectureProgress[]) {
-  const sections: { title: string; total: number; collected: number; data: PrefectureProgress[] }[] = [];
-  for (const pref of byPrefecture) {
-    const title = regionNameJa(pref.region);
-    const last = sections[sections.length - 1];
-    if (last && last.title === title) {
-      last.data.push(pref);
-      last.total += pref.total;
-      last.collected += pref.collected;
-    } else {
-      sections.push({ title, total: pref.total, collected: pref.collected, data: [pref] });
-    }
-  }
-  return sections;
 }
 
 interface GridItem {
@@ -319,7 +298,6 @@ export default function HomeScreen() {
     () => pickMunicipalityGoals(progress?.byMunicipality ?? [], location),
     [progress?.byMunicipality, location],
   );
-  const sections = useMemo(() => groupByRegion(progress?.byPrefecture ?? []), [progress]);
 
   return (
     <ScreenContainer>
@@ -457,47 +435,14 @@ export default function HomeScreen() {
             );
           }}
           ListFooterComponent={
-            <View>
-              {hasMoreGridItems && (
-                <Button
-                  title="もっと見る"
-                  variant="ghost"
-                  onPress={() => setRevealedPages((p) => p + 1)}
-                  style={styles.moreButton}
-                />
-              )}
-
-              {/* 47件と長い一覧なので、グリッドより下に移した（背景参照）。
-                  折りたたみ式も検討したが、位置を下げるだけで「画面の大半を
-                  占める」問題自体は解消するため、開閉の状態管理・アニメー
-                  ションを追加するコストに見合わないと判断した。*/}
-              <View style={styles.prefectureSection}>
-                <Text style={styles.prefectureSectionTitle}>都道府県一覧</Text>
-                {sections.map((section) => (
-                  <View key={section.title}>
-                    <View style={styles.sectionHeader}>
-                      <Text style={styles.sectionTitle}>{section.title}</Text>
-                      <Text style={styles.sectionPercent}>
-                        {progressPercent(section.collected, section.total)}%
-                      </Text>
-                    </View>
-                    {section.data.map((item) => (
-                      <ListRow
-                        key={item.prefectureId}
-                        title={item.nameJa}
-                        imageUri={item.imageUrl}
-                        onPress={() => router.push(`/prefectures/${item.prefectureId}`)}
-                        right={
-                          <View style={styles.rowProgress}>
-                            <ProgressBar total={item.total} collected={item.collected} />
-                          </View>
-                        }
-                      />
-                    ))}
-                  </View>
-                ))}
-              </View>
-            </View>
+            hasMoreGridItems ? (
+              <Button
+                title="もっと見る"
+                variant="ghost"
+                onPress={() => setRevealedPages((p) => p + 1)}
+                style={styles.moreButton}
+              />
+            ) : null
           }
         />
       )}
@@ -587,30 +532,4 @@ const styles = StyleSheet.create({
   },
   retiredBadgeText: { color: colors.white, fontSize: 10, fontWeight: '600' },
   moreButton: { marginHorizontal: spacing.lg, marginTop: spacing.sm },
-  prefectureSection: {
-    marginTop: spacing.xl,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  prefectureSectionTitle: {
-    ...typography.caption,
-    textTransform: 'uppercase',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.sm,
-  },
-  sectionTitle: { ...typography.caption, textTransform: 'uppercase' },
-  sectionPercent: { ...typography.footnote, fontWeight: '600', color: colors.accent },
-  // flex: 1 with min/max caps instead of a fixed width: 320px screens need
-  // the bar to shrink so it doesn't crowd the prefecture name, and wide web
-  // screens shouldn't stretch it into a thin sliver.
-  rowProgress: { flex: 1, maxWidth: 160, minWidth: 80 },
 });
